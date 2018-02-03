@@ -29,6 +29,8 @@ var pnumber = 3;
 //Scene position
 var spos = resx / 2;
 
+//Gravity
+var grav = 5;
 
 var platforms = [];
 
@@ -71,7 +73,7 @@ function draw() {
 }
 
 function keyboardEvent() {
-    if(keyIsDown(38)) py-=5;
+    if (keyIsDown(38)) py -= 15;
     if (keyIsDown(39)) {
         spos += 5;
         pposx = spos;
@@ -107,7 +109,7 @@ function collision() {
         //Select platform borders
         if (px >= platforms[i][0] - pposx && px + sx <= platforms[i][0] - pposx + platforms[i][2]) {
             // console.log("Player pos: "+i+" platform"); //Uncomment to debug collision
-            if (platforms[i][1] > py) {
+            if (platforms[i][1] > py + 50) {
                 if (platforms[i][1] < miny) {
                     miny = platforms[i][1];
                     maxid = i;
@@ -116,7 +118,7 @@ function collision() {
         }
     }
     debugcollision(maxid);
-
+    gravity(miny);
 }
 
 
@@ -125,4 +127,12 @@ function debugcollision(maxid) {
     rect(platforms[maxid][0] - spos, platforms[maxid][1], platforms[maxid][2], platforms[maxid][3]);
     fill('white');
 
+}
+
+function gravity(miny) {
+
+    if (miny > py + 50 + grav) {
+        py += py % grav;
+        py += 5;
+    }
 }
