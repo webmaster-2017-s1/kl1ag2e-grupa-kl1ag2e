@@ -47,12 +47,12 @@ platforms[0][2] = 20000;
 platforms[0][3] = 20;
 
 platforms[1][0] = 2500;
-platforms[1][1] = 550;
+platforms[1][1] = 650;
 platforms[1][2] = 250;
 platforms[1][3] = 50;
 
 platforms[2][0] = 2600;
-platforms[2][1] = 450;
+platforms[2][1] = 550;
 platforms[2][2] = 250;
 platforms[2][3] = 50;
 
@@ -73,7 +73,7 @@ function draw() {
 }
 
 function keyboardEvent() {
-    if (keyIsDown(38)) py -= 15;
+    // if (keyIsDown(38)) py -= jheight;
     if (keyIsDown(39)) {
         spos += 5;
         pposx = spos;
@@ -87,6 +87,9 @@ function keyboardEvent() {
     return false;
 }
 
+function keyTyped() {
+    if (key === 'W') py -= jheight;
+}
 function drawObjects() {
     fill('#0000FF');
     for (i = 0; i < pnumber; i++) {
@@ -96,14 +99,14 @@ function drawObjects() {
 
 }
 
+var jheight = 150;
 function collision() {
-    //Check if  player upward platform
 
+    //***Colision TOP****
     //Minimum platform posy >=py
-
     var miny = 9999;
     var maxid = 0;
-
+    var minid = -1;
 
     for (i = 0; i < pnumber; i++) {
         //Select platform borders
@@ -117,14 +120,36 @@ function collision() {
             }
         }
     }
-    debugcollision(maxid);
+
+
+    var maxy = 0;
+    //***Colision BOTTOM****
+    for (i = 0; i < pnumber; i++) {
+        //Select platform borders
+        if (px >= platforms[i][0] - pposx && px + sx <= platforms[i][0] - pposx + platforms[i][2]) {
+            // console.log("Player pos: "+i+" platform"); //Uncomment to debug collision
+            if (platforms[i][1] < py - 50) {
+                if (platforms[i][1] > maxy) {
+                    maxy = platforms[i][1];
+                    jheight = min(py - platforms[i][1] - 50, 150);
+                    minid = i;
+                    // console.log("Max Jump Height: "+jheight); //Uncomment to debug Max Jump Height
+                }
+            }
+        }
+    }
+
+
+    debugcollision(maxid, minid);
     gravity(miny);
 }
 
 
-function debugcollision(maxid) {
+function debugcollision(maxid, minid) {
     fill('red');
     rect(platforms[maxid][0] - spos, platforms[maxid][1], platforms[maxid][2], platforms[maxid][3]);
+    fill('green');
+    if (minid !== -1) rect(platforms[minid][0] - spos, platforms[minid][1], platforms[minid][2], platforms[minid][3]);
     fill('white');
 
 }
