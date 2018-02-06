@@ -17,28 +17,24 @@ var sy = 50;
 
 var onair = false;
 
-//Long platform dimensions
-var pnumber = 3;
-//[][*]
-//0-X pos
-//1-Y pos
-//2-Width
-//3-Height
-
-
 //Scene position
 var spos = resx / 2;
 
 //Gravity
 var grav = 5;
 
+//Long platform dimensions
+var pnumber = 4;
+//[][*]
+//0-X pos
+//1-Y pos
+//2-Width
+//3-Height
+
 var platforms = [];
 
 for (i = 0; i < pnumber; i++) {
     platforms[i] = [];
-    // for(j=0;j<4;j++){
-    //     platforms[i][j]=0;
-    // }
 }
 
 platforms[0][0] = 0;
@@ -49,12 +45,17 @@ platforms[0][3] = 20;
 platforms[1][0] = 2500;
 platforms[1][1] = 650;
 platforms[1][2] = 250;
-platforms[1][3] = 50;
+platforms[1][3] = 100;
 
 platforms[2][0] = 2600;
 platforms[2][1] = 550;
 platforms[2][2] = 250;
 platforms[2][3] = 50;
+
+platforms[3][0] = 2800;
+platforms[3][1] = 650;
+platforms[3][2] = 250;
+platforms[3][3] = 100;
 
 
 
@@ -101,10 +102,10 @@ function drawObjects() {
 
 var jheight = 150;
 function collision() {
-
-    //***Colision TOP****
+    //TODO Optimise checking to only current rendered platforms
+    //***Collision TOP****
     //Minimum platform posy >=py
-    var miny = 9999;
+    var miny = 999999;
     var maxid = 0;
     var minid = -1;
 
@@ -121,9 +122,9 @@ function collision() {
         }
     }
 
-
+    //TODO Optimise checking while jump
     var maxy = 0;
-    //***Colision BOTTOM****
+    //***Collision BOTTOM****
     for (i = 0; i < pnumber; i++) {
         //Select platform borders
         if (px >= platforms[i][0] - pposx && px + sx <= platforms[i][0] - pposx + platforms[i][2]) {
@@ -139,17 +140,56 @@ function collision() {
         }
     }
 
+    var minx = 999999;
 
-    debugcollision(maxid, minid);
+    //Max platform id on player's right|
+    var xminid = -1;
+
+    //***Collision LEFT****
+    //TODO Add consts to keep player size
+    for (i = 0; i < pnumber; i++) {
+        //Select platform borders horizontal
+        if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
+            if (platforms[i][0] >= px + 50 + spos) {
+                if (platforms[i][0] < minx) {
+                    minx = platforms[i][1];
+                    xminid = i;
+                }
+            }
+        }
+    }
+
+    var maxx = 0;
+    var xmaxid = -1;
+    //***Collision RIGHT****
+    //TODO Add consts to keep player size
+    for (i = 0; i < pnumber; i++) {
+        //Select platform borders horizontal
+        if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
+            if (platforms[i][0] + platforms[i][2] <= px + spos) {
+                if (platforms[i][0] > maxx) {
+                    maxx = platforms[i][1];
+                    xmaxid = i;
+                }
+            }
+        }
+    }
+
+
+    debugcollision(maxid, minid, xminid, xmaxid);
     gravity(miny);
 }
 
 
-function debugcollision(maxid, minid) {
+function debugcollision(maxid, minid, xminid, xmaxid) {
     fill('red');
     rect(platforms[maxid][0] - spos, platforms[maxid][1], platforms[maxid][2], platforms[maxid][3]);
     fill('green');
     if (minid !== -1) rect(platforms[minid][0] - spos, platforms[minid][1], platforms[minid][2], platforms[minid][3]);
+    fill('yellow');
+    if (xminid !== -1) rect(platforms[xminid][0] - spos, platforms[xminid][1], platforms[xminid][2], platforms[xminid][3]);
+    fill('orange');
+    if (xmaxid !== -1) rect(platforms[xmaxid][0] - spos, platforms[xmaxid][1], platforms[xmaxid][2], platforms[xmaxid][3]);
     fill('white');
 
 }
@@ -160,4 +200,8 @@ function gravity(miny) {
         py += py % grav;
         py += 5;
     }
+}
+
+function jump() {
+
 }
