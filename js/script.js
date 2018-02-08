@@ -4,11 +4,15 @@ var resy = 900;
 
 //Player position render
 var px = resx / 2;
-var py=40;
+var py = 40;
 
 //Player position
 
 var pposx = resx / 2;
+
+//Player speed
+
+var pspeed = 15;
 
 
 //Player size
@@ -58,31 +62,33 @@ platforms[3][2] = 250;
 platforms[3][3] = 100;
 
 
-
 function setup() {
 
-    createCanvas(resx,resy);
+    createCanvas(resx, resy);
     background(200);
 }
 
 function draw() {
     background(200);
-    rect(px,py,sx,sy);
-    if(keyIsPressed) keyboardEvent();
+    rect(px, py, sx, sy);
+    if (keyIsPressed) keyboardEvent();
     drawObjects();
     collision();
 }
 
 function keyboardEvent() {
-    // if (keyIsDown(38)) py -= jheight;
+    if (keyIsDown(38)) py -= jheight;
     if (keyIsDown(39)) {
-        spos += 5;
-        pposx = spos;
+        // spos += 5;
+        // pposx = spos;
+        movex(1);
     }
-    if(keyIsDown(40)) py+=5;
+    if (keyIsDown(40)) py += 5;
+
     if (keyIsDown(37)) {
-        spos -= 5;
-        pposx = spos;
+        // spos -= 5;
+        // pposx = spos;
+        movex(-1);
     }
 
     return false;
@@ -91,6 +97,7 @@ function keyboardEvent() {
 function keyTyped() {
     if (key === 'W') py -= jheight;
 }
+
 function drawObjects() {
     fill('#0000FF');
     for (i = 0; i < pnumber; i++) {
@@ -101,6 +108,10 @@ function drawObjects() {
 }
 
 var jheight = 150;
+var minx = 0;
+var maxx = 99999;
+
+
 function collision() {
     //TODO Merge conditions
     //TODO Optimise checking to only current rendered platforms
@@ -145,7 +156,7 @@ function collision() {
         }
     }
 
-    var maxx = 999999;
+    maxx = 999999;
 
     //Max platform id on player's right|
     var xmaxid = -1;
@@ -155,25 +166,25 @@ function collision() {
     for (i = 0; i < pnumber; i++) {
         //Select platform borders horizontal
         if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
-            if (platforms[i][0] >= px + 50 + spos) {
+            if (platforms[i][0] >= px + 50 + pposx) {
                 if (platforms[i][0] < maxx) {
-                    maxx = platforms[i][1];
+                    maxx = platforms[i][0];
                     xmaxid = i;
                 }
             }
         }
     }
 
-    var minx = 0;
+    minx = 0;
     var xminid = -1;
     //***Collision RIGHT PLATFORM'S BORDER****
     //TODO Add consts to keep player size
     for (i = 0; i < pnumber; i++) {
         //Select platform borders horizontal
         if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
-            if (platforms[i][0] + platforms[i][2] <= px + spos) {
+            if (platforms[i][0] + platforms[i][2] <= px + pposx) {
                 if (platforms[i][0] > minx) {
-                    minx = platforms[i][1];
+                    minx = platforms[i][0] + platforms[i][2];
                     xminid = i;
                 }
             }
@@ -208,5 +219,34 @@ function gravity(maxy) {
 }
 
 function jump() {
+
+
+}
+
+function movex(vector) {
+    if (vector === 1) {
+        // console.log(pposx + sx + px + 4 ,"",maxx); Uncoment to debug position
+        if (pposx + sx + px + 4 < maxx) {
+            if (maxx - pposx - sx - px <= 4) {
+                spos = maxx;
+                pposx = spos;
+            } else {
+                spos += 4;
+                pposx = spos;
+            }
+        }
+    } else {
+        // console.log(pposx + px - 4 ,"",minx); Uncoment to debug position
+        if (pposx + px - 4 > minx) {
+            if (minx - pposx - px >= 4) {
+                spos = minx;
+                pposx = spos;
+            } else {
+                spos -= 4;
+                pposx = spos;
+            }
+        }
+
+    }
 
 }
