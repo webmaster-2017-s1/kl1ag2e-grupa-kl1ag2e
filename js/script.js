@@ -113,37 +113,42 @@ var maxx = 99999;
 
 
 function collision() {
-    //TODO Merge conditions
-    //TODO Optimise checking to only current rendered platforms
-    //***Collision TOP****
 
-    //Maximum player position
+    //TODO Optimise checking to only current rendered platforms
+
+    //Maximum player position Y-AXIS
     var maxy = 999999;
-    //(FOR DEBUG)Maximum platform
+    //(FOR DEBUG)Maximum platform Y-AXIS
     var maxid = 0;
 
+    //TODO Optimise checking while jump
+    //Minimum player position Y-AXIS
+    var miny = 0;
+    //(FOR DEBUG)Minimum platform Y-AXIS
+    var minid = -1;
+
+    maxx = 999999;
+
+    var xmaxid = -1;
+    //TODO Add consts to keep player size
+
+    minx = 0;
+    var xminid = -1;
+
+
     for (i = 0; i < pnumber; i++) {
-        //Select platform borders
+        //***************************
+        //Select platform's borders vertical
         if (px >= platforms[i][0] - pposx && px + sx <= platforms[i][0] - pposx + platforms[i][2]) {
-            // console.log("Player pos: "+i+" platform"); //Uncomment to debug collision
+            //***TOP***
+            // console.log("Player pos: "+i+" platform"); //Uncomment to debug TOP BORDER collision
             if (platforms[i][1] > py + 50) {
                 if (platforms[i][1] < maxy) {
                     maxy = platforms[i][1];
                     maxid = i;
                 }
             }
-        }
-    }
-
-    //***Collision BOTTOM****
-    //TODO Optimise checking while jump
-    var miny = 0;
-    //(FOR DEBUG)Minimum platform
-    var minid = -1;
-
-    for (i = 0; i < pnumber; i++) {
-        //Select platform borders
-        if (px >= platforms[i][0] - pposx && px + sx <= platforms[i][0] - pposx + platforms[i][2]) {
+            //***BOTTOM***
             // console.log("Player pos: "+i+" platform"); //Uncomment to debug collision
             if (platforms[i][1] < py - 50) {
                 if (platforms[i][1] > miny) {
@@ -154,34 +159,17 @@ function collision() {
                 }
             }
         }
-    }
-
-    maxx = 999999;
-
-    //Max platform id on player's right|
-    var xmaxid = -1;
-
-    //***Collision LEFT PLATFORM'S BORDER****
-    //TODO Add consts to keep player size
-    for (i = 0; i < pnumber; i++) {
-        //Select platform borders horizontal
+        //***************************
+        //Select platform's borders horizontal
         if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
+            //***LEFT***
             if (platforms[i][0] >= px + 50 + pposx) {
                 if (platforms[i][0] < maxx) {
                     maxx = platforms[i][0];
                     xmaxid = i;
                 }
             }
-        }
-    }
-
-    minx = 0;
-    var xminid = -1;
-    //***Collision RIGHT PLATFORM'S BORDER****
-    //TODO Add consts to keep player size
-    for (i = 0; i < pnumber; i++) {
-        //Select platform borders horizontal
-        if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
+            //***RIGHT***
             if (platforms[i][0] + platforms[i][2] <= px + pposx) {
                 if (platforms[i][0] > minx) {
                     minx = platforms[i][0] + platforms[i][2];
