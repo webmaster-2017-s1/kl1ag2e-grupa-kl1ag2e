@@ -102,36 +102,41 @@ function drawObjects() {
 
 var jheight = 150;
 function collision() {
+    //TODO Merge conditions
     //TODO Optimise checking to only current rendered platforms
     //***Collision TOP****
-    //Minimum platform posy >=py
-    var miny = 999999;
+
+    //Maximum player position
+    var maxy = 999999;
+    //(FOR DEBUG)Maximum platform
     var maxid = 0;
-    var minid = -1;
 
     for (i = 0; i < pnumber; i++) {
         //Select platform borders
         if (px >= platforms[i][0] - pposx && px + sx <= platforms[i][0] - pposx + platforms[i][2]) {
             // console.log("Player pos: "+i+" platform"); //Uncomment to debug collision
             if (platforms[i][1] > py + 50) {
-                if (platforms[i][1] < miny) {
-                    miny = platforms[i][1];
+                if (platforms[i][1] < maxy) {
+                    maxy = platforms[i][1];
                     maxid = i;
                 }
             }
         }
     }
 
-    //TODO Optimise checking while jump
-    var maxy = 0;
     //***Collision BOTTOM****
+    //TODO Optimise checking while jump
+    var miny = 0;
+    //(FOR DEBUG)Minimum platform
+    var minid = -1;
+
     for (i = 0; i < pnumber; i++) {
         //Select platform borders
         if (px >= platforms[i][0] - pposx && px + sx <= platforms[i][0] - pposx + platforms[i][2]) {
             // console.log("Player pos: "+i+" platform"); //Uncomment to debug collision
             if (platforms[i][1] < py - 50) {
-                if (platforms[i][1] > maxy) {
-                    maxy = platforms[i][1];
+                if (platforms[i][1] > miny) {
+                    miny = platforms[i][1];
                     jheight = min(py - platforms[i][1] - 50, 150);
                     minid = i;
                     // console.log("Max Jump Height: "+jheight); //Uncomment to debug Max Jump Height
@@ -140,34 +145,18 @@ function collision() {
         }
     }
 
-    var minx = 999999;
+    var maxx = 999999;
 
     //Max platform id on player's right|
-    var xminid = -1;
+    var xmaxid = -1;
 
-    //***Collision LEFT****
+    //***Collision LEFT PLATFORM'S BORDER****
     //TODO Add consts to keep player size
     for (i = 0; i < pnumber; i++) {
         //Select platform borders horizontal
         if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
             if (platforms[i][0] >= px + 50 + spos) {
-                if (platforms[i][0] < minx) {
-                    minx = platforms[i][1];
-                    xminid = i;
-                }
-            }
-        }
-    }
-
-    var maxx = 0;
-    var xmaxid = -1;
-    //***Collision RIGHT****
-    //TODO Add consts to keep player size
-    for (i = 0; i < pnumber; i++) {
-        //Select platform borders horizontal
-        if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
-            if (platforms[i][0] + platforms[i][2] <= px + spos) {
-                if (platforms[i][0] > maxx) {
+                if (platforms[i][0] < maxx) {
                     maxx = platforms[i][1];
                     xmaxid = i;
                 }
@@ -175,28 +164,44 @@ function collision() {
         }
     }
 
+    var minx = 0;
+    var xminid = -1;
+    //***Collision RIGHT PLATFORM'S BORDER****
+    //TODO Add consts to keep player size
+    for (i = 0; i < pnumber; i++) {
+        //Select platform borders horizontal
+        if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
+            if (platforms[i][0] + platforms[i][2] <= px + spos) {
+                if (platforms[i][0] > minx) {
+                    minx = platforms[i][1];
+                    xminid = i;
+                }
+            }
+        }
+    }
 
-    debugcollision(maxid, minid, xminid, xmaxid);
-    gravity(miny);
+
+    debugcollision(maxid, minid, xmaxid, xminid);
+    gravity(maxy);
 }
 
 
-function debugcollision(maxid, minid, xminid, xmaxid) {
+function debugcollision(maxid, minid, xmaxid, xminid) {
     fill('red');
     rect(platforms[maxid][0] - spos, platforms[maxid][1], platforms[maxid][2], platforms[maxid][3]);
     fill('green');
     if (minid !== -1) rect(platforms[minid][0] - spos, platforms[minid][1], platforms[minid][2], platforms[minid][3]);
     fill('yellow');
-    if (xminid !== -1) rect(platforms[xminid][0] - spos, platforms[xminid][1], platforms[xminid][2], platforms[xminid][3]);
-    fill('orange');
     if (xmaxid !== -1) rect(platforms[xmaxid][0] - spos, platforms[xmaxid][1], platforms[xmaxid][2], platforms[xmaxid][3]);
+    fill('black');
+    if (xminid !== -1) rect(platforms[xminid][0] - spos, platforms[xminid][1], platforms[xminid][2], platforms[xminid][3]);
     fill('white');
 
 }
 
-function gravity(miny) {
+function gravity(maxy) {
 
-    if (miny > py + 50 + grav) {
+    if (maxy > py + 50 + grav) {
         py += py % grav;
         py += 5;
     }
