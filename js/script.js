@@ -95,7 +95,11 @@ function keyboardEvent() {
 }
 
 function keyTyped() {
-    if (key === 'W') py -= jheight;
+    if (key === 'w') {
+      if (!onair) {
+        py -= jheight;
+      }
+    }
 }
 
 function drawObjects() {
@@ -182,6 +186,7 @@ function collision() {
 
     debugcollision(maxid, minid, xmaxid, xminid);
     gravity(maxy);
+    air(maxy);
 }
 
 
@@ -203,6 +208,14 @@ function gravity(maxy) {
     if (maxy > py + 50 + grav) {
         py += py % grav;
         py += 5;
+    }
+}
+
+function air(maxy){
+    if (py + sy + 5 >= maxy){
+      onair = false;
+    } else {
+        onair = true;
     }
 }
 
