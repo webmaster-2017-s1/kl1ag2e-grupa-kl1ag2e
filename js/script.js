@@ -28,7 +28,7 @@ var spos = resx / 2;
 var grav = 5;
 
 //Long platform dimensions
-var pnumber = 4;
+var pnumber = 5;
 //[][*]
 //0-X pos
 //1-Y pos
@@ -51,15 +51,20 @@ platforms[1][1] = 650;
 platforms[1][2] = 250;
 platforms[1][3] = 100;
 
-platforms[2][0] = 2600;
-platforms[2][1] = 550;
+platforms[2][0] = 2700;
+platforms[2][1] = 500;
 platforms[2][2] = 250;
 platforms[2][3] = 50;
 
-platforms[3][0] = 2800;
+platforms[3][0] = 2900;
 platforms[3][1] = 650;
 platforms[3][2] = 250;
 platforms[3][3] = 100;
+
+platforms[4][0] = 0;
+platforms[4][1] = 1;
+platforms[4][2] = 20000;
+platforms[4][3] = 1;
 
 
 function setup() {
@@ -143,10 +148,10 @@ function collision() {
     for (i = 0; i < pnumber; i++) {
         //***************************
         //Select platform's borders vertical
-        if (px >= platforms[i][0] - pposx && px + sx <= platforms[i][0] - pposx + platforms[i][2]) {
+        if (px >= platforms[i][0] - pposx - sx && px <= platforms[i][0] - pposx + platforms[i][2]) {
             //***TOP***
             // console.log("Player pos: "+i+" platform"); //Uncomment to debug TOP BORDER collision
-            if (platforms[i][1] > py + 50) {
+            if (platforms[i][1] > py) {
                 if (platforms[i][1] < maxy) {
                     maxy = platforms[i][1];
                     maxid = i;
@@ -154,10 +159,10 @@ function collision() {
             }
             //***BOTTOM***
             // console.log("Player pos: "+i+" platform"); //Uncomment to debug collision
-            if (platforms[i][1] < py - 50) {
+            if (platforms[i][1] < py - sy) {
                 if (platforms[i][1] > miny) {
-                    miny = platforms[i][1];
-                    jheight = min(py - platforms[i][1] - 50, 150);
+                    miny = py - platforms[i][1] - platforms[i][3];
+                    jheight = min(miny, 150);
                     minid = i;
                     // console.log("Max Jump Height: "+jheight); //Uncomment to debug Max Jump Height
                 }
@@ -165,9 +170,9 @@ function collision() {
         }
         //***************************
         //Select platform's borders horizontal
-        if (py >= platforms[i][1] && py + sy <= platforms[i][1] + platforms[i][3]) {
+        if (py >= platforms[i][1] - sy && py <= platforms[i][1] + platforms[i][3]) {
             //***LEFT***
-            if (platforms[i][0] >= px + 50 + pposx) {
+            if (platforms[i][0] >= px + sx + pposx) {
                 if (platforms[i][0] < maxx) {
                     maxx = platforms[i][0];
                     xmaxid = i;
