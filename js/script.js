@@ -21,6 +21,16 @@ var sy = 50;
 
 var onair = false;
 
+//True if player rise
+var jumped = false;
+//Jump counter;
+var jcounter = 0;
+//Max Jump Height
+var maxjh = 500;
+//Jump speed
+var jspeed = 30;
+
+
 //Scene position
 var spos = resx / 2;
 
@@ -68,7 +78,7 @@ platforms[4][3] = 1;
 
 
 function setup() {
-
+    frameRate(60);
     createCanvas(resx, resy);
     background(200);
 }
@@ -82,7 +92,6 @@ function draw() {
 }
 
 function keyboardEvent() {
-    if (keyIsDown(38)) py -= jheight;
     if (keyIsDown(39)) {
         // spos += 5;
         // pposx = spos;
@@ -99,11 +108,12 @@ function keyboardEvent() {
     return false;
 }
 
-function keyTyped() {
-    if (key === 'w') {
-      if (!onair) {
-        py -= jheight;
-      }
+function keyPressed() {
+    if (keyCode === UP_ARROW) {
+        if (!onair) {
+            jcounter = 0;
+            jumped = true;
+        }
     }
 }
 
@@ -119,6 +129,7 @@ function drawObjects() {
 var jheight = 150;
 var minx = 0;
 var maxx = 99999;
+var miny = 0;
 
 
 function collision() {
@@ -132,14 +143,14 @@ function collision() {
 
     //TODO Optimise checking while jump
     //Minimum player position Y-AXIS
-    var miny = 0;
+    miny = 0;
     //(FOR DEBUG)Minimum platform Y-AXIS
     var minid = -1;
 
     maxx = 999999;
 
     var xmaxid = -1;
-    //TODO Add consts to keep player size
+
 
     minx = 0;
     var xminid = -1;
@@ -159,9 +170,9 @@ function collision() {
             }
             //***BOTTOM***
             // console.log("Player pos: "+i+" platform"); //Uncomment to debug collision
-            if (platforms[i][1] < py - sy) {
-                if (platforms[i][1] > miny) {
-                    miny = py - platforms[i][1] - platforms[i][3];
+            if (platforms[i][1] + platforms[i][3] < py) {
+                if (platforms[i][1] + platforms[i][3] > miny) {
+                    miny = platforms[i][1] + platforms[i][3];
                     jheight = min(miny, 150);
                     minid = i;
                     // console.log("Max Jump Height: "+jheight); //Uncomment to debug Max Jump Height
@@ -192,6 +203,8 @@ function collision() {
     debugcollision(maxid, minid, xmaxid, xminid);
     gravity(maxy);
     air(maxy);
+    if (jumped) jump();
+
 }
 
 
@@ -210,21 +223,30 @@ function debugcollision(maxid, minid, xmaxid, xminid) {
 
 function gravity(maxy) {
 
-    if (maxy > py + 50 + grav) {
-        py += py % grav;
-        py += 5;
+    if (maxy - 1 > py + sy) {
+        if (maxy - 1 > py + sy + grav)
+            py += grav;
+        else
+            py = maxy - sy - 1;
+
     }
 }
 
-function air(maxy){
-    if (py + sy + 5 >= maxy){
-      onair = false;
-    } else {
-        onair = true;
-    }
+function air(maxy) {
+    onair = py + sy + grav < maxy;
 }
 
 function jump() {
+    //TODO Optimise this section(if possible)
+    if (jumped && jcounter < maxjh - jspeed) {
+        if (miny + 1 < py - jspeed) {
+            py -= jspeed;
+            jcounter += jspeed;
+        } else {
+            py = miny + 1;
+            jumped = false;
+        }
+    } else jumped = false;
 
 
 }
