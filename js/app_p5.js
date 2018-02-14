@@ -78,12 +78,10 @@ platforms[4][2] = 20000;
 platforms[4][3] = 1;
 
 
-//True if activebullets[i] in loop is false
+//True if bullets[i][5] in loop is false
 var ready = false;
 //Bullets size
 var bsize = 20;
-//Bullets dimensions
-var bullets = [];
 //Max number of bullets
 var bmax = 10;
 //Bullets speed in X position
@@ -92,23 +90,22 @@ var bspeedx = 6;
 var bspeedy = 1;
 //Bullets life in seconds
 var blife = 5;
-//Life counter for specific bullet
-var lcounter = [];
-//True if specific bullet is drawing
-var activebullets = [];
 //Height from the place of rendering on which the ball begins to fall
 var heightc = 50;
 
+var bullets = [];
 //bullets[][*]
 //0-X pos
 //1-Y pos
 //2-Size(width and height)
 //3-Height from the place of rendering
+//4-Life counter
+//5-True if bullet is drawing
 
 for (i = 0; i < bmax; i++) {
     bullets[i] = [];
-    lcounter[i] = 0;
-    activebullets[i] = false;
+    bullets[i][4] = 0;
+    bullets[i][5] = false;
 }
 
 
@@ -323,7 +320,7 @@ function movex(vector) {
 
 function drawbullets() {
     for (i=0; i < bmax; i++) {
-      if (activebullets[i]) {
+      if (bullets[i][5]) {
         if (bullets[i][3] <= heightc) {
           bullets[i][3]++;
           bullets[i][1] = bullets[i][1] - bspeedy;
@@ -331,12 +328,12 @@ function drawbullets() {
           bullets[i][1] = bullets[i][1] + bspeedy;
         }
         bullets[i][0] = bullets[i][0] + bspeedx;
-        ellipse(bullets[i][0], bullets[i][1], bullets[i][2], bullets[i][2]);
+        ellipse(bullets[i][0] - pposx, bullets[i][1], bullets[i][2], bullets[i][2]);
 
-        lcounter[i]++;
-        if (lcounter[i] == 60 * blife) {
-          lcounter[i] = 0;
-          activebullets[i] = false;
+        bullets[i][4]++;
+        if (bullets[i][4] === 60 * blife) {
+          bullets[i][4] = 0;
+          bullets[i][5] = false;
         }
       }
     }
@@ -345,13 +342,13 @@ function drawbullets() {
 function newbullet() {
     ready = false;
     for (i=0; !ready && i < bmax; i++) {
-      if (!activebullets[i]) {
+      if (!bullets[i][5]) {
         ready = true;
-        bullets[i][0] = px + sx;
+        bullets[i][0] = pposx + px + sx;
         bullets[i][1] = py;
         bullets[i][2] = bsize;
         bullets[i][3] = 0;
-        activebullets[i] = true;
+        bullets[i][5] = true;
       }
     }
 }
