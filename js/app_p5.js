@@ -92,6 +92,8 @@ var bspeedy = 1;
 var blife = 5;
 //Height from the place of rendering on which the ball begins to fall
 var heightc = 50;
+//True if bullet is to go the right
+var right = true;
 
 var bullets = [];
 //bullets[][*]
@@ -101,11 +103,13 @@ var bullets = [];
 //3-Height from the place of rendering
 //4-Life counter
 //5-True if bullet is drawing
+//6-True if bullet is go to the right
 
 for (i = 0; i < bmax; i++) {
     bullets[i] = [];
     bullets[i][4] = 0;
     bullets[i][5] = false;
+    bullets[i][6] = false;
 }
 
 
@@ -125,20 +129,22 @@ function draw() {
 }
 
 function keyboardEvent() {
-  if (keyIsDown(39)) {
-    // spos += 5;
-    // pposx = spos;
-    movex(1);
-  }
-  if (keyIsDown(40)) py += 5;
+    if (keyIsDown(39)) {
+        // spos += 5;
+        // pposx = spos;
+        movex(1);
+        right = true;
+    }
+    if (keyIsDown(40)) py += 5;
 
-  if (keyIsDown(37)) {
-    // spos -= 5;
-    // pposx = spos;
-    movex(-1);
-  }
+    if (keyIsDown(37)) {
+        // spos -= 5;
+        // pposx = spos;
+        movex(-1);
+        right = false;
+    }
 
-  return false;
+    return false;
 }
 
 function keyPressed() {
@@ -328,7 +334,8 @@ function drawbullets() {
         } else {
           bullets[i][1] = bullets[i][1] + bspeedy;
         }
-        bullets[i][0] = bullets[i][0] + bspeedx;
+        if (bullets[i][6]) bullets[i][0] = bullets[i][0] + bspeedx;
+          else bullets[i][0] = bullets[i][0] - bspeedx;
         ellipse(bullets[i][0] - pposx, bullets[i][1], bullets[i][2], bullets[i][2]);
 
         bullets[i][4]++;
@@ -345,11 +352,17 @@ function newbullet() {
     for (i=0; !ready && i < bmax; i++) {
       if (!bullets[i][5]) {
         ready = true;
-        bullets[i][0] = pposx + px + sx;
         bullets[i][1] = py;
         bullets[i][2] = bsize;
         bullets[i][3] = 0;
         bullets[i][5] = true;
+        if (right) {
+          bullets[i][0] = pposx + px + sx;
+          bullets[i][6] = true;
+        } else {
+          bullets[i][0] = pposx + px;
+          bullets[i][6] = false;
+        }
       }
    }
 }
