@@ -39,7 +39,7 @@ var spos = 0;
 var grav = 7;
 
 //Platform number
-var pnumber = 10;
+var pnumber = 20;
 //Platforms' dimensions
 //[][*]
 //0-X pos
@@ -53,20 +53,20 @@ for (i = 0; i < pnumber; i++) {
   platforms[i] = [];
 }
 
-platforms[0][0] = 0;
-platforms[0][1] = resy - 20;
-platforms[0][2] = 20000;
-platforms[0][3] = 20;
+// platforms[0][0] = 0;
+// platforms[0][1] = resy - 20;
+// platforms[0][2] = 20000;
+// platforms[0][3] = 20;
 
 platforms[1][0] = 30;
 platforms[1][1] = 370;
 platforms[1][2] = 320;
 platforms[1][3] = 50;
 
-platforms[2][0] = 2500;
-platforms[2][1] = 444;
-platforms[2][2] = 384;
-platforms[2][3] = 108;
+platforms[2][0] = 1790;
+platforms[2][1] = 210;
+platforms[2][2] = 230;
+platforms[2][3] = 30;
 
 platforms[3][0] = 240;
 platforms[3][1] = 280;
@@ -87,6 +87,54 @@ platforms[6][0] = 1200;
 platforms[6][1] = 290;
 platforms[6][2] = 90;
 platforms[6][3] = 100;
+
+platforms[7][0] = 1500;
+platforms[7][1] = 240;
+platforms[7][2] = 520;
+platforms[7][3] = 70;
+
+platforms[8][0] = 2240;
+platforms[8][1] = 410
+platforms[8][2] = 610;
+platforms[8][3] = 70;
+
+platforms[9][0] = 2480;
+platforms[9][1] = 350;
+platforms[9][2] = 100;
+platforms[9][3] = 60;
+
+platforms[10][0] = 2620;
+platforms[10][1] = 350;
+platforms[10][2] = 100;
+platforms[10][3] = 60;
+
+platforms[11][0] = 2990;
+platforms[11][1] = 240;
+platforms[11][2] = 50;
+platforms[11][3] = 180;
+
+platforms[12][0] = 3280;
+platforms[12][1] = 400;
+platforms[12][2] = 100;
+platforms[12][3] = 100;
+
+platforms[13][0] = 2990;
+platforms[13][1] = 240;
+platforms[13][2] = 50;
+platforms[13][3] = 180;
+
+platforms[14][0] = 2990;
+platforms[14][1] = 240;
+platforms[14][2] = 50;
+platforms[14][3] = 180;
+
+platforms[15][0] = 2990;
+platforms[15][1] = 240;
+platforms[15][2] = 50;
+platforms[15][3] = 180;
+
+
+
 
 //True if bullets[i][5] in loop is false
 var ready = false;
@@ -259,6 +307,7 @@ function collision() {
   gravity(maxy);
   air(maxy);
   if (jumped) jump();
+  lose();
 }
 
 
@@ -375,4 +424,13 @@ function newbullet() {
         }
       }
    }
+}
+
+function lose(){
+if(py+sy>= resy){
+  textSize(50);
+  fill('#FF0000');
+  text("GAME OVER",resx/2 , resy/2);
+  fill('#FFFFFF');
+}
 }
