@@ -9,7 +9,7 @@ var py = 40;
 
 //Player position
 
-var pposx = resx / 2;
+var pposx =  0;
 
 //Player speed
 
@@ -33,13 +33,13 @@ var jspeed = 30;
 
 
 //Scene position
-var spos = resx / 2;
+var spos = 0;
 
 //Gravity
 var grav = 7;
 
 //Platform number
-var pnumber = 5;
+var pnumber = 10;
 //Platforms' dimensions
 //[][*]
 //0-X pos
@@ -58,25 +58,35 @@ platforms[0][1] = resy - 20;
 platforms[0][2] = 20000;
 platforms[0][3] = 20;
 
-platforms[1][0] = 2500;
-platforms[1][1] = 450;
-platforms[1][2] = 250;
-platforms[1][3] = 100;
+platforms[1][0] = 30;
+platforms[1][1] = 370;
+platforms[1][2] = 320;
+platforms[1][3] = 50;
 
-platforms[2][0] = 2700;
-platforms[2][1] = 300;
-platforms[2][2] = 250;
-platforms[2][3] = 50;
+platforms[2][0] = 2500;
+platforms[2][1] = 444;
+platforms[2][2] = 384;
+platforms[2][3] = 108;
 
-platforms[3][0] = 2900;
-platforms[3][1] = 450;
-platforms[3][2] = 250;
-platforms[3][3] = 100;
+platforms[3][0] = 240;
+platforms[3][1] = 280;
+platforms[3][2] = 270;
+platforms[3][3] = 70;
 
-platforms[4][0] = 0;
-platforms[4][1] = 1;
-platforms[4][2] = 20000;
-platforms[4][3] = 1;
+platforms[4][0] = 650;
+platforms[4][1] = 440;
+platforms[4][2] = 160;
+platforms[4][3] = 70;
+
+platforms[5][0] = 990;
+platforms[5][1] = 390;
+platforms[5][2] = 320;
+platforms[5][3] = 50;
+
+platforms[6][0] = 1200;
+platforms[6][1] = 290;
+platforms[6][2] = 90;
+platforms[6][3] = 100;
 
 //True if bullets[i][5] in loop is false
 var ready = false;
