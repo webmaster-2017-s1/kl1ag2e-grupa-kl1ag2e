@@ -9,7 +9,7 @@ var py = 40;
 
 //Player position
 
-var pposx =  0;
+var pposx = 0;
 
 //Player speed
 
@@ -122,6 +122,7 @@ platforms[13][0] = 2990;
 platforms[13][1] = 240;
 platforms[13][2] = 50;
 platforms[13][3] = 180;
+
 
 platforms[14][0] = 3610;
 platforms[14][1] = 450;
@@ -238,7 +239,6 @@ platforms[36][1] = 410;
 platforms[36][2] = 10;
 platforms[36][3] = 160;
 
-
 //True if bullets[i][5] in loop is false
 var ready = false;
 //Bullets size
@@ -267,12 +267,49 @@ var bullets = [];
 //6-True if bullet is go to the right
 
 for (i = 0; i < bmax; i++) {
-    bullets[i] = [];
-    bullets[i][4] = 0;
-    bullets[i][5] = false;
-    bullets[i][6] = false;
+  bullets[i] = [];
+  bullets[i][4] = 0;
+  bullets[i][5] = false;
+  bullets[i][6] = false;
 }
 
+
+//Number of enemies
+var enumber = 1;
+
+//Enemy size
+var esize = 60;
+
+//Enemy speed
+var espeed = 2;
+
+var enemies = [];
+
+for (i = 0; i < enumber; i++) {
+  enemies[i] = [];
+}
+
+//Enemies[][*]
+//0-Current x-pos
+//1-y pos
+//2-Min x-pos
+//3-Max x-pos
+//4-Direction
+//**false left <---
+//**true right --->
+
+enemies[0][0] = 650;
+enemies[0][1] = 380;
+enemies[0][2] = 650;
+enemies[0][3] = 810;
+enemies[0][4] = true;
+
+var enemyimg;
+
+//Load Images
+function preload() {
+  enemyimg = loadImage('./assets/enemy.png');
+}
 
 function setup() {
   frameRate(60);
@@ -290,22 +327,22 @@ function draw() {
 }
 
 function keyboardEvent() {
-    if (keyIsDown(39)) {
-        // spos += 5;
-        // pposx = spos;
-        movex(1);
-        right = true;
-    }
-    if (keyIsDown(40)) py += 5;
+  if (keyIsDown(39)) {
+    // spos += 5;
+    // pposx = spos;
+    movex(1);
+    right = true;
+  }
+  if (keyIsDown(40)) py += 5;
 
-    if (keyIsDown(37)) {
-        // spos -= 5;
-        // pposx = spos;
-        movex(-1);
-        right = false;
-    }
+  if (keyIsDown(37)) {
+    // spos -= 5;
+    // pposx = spos;
+    movex(-1);
+    right = false;
+  }
 
-    return false;
+  return false;
 }
 
 function keyPressed() {
@@ -329,7 +366,7 @@ function drawObjects() {
     rect(platforms[i][0] - spos, platforms[i][1], platforms[i][2], platforms[i][3]);
   }
   fill('#FFFFFF');
-
+  drawEnemies();
 }
 
 var jheight = 150;
@@ -411,6 +448,7 @@ function collision() {
   air(maxy);
   if (jumped) jump();
   lose();
+  moveEnemies();
 }
 
 
@@ -460,8 +498,8 @@ function jump() {
 function movex(vector) {
   if (vector === 1) {
     // console.log(pposx + sx + px + 4 ,"",maxx); //Uncoment to debug position
-    console.log(maxx - pposx - sx - px);
-    console.log(pposx + px + sx, maxx);
+    // console.log(maxx - pposx - sx - px);
+    // console.log(pposx + px + sx, maxx);
     if (pposx + sx + px - 1 < maxx) {
       if (maxx - pposx - sx - px < pxspeed) {
         pposx = maxx - px - sx - 1;
@@ -488,52 +526,88 @@ function movex(vector) {
 }
 
 function drawbullets() {
-    for (i=0; i < bmax; i++) {
-      if (bullets[i][5]) {
-        if (bullets[i][3] <= heightc) {
-          bullets[i][3]++;
-          bullets[i][1] = bullets[i][1] - bspeedy;
-        } else {
-          bullets[i][1] = bullets[i][1] + bspeedy;
-        }
-        if (bullets[i][6]) bullets[i][0] = bullets[i][0] + bspeedx;
-          else bullets[i][0] = bullets[i][0] - bspeedx;
-        ellipse(bullets[i][0] - pposx, bullets[i][1], bullets[i][2], bullets[i][2]);
+  for (i = 0; i < bmax; i++) {
+    if (bullets[i][5]) {
+      if (bullets[i][3] <= heightc) {
+        bullets[i][3]++;
+        bullets[i][1] = bullets[i][1] - bspeedy;
+      } else {
+        bullets[i][1] = bullets[i][1] + bspeedy;
+      }
+      if (bullets[i][6]) bullets[i][0] = bullets[i][0] + bspeedx;
+      else bullets[i][0] = bullets[i][0] - bspeedx;
+      ellipse(bullets[i][0] - pposx, bullets[i][1], bullets[i][2], bullets[i][2]);
 
-        bullets[i][4]++;
-        if (bullets[i][4] === 60 * blife) {
-          bullets[i][4] = 0;
-          bullets[i][5] = false;
-        }
+      bullets[i][4]++;
+      if (bullets[i][4] === 60 * blife) {
+        bullets[i][4] = 0;
+        bullets[i][5] = false;
       }
     }
   }
+}
 
 function newbullet() {
-    ready = false;
-    for (i=0; !ready && i < bmax; i++) {
-      if (!bullets[i][5]) {
-        ready = true;
-        bullets[i][1] = py;
-        bullets[i][2] = bsize;
-        bullets[i][3] = 0;
-        bullets[i][5] = true;
-        if (right) {
-          bullets[i][0] = pposx + px + sx;
-          bullets[i][6] = true;
-        } else {
-          bullets[i][0] = pposx + px;
-          bullets[i][6] = false;
-        }
+  ready = false;
+  for (i = 0; !ready && i < bmax; i++) {
+    if (!bullets[i][5]) {
+      ready = true;
+      bullets[i][1] = py;
+      bullets[i][2] = bsize;
+      bullets[i][3] = 0;
+      bullets[i][5] = true;
+      if (right) {
+        bullets[i][0] = pposx + px + sx;
+        bullets[i][6] = true;
+      } else {
+        bullets[i][0] = pposx + px;
+        bullets[i][6] = false;
       }
-   }
+    }
+  }
 }
 
-function lose(){
-if(py+sy>= resy){
-  textSize(50);
-  fill('#FF0000');
-  text("GAME OVER",resx/2 , resy/2);
-  fill('#FFFFFF');
+function lose() {
+  if (py + sy >= resy) {
+    textSize(50);
+    fill('#FF0000');
+    text("GAME OVER", resx / 2, resy / 2);
+    fill('#FFFFFF');
+  }
 }
+
+function moveEnemies() {
+  for (i = 0; i < enumber; i++) {
+    //Check enemy direction
+    if (enemies[i][4]) {
+      //Right--->
+      if (enemies[i][3] - enemies[i][0] - esize <= espeed) {
+        enemies[i][0] = enemies[i][3] - esize;
+        enemies[i][4] = false;
+      } else {
+        enemies[i][0] += espeed;
+      }
+
+    }
+    else {
+      //Left <---
+      if (enemies[i][0] - enemies[i][2] <= espeed) {
+        enemies[i][0] = enemies[i][2];
+        enemies[i][4] = true;
+      } else {
+        enemies[i][0] -= espeed;
+      }
+
+    }
+
+  }
+
+}
+
+function drawEnemies() {
+  fill('gold');
+  for (i = 0; i < enumber; i++) {
+    image(enemyimg, enemies[i][0] - pposx, enemies[i][1]);
+  }
+  fill('#FFFFFF');
 }
