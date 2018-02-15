@@ -27,9 +27,9 @@ var jumped = false;
 //Jump counter;
 var jcounter = 0;
 //Max Jump Height
-var maxjh = 500;
+var maxjh = 310;
 //Jump speed
-var jspeed = 30;
+var jspeed = 20;
 
 
 //Scene position
@@ -39,7 +39,7 @@ var spos = 0;
 var grav = 7;
 
 //Platform number
-var pnumber = 20;
+var pnumber = 37;
 //Platforms' dimensions
 //[][*]
 //0-X pos
@@ -123,16 +123,121 @@ platforms[13][1] = 240;
 platforms[13][2] = 50;
 platforms[13][3] = 180;
 
-platforms[14][0] = 2990;
-platforms[14][1] = 240;
-platforms[14][2] = 50;
-platforms[14][3] = 180;
 
-platforms[15][0] = 2990;
-platforms[15][1] = 240;
-platforms[15][2] = 50;
-platforms[15][3] = 180;
+platforms[14][0] = 3610;
+platforms[14][1] = 450;
+platforms[14][2] = 320;
+platforms[14][3] = 40;
 
+platforms[15][0] = 3730;
+platforms[15][1] = 330;
+platforms[15][2] = 70;
+platforms[15][3] = 120;
+
+platforms[16][0] = 3870;
+platforms[16][1] = 280;
+platforms[16][2] = 60;
+platforms[16][3] = 170;
+
+platforms[17][0] = 4060;
+platforms[17][1] = 330;
+platforms[17][2] = 10;
+platforms[17][3] = 150;
+
+platforms[18][0] = 4140;
+platforms[18][1] = 430;
+platforms[18][2] = 40;
+platforms[18][3] = 10;
+
+platforms[19][0] = 4350;
+platforms[19][1] = 330;
+platforms[19][2] = 30;
+platforms[19][3] = 150;
+
+platforms[20][0] = 4380;
+platforms[20][1] = 450;
+platforms[20][2] = 70;
+platforms[20][3] = 30;
+
+platforms[21][0] = 4510;
+platforms[21][1] = 580;
+platforms[21][2] = 10;
+platforms[21][3] = 60;
+
+platforms[22][0] = 4680;
+platforms[22][1] = 470;
+platforms[22][2] = 10;
+platforms[22][3] = 90;
+
+platforms[23][0] = 4640;
+platforms[23][1] = 560;
+platforms[23][2] = 90;
+platforms[23][3] = 20;
+
+platforms[24][0] = 4690;
+platforms[24][1] = 340;
+platforms[24][2] = 120;
+platforms[24][3] = 20;
+
+platforms[25][0] = 4840;
+platforms[25][1] = 250;
+platforms[25][2] = 20;
+platforms[25][3] = 90;
+
+platforms[26][0] = 4940;
+platforms[26][1] = 510;
+platforms[26][2] = 60;
+platforms[26][3] = 10;
+
+platforms[27][0] = 5090;
+platforms[27][1] = 410;
+platforms[27][2] = 20;
+platforms[27][3] = 110;
+
+platforms[28][0] = 5110;
+platforms[28][1] = 410;
+platforms[28][2] = 80;
+platforms[28][3] = 20;
+
+platforms[29][0] = 5170;
+platforms[29][1] = 320;
+platforms[29][2] = 20;
+platforms[29][3] = 90;
+
+platforms[30][0] = 5290;
+platforms[30][1] = 470;
+platforms[30][2] = 10;
+platforms[30][3] = 70;
+
+platforms[31][0] = 5370;
+platforms[31][1] = 360;
+platforms[31][2] = 10;
+platforms[31][3] = 190;
+
+platforms[32][0] = 5430;
+platforms[32][1] = 300;
+platforms[32][2] = 40;
+platforms[32][3] = 10;
+
+platforms[33][0] = 5500;
+platforms[33][1] = 360;
+platforms[33][2] = 10;
+platforms[33][3] = 50;
+
+platforms[34][0] = 5520;
+platforms[34][1] = 550;
+platforms[34][2] = 30;
+platforms[34][3] = 10;
+
+platforms[35][0] = 5620;
+platforms[35][1] = 550;
+platforms[35][2] = 10;
+platforms[35][3] = 20;
+
+platforms[36][0] = 5640;
+platforms[36][1] = 410;
+platforms[36][2] = 10;
+platforms[36][3] = 160;
 
 //True if bullets[i][5] in loop is false
 var ready = false;
