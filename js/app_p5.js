@@ -85,13 +85,13 @@ var bsize = 20;
 //Max number of bullets
 var bmax = 10;
 //Bullets speed in X position
-var bspeedx = 6;
+var bspeedx = 12;
 //Bullets speed in Y position
-var bspeedy = 1;
+var bspeedy = 2;
 //Bullets life in seconds
 var blife = 5;
 //Height from the place of rendering on which the ball begins to fall
-var heightc = 50;
+var heightc = 20;
 //True if bullet is to go the right
 var right = true;
 
@@ -104,12 +104,20 @@ var bullets = [];
 //4-Life counter
 //5-True if bullet is drawing
 //6-True if bullet is go to the right
+//7-maxy
+//8-miny
+//9-maxx
+//10-minx
 
 for (i = 0; i < bmax; i++) {
     bullets[i] = [];
     bullets[i][4] = 0;
     bullets[i][5] = false;
     bullets[i][6] = false;
+    bullets[i][7] = 999999;
+    bullets[i][8] = 0;
+    bullets[i][9] = 999999;
+    bullets[i][10] = 0;
 }
 
 
@@ -125,7 +133,7 @@ function draw() {
   if (keyIsPressed) keyboardEvent();
   drawObjects();
   collision();
-  drawbullets();
+  drawBullets();
 }
 
 function keyboardEvent() {
@@ -158,7 +166,7 @@ function keyPressed() {
 
 function keyTyped() {
   if (key === 's') {
-    newbullet();
+    newBullet();
   }
 }
 
@@ -242,6 +250,59 @@ function collision() {
         }
       }
     }
+
+
+
+    for (j=0; j < bmax; j++) {
+      if (bullets[j][5]) {
+
+        if (bullets[j][0] - pposx >= platforms[i][0] - pposx && bullets[j][0] - pposx <= platforms[i][0] - pposx + platforms[i][2]){
+          if (platforms[i][1] >= bullets[j][1]) {
+            if (platforms[i][1] <= bullets[j][7]) {
+              bullets[j][7] = platforms[i][1];
+            }
+          }
+          if (platforms[i][1] + platforms[i][3] <= bullets[j][1]) {
+            if (platforms[i][1] + platforms[i][3] >= bullets[j][8]) {
+              bullets[j][8] = platforms[i][1] + platforms[i][3];
+            }
+          }
+        } else {
+          bullets[j][7] = 999999;
+          bullets[j][8] = 0;
+        }
+
+        if (bullets[j][1] >= platforms[i][1] - bullets[j][2] / 2 && bullets[j][1] <= platforms[i][1] + platforms[i][3]) {
+          if (platforms[i][0] >= bullets[j][0]) {
+            if (platforms[i][0] <= bullets[j][9]) {
+              bullets[j][9] = platforms[i][0];
+            }
+          }
+          if (platforms[i][0] + platforms[i][2] <= bullets[j][0]) {
+            if (platforms[i][0] >= bullets[j][10]) {
+              bullets[j][10] = platforms[i][0] + platforms[i][2];
+            }
+          }
+        } else {
+          bullets[j][9] = 999999;
+          bullets[j][10] = 0;
+        }
+
+        if (bullets[j][7] <= bullets[j][1] + bullets[j][2] / 2) {
+          bullets[j][5] = false;
+          bullets[j][7] = 999999;
+        } else if (bullets[j][8] >= bullets[j][1] - bullets[j][2] / 2) {
+            bullets[j][5] = false;
+            bullets[j][8] = 0;
+          } else if (bullets[j][9] <= bullets[j][0] + bullets[j][2] / 2) {
+              bullets[j][5] = false;
+              bullets[j][9] = 999999;
+            } else if (bullets[j][10] >= bullets[j][0] - bullets[j][2] / 2){
+                bullets[j][5] = false;
+                bullets[j][10] = 0;
+              }
+      }
+    }
   }
 
 
@@ -298,8 +359,8 @@ function jump() {
 function movex(vector) {
   if (vector === 1) {
     // console.log(pposx + sx + px + 4 ,"",maxx); //Uncoment to debug position
-    console.log(maxx - pposx - sx - px);
-    console.log(pposx + px + sx, maxx);
+    // console.log(maxx - pposx - sx - px);
+    // console.log(pposx + px + sx, maxx);
     if (pposx + sx + px - 1 < maxx) {
       if (maxx - pposx - sx - px < pxspeed) {
         pposx = maxx - px - sx - 1;
@@ -325,7 +386,7 @@ function movex(vector) {
 
 }
 
-function drawbullets() {
+function drawBullets() {
     for (i=0; i < bmax; i++) {
       if (bullets[i][5]) {
         if (bullets[i][3] <= heightc) {
@@ -340,14 +401,13 @@ function drawbullets() {
 
         bullets[i][4]++;
         if (bullets[i][4] === 60 * blife) {
-          bullets[i][4] = 0;
           bullets[i][5] = false;
         }
       }
     }
   }
 
-function newbullet() {
+function newBullet() {
     ready = false;
     for (i=0; !ready && i < bmax; i++) {
       if (!bullets[i][5]) {
@@ -355,12 +415,13 @@ function newbullet() {
         bullets[i][1] = py;
         bullets[i][2] = bsize;
         bullets[i][3] = 0;
+        bullets[i][4] = 0;
         bullets[i][5] = true;
         if (right) {
-          bullets[i][0] = pposx + px + sx;
+          bullets[i][0] = pposx + px + sx - bullets[i][2];
           bullets[i][6] = true;
         } else {
-          bullets[i][0] = pposx + px;
+          bullets[i][0] = pposx + px + bullets[i][2];
           bullets[i][6] = false;
         }
       }
