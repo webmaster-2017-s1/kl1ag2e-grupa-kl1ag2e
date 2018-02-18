@@ -4,12 +4,11 @@ var resx = 1366;
 var resy = 768;
 
 //Player position render
-var px = resx / 2;
+var px = 100;
 var py = 40;
 
 //Player position
-
-var pposx = 0;
+var pposx = px-resx/2;
 
 //Player speed
 
@@ -53,10 +52,10 @@ for (i = 0; i < pnumber; i++) {
   platforms[i] = [];
 }
 
-// platforms[0][0] = 0;
-// platforms[0][1] = resy - 20;
-// platforms[0][2] = 20000;
-// platforms[0][3] = 20;
+platforms[0][0] = 0;
+platforms[0][1] = 0;
+platforms[0][2] = 30;
+platforms[0][3] = 20000;
 
 platforms[1][0] = 30;
 platforms[1][1] = 370;
@@ -94,7 +93,7 @@ platforms[7][2] = 520;
 platforms[7][3] = 70;
 
 platforms[8][0] = 2240;
-platforms[8][1] = 410
+platforms[8][1] = 410;
 platforms[8][2] = 610;
 platforms[8][3] = 70;
 
@@ -271,14 +270,14 @@ var bullets = [];
 //10-minx
 
 for (i = 0; i < bmax; i++) {
-    bullets[i] = [];
-    bullets[i][4] = 0;
-    bullets[i][5] = false;
-    bullets[i][6] = false;
-    bullets[i][7] = 999999;
-    bullets[i][8] = 0;
-    bullets[i][9] = 999999;
-    bullets[i][10] = 0;
+  bullets[i] = [];
+  bullets[i][4] = 0;
+  bullets[i][5] = false;
+  bullets[i][6] = false;
+  bullets[i][7] = 999999;
+  bullets[i][8] = 0;
+  bullets[i][9] = 999999;
+  bullets[i][10] = 0;
 }
 
 
@@ -336,16 +335,12 @@ function draw() {
 
 function keyboardEvent() {
   if (keyIsDown(39)) {
-    // spos += 5;
-    // pposx = spos;
     movex(1);
     right = true;
   }
-  if (keyIsDown(40)) py += 5;
+  // if (keyIsDown(40)) py += 5;
 
   if (keyIsDown(37)) {
-    // spos -= 5;
-    // pposx = spos;
     movex(-1);
     right = false;
   }
@@ -410,7 +405,7 @@ function collision() {
   for (i = 0; i < pnumber; i++) {
     //***************************
     //Select platform's borders vertical
-    if (px >= platforms[i][0] - pposx - sx && px <= platforms[i][0] - pposx + platforms[i][2]) {
+    if (px >= platforms[i][0] - spos - sx && px <= platforms[i][0] - spos + platforms[i][2]) {
       //***TOP***
       // console.log("Player pos: "+i+" platform"); //Uncomment to debug TOP BORDER collision
       if (platforms[i][1] > py) {
@@ -434,15 +429,15 @@ function collision() {
     //Select platform's borders horizontal
     if (py >= platforms[i][1] - sy && py <= platforms[i][1] + platforms[i][3]) {
       //***LEFT***
-      if (platforms[i][0] >= px + sx + pposx) {
+      if (platforms[i][0] >= px + sx + pposx + (resx / 2 - px)) {
         if (platforms[i][0] < maxx) {
           maxx = platforms[i][0];
           xmaxid = i;
         }
       }
       //***RIGHT***
-      if (platforms[i][0] + platforms[i][2] <= px + pposx) {
-        if (platforms[i][0] > minx) {
+      if (platforms[i][0] + platforms[i][2] <= px + pposx + (resx / 2 - px)) {
+        if (platforms[i][0] >= minx) {
           minx = platforms[i][0] + platforms[i][2];
           xminid = i;
         }
@@ -450,11 +445,10 @@ function collision() {
     }
 
 
-
-    for (j=0; j < bmax; j++) {
+    for (j = 0; j < bmax; j++) {
       if (bullets[j][5]) {
 
-        if (bullets[j][0] - pposx >= platforms[i][0] - pposx && bullets[j][0] - pposx <= platforms[i][0] - pposx + platforms[i][2]){
+        if (bullets[j][0] - pposx >= platforms[i][0] - pposx && bullets[j][0] - pposx <= platforms[i][0] - pposx + platforms[i][2]) {
           if (platforms[i][1] >= bullets[j][1]) {
             if (platforms[i][1] <= bullets[j][7]) {
               bullets[j][7] = platforms[i][1];
@@ -490,15 +484,15 @@ function collision() {
           bullets[j][5] = false;
           bullets[j][7] = 999999;
         } else if (bullets[j][8] >= bullets[j][1] - bullets[j][2] / 2) {
-            bullets[j][5] = false;
-            bullets[j][8] = 0;
-          } else if (bullets[j][9] <= bullets[j][0] + bullets[j][2] / 2) {
-              bullets[j][5] = false;
-              bullets[j][9] = 999999;
-            } else if (bullets[j][10] >= bullets[j][0] - bullets[j][2] / 2){
-                bullets[j][5] = false;
-                bullets[j][10] = 0;
-              }
+          bullets[j][5] = false;
+          bullets[j][8] = 0;
+        } else if (bullets[j][9] <= bullets[j][0] + bullets[j][2] / 2) {
+          bullets[j][5] = false;
+          bullets[j][9] = 999999;
+        } else if (bullets[j][10] >= bullets[j][0] - bullets[j][2] / 2) {
+          bullets[j][5] = false;
+          bullets[j][10] = 0;
+        }
       }
     }
   }
@@ -552,81 +546,80 @@ function jump() {
       jumped = false;
     }
   } else jumped = false;
-
-
 }
 
 function movex(vector) {
   if (vector === 1) {
-    // console.log(pposx + sx + px + 4 ,"",maxx); //Uncoment to debug position
-    // console.log(maxx - pposx - sx - px);
-    // console.log(pposx + px + sx, maxx);
-    if (pposx + sx + px - 1 < maxx) {
-      if (maxx - pposx - sx - px < pxspeed) {
-        pposx = maxx - px - sx - 1;
-        spos = pposx;
+    //--->RIGHT
+    if (pposx + sx + px + (resx / 2 - px) - 1 < maxx) {
+      if (maxx - pposx - sx - px - (resx / 2 - px) < pxspeed) {
+        pposx = maxx - px - sx - (resx / 2 - px) - 1;
+
+        if (spos <= 0) px = (resx / 2 + pposx); else px = resx / 2;
+        spos = max(0, pposx);
       } else {
+        if (spos <= 0) px += pxspeed; else px = resx / 2;
         pposx += pxspeed;
-        spos = pposx;
+        spos = max(0, pposx);
       }
     }
   } else {
-    // console.log(pposx + px - minx ,"",minx); //Uncoment to debug position
-    if (pposx + px + 1 > minx) {
-      if (pposx + px - minx < pxspeed) {
-        pposx = minx - px + 1;
-        spos = pposx;
+    //<--- LEFT
+    if (pposx + px + 1 + (resx / 2 - px) > minx) {
+      if (pposx + px - minx + (resx / 2 - px) < pxspeed) {
+        pposx = minx - px + 1 - (resx / 2 - px);
+        if (spos <= 0) px = (resx / 2 + pposx);
+        spos = max(0, pposx);
       } else {
         pposx -= pxspeed;
-        spos = pposx;
+        if (spos <= 0) px = (resx / 2 + pposx);
+        spos = max(0, pposx);
       }
     }
-
   }
-
 }
 
 function drawBullets() {
-    for (i=0; i < bmax; i++) {
-      if (bullets[i][5]) {
-        if (bullets[i][3] <= heightc) {
-          bullets[i][3]++;
-          bullets[i][1] = bullets[i][1] - bspeedy;
-        } else {
-          bullets[i][1] = bullets[i][1] + bspeedy;
-        }
-        if (bullets[i][6]) bullets[i][0] = bullets[i][0] + bspeedx;
-          else bullets[i][0] = bullets[i][0] - bspeedx;
-        ellipse(bullets[i][0] - pposx, bullets[i][1], bullets[i][2], bullets[i][2]);
+  for (i = 0; i < bmax; i++) {
+    if (bullets[i][5]) {
+      if (bullets[i][3] <= heightc) {
+        bullets[i][3]++;
+        bullets[i][1] = bullets[i][1] - bspeedy;
+      } else {
+        bullets[i][1] = bullets[i][1] + bspeedy;
+      }
+      if (bullets[i][6]) bullets[i][0] = bullets[i][0] + bspeedx;
+      else bullets[i][0] = bullets[i][0] - bspeedx;
+      ellipse(bullets[i][0] - spos, bullets[i][1], bullets[i][2], bullets[i][2]);
 
-        bullets[i][4]++;
-        if (bullets[i][4] === 60 * blife) {
-          bullets[i][5] = false;
-        }
+      bullets[i][4]++;
+      if (bullets[i][4] === 60 * blife) {
+        bullets[i][5] = false;
       }
     }
   }
+}
 
 function newBullet() {
-    ready = false;
-    for (i=0; !ready && i < bmax; i++) {
-      if (!bullets[i][5]) {
-        ready = true;
-        bullets[i][1] = py;
-        bullets[i][2] = bsize;
-        bullets[i][3] = 0;
-        bullets[i][4] = 0;
-        bullets[i][5] = true;
-        if (right) {
-          bullets[i][0] = pposx + px + sx - bullets[i][2];
-          bullets[i][6] = true;
-        } else {
-          bullets[i][0] = pposx + px + bullets[i][2];
-          bullets[i][6] = false;
-        }
+  ready = false;
+  for (i = 0; !ready && i < bmax; i++) {
+    if (!bullets[i][5]) {
+      ready = true;
+      bullets[i][1] = py;
+      bullets[i][2] = bsize;
+      bullets[i][3] = 0;
+      bullets[i][4] = 0;
+      bullets[i][5] = true;
+      if (right) {
+        bullets[i][0] = spos + px + sx - bullets[i][2];
+        bullets[i][6] = true;
+      } else {
+        bullets[i][0] = spos + px + bullets[i][2];
+        bullets[i][6] = false;
       }
     }
   }
+}
 
 function lose() {
   if (py + sy >= resy) {
@@ -668,7 +661,8 @@ function moveEnemies() {
 function drawEnemies() {
   fill('gold');
   for (i = 0; i < enumber; i++) {
-    image(enemyimg, enemies[i][0] - pposx, enemies[i][1]);
+    image(enemyimg, enemies[i][0] - spos, enemies[i][1]);
   }
   fill('#FFFFFF');
 }
+
