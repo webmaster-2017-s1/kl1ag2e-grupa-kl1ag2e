@@ -6,11 +6,11 @@ var maxp = [38, 55];
 
 var platforms = [];
 
-for (var i = 0; i <= maxp.length; i++) {
-    platforms[i] = [];
-    for (var j = 0; j <= maxp[i]; j++) {
-        platforms[i][j] = [];
-    }
+for (var i = 0; i < maxp.length; i++) {
+  platforms[i] = [];
+  for (var j = 0; j <= maxp[i]; j++) {
+    platforms[i][j] = [];
+  }
 }
 
 //[stage_id][platform_id][platform_dim]
