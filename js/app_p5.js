@@ -169,6 +169,7 @@ function drawObjects() {
   }
   fill('#FFFFFF');
   drawEnemies();
+  drawSpikes();
 }
 
 var jheight = 150;
@@ -296,7 +297,7 @@ function collision() {
   }
 
 
-  debugcollision(maxid, minid, xmaxid, xminid);
+  // debugcollision(maxid, minid, xmaxid, xminid); //Uncomment to debug collision
   gravity(maxy);
   air(maxy);
   if (jumped) jump();
@@ -325,7 +326,6 @@ function gravity(maxy) {
       py += grav;
     else
       py = maxy - sy - 1;
-
   }
 }
 
@@ -464,3 +464,19 @@ function drawEnemies() {
   fill('#FFFFFF');
 }
 
+function drawSpikes() {
+  for (i = 0; i < maxs[stageid]; i++) {
+
+    //DOWN
+    if (spikes[stageid][i][2] === 0) triangle(spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] + sheight);
+
+    //UP
+    if (spikes[stageid][i][2] === 1) triangle(spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] - sheight);
+
+    //LEFT
+    if (spikes[stageid][i][2] === 2) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos - sheight, spikes[stageid][i][1]);
+
+    //RIGHT
+    if (spikes[stageid][i][2] === 3) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos + sheight, spikes[stageid][i][1]);
+  }
+}
