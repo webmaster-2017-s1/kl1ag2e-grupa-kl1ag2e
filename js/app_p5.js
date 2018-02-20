@@ -67,6 +67,7 @@ var bullets = [];
 //8-miny
 //9-maxx
 //10-minx
+//11-True if bullet can take us damage
 
 for (i = 0; i < bmax; i++) {
   bullets[i] = [];
@@ -77,17 +78,21 @@ for (i = 0; i < bmax; i++) {
   bullets[i][8] = 0;
   bullets[i][9] = 999999;
   bullets[i][10] = 0;
+  bullets[i][11] = false;
 }
 
 
 //Number of enemies
-var enumber = 1;
+var enumber = 2;
 
 //Enemy size
 var esize = 60;
 
 //Enemy speed
 var espeed = 2;
+
+//Every second the opponent can shoot
+var ttshot = 3;
 
 var enemies = [];
 
@@ -103,18 +108,31 @@ for (i = 0; i < enumber; i++) {
 //4-Direction
 //**false left <---
 //**true right --->
+//5-Type of enemy
+//6-Time to shot
 
 enemies[0][0] = 650;
 enemies[0][1] = 380;
 enemies[0][2] = 650;
 enemies[0][3] = 810;
 enemies[0][4] = true;
+enemies[0][5] = 0;
+
+enemies[1][0] = 4690;
+enemies[1][1] = 280;
+enemies[1][2] = 4690;
+enemies[1][3] = 4810;
+enemies[1][4] = true;
+enemies[1][5] = 1;
+enemies[1][6] = 0;
 
 var enemyimg;
+var enemyimg2;
 
 //Load Images
 function preload() {
   enemyimg = loadImage('./assets/enemy.png');
+  enemyimg2 = loadImage('./assets/enemy2.png');
 }
 
 function setup() {
@@ -158,7 +176,7 @@ function keyPressed() {
 
 function keyTyped() {
   if (key === 's') {
-    newBullet();
+    newBulletForPlayer();
   }
 }
 
@@ -303,6 +321,7 @@ function collision() {
   if (jumped) jump();
   lose();
   moveEnemies();
+  enemiesDamage();
 }
 
 
@@ -388,7 +407,11 @@ function drawBullets() {
       }
       if (bullets[i][6]) bullets[i][0] = bullets[i][0] + bspeedx;
       else bullets[i][0] = bullets[i][0] - bspeedx;
+
+      if (bullets[i][11] == false) fill('white');
+        else fill('red');
       ellipse(bullets[i][0] - spos, bullets[i][1], bullets[i][2], bullets[i][2]);
+      fill('white');
 
       bullets[i][4]++;
       if (bullets[i][4] === 60 * blife) {
@@ -398,7 +421,7 @@ function drawBullets() {
   }
 }
 
-function newBullet() {
+function newBulletForPlayer() {
   ready = false;
   for (i = 0; !ready && i < bmax; i++) {
     if (!bullets[i][5]) {
@@ -415,6 +438,24 @@ function newBullet() {
         bullets[i][0] = spos + px + bullets[i][2];
         bullets[i][6] = false;
       }
+      bullets[i][11] = false;
+    }
+  }
+}
+
+function newBulletForEnemy(enemynumber) {
+  ready = false;
+  for (i = 0; !ready && i < bmax; i++) {
+    if (!bullets[i][5]) {
+      ready = true;
+      bullets[i][0] = enemies[enemynumber][0];
+      bullets[i][1] = enemies[enemynumber][1];
+      bullets[i][2] = bsize;
+      bullets[i][3] = 0;
+      bullets[i][4] = 0;
+      bullets[i][5] = true;
+      bullets[i][6] = false;
+      bullets[i][11] = true;
     }
   }
 }
@@ -459,9 +500,22 @@ function moveEnemies() {
 function drawEnemies() {
   fill('gold');
   for (i = 0; i < enumber; i++) {
-    image(enemyimg, enemies[i][0] - spos, enemies[i][1]);
+    if (enemies[i][5] == 0) image(enemyimg, enemies[i][0] - spos, enemies[i][1]);
+      else image(enemyimg2, enemies[i][0] - spos, enemies[i][1]);
   }
   fill('#FFFFFF');
+}
+
+function enemiesDamage() {
+  for (i = 0; i < enumber; i++) {
+    if (enemies[i][5] == 1) {
+      if (px + spos >= enemies[i][0] - 500 && px + spos <= enemies[i][0] + 500 && enemies[i][6] == 0) {
+        enemies[i][6]++;
+        newBulletForEnemy(i);
+      } else if (enemies[i][6] > 0 && enemies[i][6] < 60 * ttshot + 1) enemies[i][6]++;
+        else if (enemies[i][6] == 60 * ttshot + 1) enemies[i][6] = 0;
+    }
+  }
 }
 
 function drawSpikes() {
