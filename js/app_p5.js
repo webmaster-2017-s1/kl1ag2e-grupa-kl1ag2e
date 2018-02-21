@@ -37,50 +37,34 @@ var spos = 0;
 //Gravity
 var grav = 7;
 
-//True if bullets[i][5] in loop is false
-var ready = false;
+var direction = [];
+
 //Bullets size
 var bsize = 20;
 //Max number of bullets
 var bmax = 10;
-//Bullets speed in X position
-var bspeedx = 12;
-//Bullets speed in Y position
-var bspeedy = 2;
+//Bullets speed
+var bspeed = 12;
 //Bullets life in seconds
 var blife = 5;
-//Height from the place of rendering on which the ball begins to fall
-var heightc = 20;
-//True if bullet is to go the right
-var right = true;
 
 var bullets = [];
 //bullets[][*]
 //0-X pos
 //1-Y pos
 //2-Size(width and height)
-//3-Height from the place of rendering
+//3-Direction
 //4-Life counter
 //5-True if bullet is drawing
-//6-True if bullet is go to the right
-//7-maxy
-//8-miny
-//9-maxx
-//10-minx
-//11-True if bullet can take us damage
+//6-True if bullet can take us damage
+//7-Bullet speed in x position
+//8-Bullet speed in y position
 
 for (i = 0; i < bmax; i++) {
   bullets[i] = [];
   bullets[i][4] = 0;
   bullets[i][5] = false;
-  bullets[i][6] = false;
-  bullets[i][7] = 999999;
-  bullets[i][8] = 0;
-  bullets[i][9] = 999999;
-  bullets[i][10] = 0;
-  bullets[i][11] = false;
 }
-
 
 //Number of enemies
 var enumber = 2;
@@ -92,7 +76,7 @@ var esize = 60;
 var espeed = 2;
 
 //Every second the opponent can shoot
-var ttshot = 3;
+var ttshot = 2;
 
 var enemies = [];
 
@@ -144,29 +128,33 @@ function setup() {
 function draw() {
   background(200);
   rect(px, py, sx, sy);
-  if (keyIsPressed) keyboardEvent();
+  keyboardEvent();
   drawObjects();
   collision();
   drawBullets();
 }
 
 function keyboardEvent() {
-  if (keyIsDown(39)) {
+  if (keyIsDown(RIGHT_ARROW)) {
     movex(1);
-    right = true;
+    direction[0] = true;
+    direction[1] = false;
   }
-  // if (keyIsDown(40)) py += 5;
 
-  if (keyIsDown(37)) {
+  if (keyIsDown(LEFT_ARROW)) {
     movex(-1);
-    right = false;
+    direction[1] = true;
+    direction[0] = false;
   }
+
+  direction[2] = keyIsDown(UP_ARROW);
+  direction[3] = keyIsDown(DOWN_ARROW);
 
   return false;
 }
 
 function keyPressed() {
-  if (keyCode === UP_ARROW) {
+  if (keyCode === 90) {
     if (!onair) {
       jcounter = 0;
       jumped = true;
@@ -175,8 +163,8 @@ function keyPressed() {
 }
 
 function keyTyped() {
-  if (key === 's') {
-    newBulletForPlayer();
+  if (key === 'x') {
+    newBullet(-1);
   }
 }
 
@@ -218,6 +206,18 @@ function collision() {
 
   minx = 0;
   var xminid = -1;
+
+  var bmaxx = [];
+  var bminx = [];
+  var bmaxy = [];
+  var bminy = [];
+
+  for (i = 0; i < bmax; i++) {
+    bmaxx[i] = 999999;
+    bminx[i] = 0;
+    bmaxy[i] = 999999;
+    bminy[i] = 0;
+  }
 
 
   for (i = 0; i < maxp[stageid]; i++) {
@@ -267,52 +267,33 @@ function collision() {
 
         if (bullets[j][0] - pposx >= platforms[stageid][i][0] - pposx && bullets[j][0] - pposx <= platforms[stageid][i][0] - pposx + platforms[stageid][i][2]) {
           if (platforms[stageid][i][1] >= bullets[j][1]) {
-            if (platforms[stageid][i][1] <= bullets[j][7]) {
-              bullets[j][7] = platforms[stageid][i][1];
+            if (platforms[stageid][i][1] <= bmaxx[j]) {
+              bmaxx[j] = platforms[stageid][i][1];
             }
           }
           if (platforms[stageid][i][1] + platforms[stageid][i][3] <= bullets[j][1]) {
-            if (platforms[stageid][i][1] + platforms[stageid][i][3] >= bullets[j][8]) {
-              bullets[j][8] = platforms[stageid][i][1] + platforms[stageid][i][3];
+            if (platforms[stageid][i][1] + platforms[stageid][i][3] >= bminx[j]) {
+              bminx[j] = platforms[stageid][i][1] + platforms[stageid][i][3];
             }
           }
-        } else {
-          bullets[j][7] = 999999;
-          bullets[j][8] = 0;
         }
 
         if (bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] / 2 && bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3]) {
           if (platforms[stageid][i][0] >= bullets[j][0]) {
-            if (platforms[stageid][i][0] <= bullets[j][9]) {
-              bullets[j][9] = platforms[stageid][i][0];
+            if (platforms[stageid][i][0] <= bmaxy[j]) {
+              bmaxy[j] = platforms[stageid][i][0];
             }
           }
           if (platforms[stageid][i][0] + platforms[stageid][i][2] <= bullets[j][0]) {
-            if (platforms[stageid][i][0] >= bullets[j][10]) {
-              bullets[j][10] = platforms[stageid][i][0] + platforms[stageid][i][2];
+            if (platforms[stageid][i][0] >= bminy[j]) {
+              bminy[j] = platforms[stageid][i][0] + platforms[stageid][i][2];
             }
           }
-        } else {
-          bullets[j][9] = 999999;
-          bullets[j][10] = 0;
         }
-
-        if (bullets[j][7] <= bullets[j][1] + bullets[j][2] / 2) {
-          bullets[j][5] = false;
-          bullets[j][7] = 999999;
-        } else if (bullets[j][8] >= bullets[j][1] - bullets[j][2] / 2) {
-          bullets[j][5] = false;
-          bullets[j][8] = 0;
-        } else if (bullets[j][9] <= bullets[j][0] + bullets[j][2] / 2) {
-          bullets[j][5] = false;
-          bullets[j][9] = 999999;
-        } else if (bullets[j][10] >= bullets[j][0] - bullets[j][2] / 2) {
-          bullets[j][5] = false;
-          bullets[j][10] = 0;
+        if (bmaxx[j] <= bullets[j][1] + bullets[j][2] / 2 || bminx[j] >= bullets[j][1] - bullets[j][2] / 2 || bmaxy[j] <= bullets[j][0] + bullets[j][2] / 2 || bminy[j] >= bullets[j][0] - bullets[j][2] / 2) bullets[j][5] = false;
         }
       }
     }
-  }
 
 
   // debugcollision(maxid, minid, xmaxid, xminid); //Uncomment to debug collision
@@ -399,16 +380,36 @@ function movex(vector) {
 function drawBullets() {
   for (i = 0; i < bmax; i++) {
     if (bullets[i][5]) {
-      if (bullets[i][3] <= heightc) {
-        bullets[i][3]++;
-        bullets[i][1] = bullets[i][1] - bspeedy;
-      } else {
-        bullets[i][1] = bullets[i][1] + bspeedy;
+      if (bullets[i][3] === 0) {
+        bullets[i][0] = bullets[i][0] + bspeed;
+        bullets[i][1] = bullets[i][1] - bspeed;
+      } else if (bullets[i][3] === 1) {
+        bullets[i][0] = bullets[i][0] + bspeed;
+        bullets[i][1] = bullets[i][1] + bspeed;
+      } else if (bullets[i][3] === 2) {
+        bullets[i][0] = bullets[i][0] - bspeed;
+        bullets[i][1] = bullets[i][1] - bspeed;
+      } else if (bullets[i][3] === 3) {
+        bullets[i][0] = bullets[i][0] - bspeed;
+        bullets[i][1] = bullets[i][1] + bspeed;
+      } else if (bullets[i][3] === 4) {
+        bullets[i][0] = bullets[i][0] + bspeed;
+      } else if (bullets[i][3] === 5) {
+        bullets[i][0] = bullets[i][0] - bspeed;
+      } else if (bullets[i][3] === 6) {
+        bullets[i][0] = bullets[i][0] - bullets[i][7];
+        bullets[i][1] = bullets[i][1] - bullets[i][8];
+      } else if (bullets[i][3] === 7) {
+        bullets[i][0] = bullets[i][0] - bullets[i][7];
+        bullets[i][1] = bullets[i][1] + bullets[i][8];
+      } else if (bullets[i][3] === 8) {
+        bullets[i][0] = bullets[i][0] + bullets[i][7];
+        bullets[i][1] = bullets[i][1] - bullets[i][8];
+      } else if (bullets[i][3] === 9) {
+        bullets[i][0] = bullets[i][0] + bullets[i][7];
+        bullets[i][1] = bullets[i][1] + bullets[i][8];
       }
-      if (bullets[i][6]) bullets[i][0] = bullets[i][0] + bspeedx;
-      else bullets[i][0] = bullets[i][0] - bspeedx;
-
-      if (bullets[i][11] == false) fill('white');
+      if (bullets[i][6] === false) fill('white');
         else fill('red');
       ellipse(bullets[i][0] - spos, bullets[i][1], bullets[i][2], bullets[i][2]);
       fill('white');
@@ -421,41 +422,53 @@ function drawBullets() {
   }
 }
 
-function newBulletForPlayer() {
-  ready = false;
-  for (i = 0; !ready && i < bmax; i++) {
+function newBullet(enumber) {
+  for (i = 0; i < bmax; i++) {
     if (!bullets[i][5]) {
-      ready = true;
-      bullets[i][1] = py;
-      bullets[i][2] = bsize;
-      bullets[i][3] = 0;
-      bullets[i][4] = 0;
-      bullets[i][5] = true;
-      if (right) {
-        bullets[i][0] = spos + px + sx - bullets[i][2];
-        bullets[i][6] = true;
-      } else {
-        bullets[i][0] = spos + px + bullets[i][2];
+      if (enumber === -1) {
+        bullets[i][1] = py;
+        bullets[i][2] = bsize;
+        if (direction[0] && direction[2]) {
+          bullets[i][0] = spos + px + sx;
+          bullets[i][3] = 0;
+        } else if (direction[0] && direction[3]) {
+          bullets[i][0] = spos + px + sx;
+          bullets[i][3] = 1;
+        } else if (direction[1] && direction[2]) {
+          bullets[i][0] = spos + px;
+          bullets[i][3] = 2;
+        } else if (direction[1] && direction[3]) {
+          bullets[i][0] = spos + px;
+          bullets[i][3] = 3;
+        } else if (direction[0]) {
+          bullets[i][0] = spos + px + sx;
+          bullets[i][3] = 4;
+        } else if (direction[1]) {
+          bullets[i][0] = spos + px;
+          bullets[i][3] = 5;
+        }
         bullets[i][6] = false;
-      }
-      bullets[i][11] = false;
-    }
-  }
-}
+      } else {
+        var x = enemies[enumber][0] + (esize / 2) - px - spos;
+        var y = enemies[enumber][1] - py;
+        var z = Math.pow(x, 2) + Math.pow(y, 2);
+        var a = z / bspeed;
+        bullets[i][7] = Math.sqrt(Math.pow(x, 2) / a) * 3;
+        bullets[i][8] = Math.sqrt(Math.pow(y, 2) / a) * 3;
 
-function newBulletForEnemy(enemynumber) {
-  ready = false;
-  for (i = 0; !ready && i < bmax; i++) {
-    if (!bullets[i][5]) {
-      ready = true;
-      bullets[i][0] = enemies[enemynumber][0];
-      bullets[i][1] = enemies[enemynumber][1];
-      bullets[i][2] = bsize;
-      bullets[i][3] = 0;
+        if (enemies[enumber][0] + (esize / 2) - px - spos > 0 && enemies[enumber][1] - py > 0) bullets[i][3] = 6;
+        else if (enemies[enumber][0] + (esize / 2) - px - spos > 0 && enemies[enumber][1] - py <= 0) bullets[i][3] = 7;
+        else if (enemies[enumber][0] + (esize / 2) - px - spos <= 0 && enemies[enumber][1] - py > 0) bullets[i][3] = 8;
+        else if (enemies[enumber][0] + (esize / 2) - px - spos <= 0 && enemies[enumber][1] - py <= 0) bullets[i][3] = 9;
+
+        bullets[i][0] = enemies[enumber][0] + (esize / 2);
+        bullets[i][1] = enemies[enumber][1];
+        bullets[i][2] = bsize;
+        bullets[i][6] = true;
+      }
       bullets[i][4] = 0;
       bullets[i][5] = true;
-      bullets[i][6] = false;
-      bullets[i][11] = true;
+      break;
     }
   }
 }
@@ -500,7 +513,7 @@ function moveEnemies() {
 function drawEnemies() {
   fill('gold');
   for (i = 0; i < enumber; i++) {
-    if (enemies[i][5] == 0) image(enemyimg, enemies[i][0] - spos, enemies[i][1]);
+    if (enemies[i][5] === 0) image(enemyimg, enemies[i][0] - spos, enemies[i][1]);
       else image(enemyimg2, enemies[i][0] - spos, enemies[i][1]);
   }
   fill('#FFFFFF');
@@ -508,12 +521,12 @@ function drawEnemies() {
 
 function enemiesDamage() {
   for (i = 0; i < enumber; i++) {
-    if (enemies[i][5] == 1) {
-      if (px + spos >= enemies[i][0] - 500 && px + spos <= enemies[i][0] + 500 && enemies[i][6] == 0) {
+    if (enemies[i][5] === 1) {
+      if (px + spos >= enemies[i][0] - 500 && px + spos <= enemies[i][0] + 500 && enemies[i][6] === 0) {
         enemies[i][6]++;
-        newBulletForEnemy(i);
+        newBullet(i);
       } else if (enemies[i][6] > 0 && enemies[i][6] < 60 * ttshot + 1) enemies[i][6]++;
-        else if (enemies[i][6] == 60 * ttshot + 1) enemies[i][6] = 0;
+        else if (enemies[i][6] === 60 * ttshot + 1) enemies[i][6] = 0;
     }
   }
 }
