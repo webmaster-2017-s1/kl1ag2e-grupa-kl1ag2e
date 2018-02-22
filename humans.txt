@@ -3,11 +3,19 @@
 
 # TEAM
 
-    <name> -- <role> -- <email>
+   Project Manager and Programmer: Marcin Zasuwa
+   Contact: marcin.zasuwa [at] lo1.sandomierz.pl
+   From: Sandomierz, Poland
+
+   Programmer: Marcin Saja
+   Contact: marcin.saja [at] lo1.sandomierz.pl
+   From: Sandomierz, Poland
+
+   Level designer and programmer: Jakub Mazur
+   Contact: jakub.mazur [at] lo1.sandomierz.pl
+
 
 # THANKS
-
-    <name>
 
 # TECHNOLOGY COLOPHON
 

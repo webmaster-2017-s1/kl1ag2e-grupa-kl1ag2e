@@ -1,13 +1,16 @@
-Uzupełnij poniższy dokument zastępując tekst "[wpisz nazwę]" nazwą
-twojego (waszego) projektu JavaScript.
- 
-Przeczytaj [instrukcję realizacji zadania](doc/zadanie.md).
-
-Po uzupełnieniu dokumentu usuń powyższe oraz niniejszy akapit
-i zatwierdź zmiany używając komentarza "Aktualizacja README.md".
-
-# [Wpisz nazwę projektu]
-Implementacja gry [wpisz nazwę] w JavaScript
+# Gra platformowa
+Implementacja Gry platformowej w JavaScript
 
 ## Uruchomienie
-[Tu umieść opis kroków pozwalających na uruchomienie projektu]
+1. Wejdź to zakładki Releases i pobierz najnowszą wersję gry.
+1. Rozpakuj archiwum zip zawierające grę.
+1. Otwórz w przeglądarce plik index.html
+1. Wybierz wersję gry z menu nawigacyjnego.
+
+## Autorzy
+* Marcin Zasuwa
+* Marcin Saja
+* Jakub Mazur
+
+## Licencja 
+Gra udostępniana jest na licencji GNU General Public License (GPL)

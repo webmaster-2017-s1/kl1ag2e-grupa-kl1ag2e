@@ -64,10 +64,16 @@ var i = 0;
 var j = 0;
 
 //Start rendering platforms from rstart platform
-var rstart=0;
+var rstart = 0;
 
 //Start collision checking platforms from cstart platform;
 var cstart = 0;
+
+//True if game is paused(PRESS SPACE to Continue)
+var paused = false;
+
+var inmenu = true;
+
 
 for (i = 0; i < bmax; i++) {
   bullets[i] = [];
@@ -135,22 +141,45 @@ function setup() {
 }
 
 function draw() {
-  background(200);
-  rect(px, py, sx, sy);
   keyboardEvent();
-  drawObjects();
-  collision();
-  drawBullets();
+  if (inmenu) menu(); else game();
+
+}
+
+function menu() {
+  if (inmenu) {
+    background(200);
+    textSize(50);
+    fill("#FF0000");
+    text("Menu WIP. Press Space to Start :)", 300, 100);
+    fill('#FFFFFF');
+  }
+}
+
+function game() {
+  if (!paused) {
+    background(200);
+    drawObjects();
+    collision();
+  } else pause();
+
+}
+
+function pause() {
+  textSize(50);
+  fill("#00FF00");
+  text("WIP. Press Space to Continue :)", 50, 50);
+  fill('#FFFFFF');
 }
 
 function keyboardEvent() {
-  if (keyIsDown(RIGHT_ARROW)) {
+  if (keyIsDown(RIGHT_ARROW) && !paused) {
     movex(1);
     direction[0] = true;
     direction[1] = false;
   }
 
-  if (keyIsDown(LEFT_ARROW)) {
+  if (keyIsDown(LEFT_ARROW) && !paused) {
     movex(-1);
     direction[1] = true;
     direction[0] = false;
@@ -163,12 +192,20 @@ function keyboardEvent() {
 }
 
 function keyPressed() {
-  if (keyCode === 90) {
+  if (keyCode === 90 && !paused) {
     if (!onair) {
       jcounter = 0;
       jumped = true;
     }
   }
+  if (keyCode === 32) {
+    if (inmenu) inmenu = false;
+    else
+      paused = !paused;
+
+  }
+
+
 }
 
 function keyTyped() {
@@ -178,20 +215,26 @@ function keyTyped() {
 }
 
 function drawObjects() {
+  //Draw Player
+  rect(px, py, sx, sy);
+  drawPlatforms();
+  drawEnemies();
+  drawSpikes();
+  drawBullets();
+}
+
+function drawPlatforms() {
   fill('#0000FF');
-  i = Math.max(rstart-1,0);
-  console.log(i, maxp[stageid]);
+  i = Math.max(rstart - 1, 0);
   do {
-    if (pposx - resx> platforms[stageid][i][0]) rstart = i;
+    if (pposx - resx > platforms[stageid][i][0]) rstart = i;
     rect(platforms[stageid][i][0] - spos, platforms[stageid][i][1], platforms[stageid][i][2], platforms[stageid][i][3]);
     i++;
   } while (i <= maxp[stageid] && pposx + resx >= platforms[stageid][i][0]);
-
-
   fill('#FFFFFF');
-  drawEnemies();
-  drawSpikes();
+
 }
+
 
 var jheight = 150;
 var minx = 0;
@@ -315,9 +358,10 @@ function collision() {
   gravity(maxy);
   air(maxy);
   if (jumped) jump();
-  lose();
   moveEnemies();
   enemiesDamage();
+  spikesCollision();
+  checkIfUnderScreen();
 }
 
 
@@ -483,14 +527,34 @@ function newBullet(enumber) {
   }
 }
 
-function lose() {
-  if (py + sy >= resy) {
-    textSize(50);
-    fill('#FF0000');
-    text("GAME OVER", resx / 2, resy / 2);
-    fill('#FFFFFF');
-  }
+function checkIfUnderScreen() {
+  if (py + sy >= resy) lose();
 }
+
+
+function lose() {
+
+  textSize(50);
+  fill('#FF0000');
+  text("GAME OVER", resx / 2, resy / 2);
+  fill('#FFFFFF');
+  restartGame();
+}
+
+function restartGame() {
+  px = 100;
+  pposx = 100;
+  spos = 0;
+  py = 100;
+  onair = false;
+  jumped = false;
+  jcounter = false;
+  rstart = 0;
+  cstart = 0;
+  paused = true;
+
+}
+
 
 function moveEnemies() {
   for (i = 0; i < enumber; i++) {
@@ -554,5 +618,18 @@ function drawSpikes() {
 
     //RIGHT
     if (spikes[stageid][i][2] === 3) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos + sheight, spikes[stageid][i][1]);
+  }
+}
+
+function spikesCollision() {
+  //TODO Optimise checking
+  for (i = 0; i < maxs[stageid]; i++) {
+    //Spikes UP AND DOWN
+    if (pposx >= spikes[stageid][i][0] - swidth - sx && pposx <= spikes[stageid][i][0] + swidth)
+      if ((spikes[stageid][i][2] === 0 && py >= spikes[stageid][i][1] && py <= spikes[stageid][i][1] + sheight) || (spikes[stageid][i][2] === 1 && py >= spikes[stageid][i][1] - sheight && py <= spikes[stageid][i][1])) lose();
+
+    //Spikes LEFT AND RIGHT
+    if (py >= spikes[stageid][i][1] - swidth && py <= spikes[stageid][i][1] + swidth)
+      if ((spikes[stageid][i][2] === 2 && pposx >= spikes[stageid][i][0] - sheight - sx / 3 && pposx <= spikes[stageid][i][0] + sx) || (spikes[stageid][i][2] === 3 && pposx >= spikes[stageid][i][0] && pposx <= spikes[stageid][i][0] + sheight)) lose();
   }
 }
