@@ -1,5 +1,5 @@
 //Max number of spikes on n stage
-var maxs = [50, 50];
+var maxs = [3, 3];
 
 //Spike's 1/2 width
 var swidth = 30;
@@ -31,3 +31,11 @@ spikes[0][0][0] = 480;
 spikes[0][0][1] = 280;
 spikes[0][0][2] = 1;
 
+spikes[0][1][0] = 510;
+spikes[0][1][1] = 310;
+spikes[0][1][2] = 3;
+
+
+spikes[0][2][0] = 1200;
+spikes[0][2][1] = 320;
+spikes[0][2][2] = 2;
