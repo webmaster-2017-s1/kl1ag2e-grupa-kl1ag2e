@@ -259,21 +259,8 @@ function collision() {
 
   var xmaxid = -1;
 
-
   minx = 0;
   var xminid = -1;
-
-  var bmaxx = [];
-  var bminx = [];
-  var bmaxy = [];
-  var bminy = [];
-
-  for (i = 0; i < bmax; i++) {
-    bmaxx[i] = 999999;
-    bminx[i] = 0;
-    bmaxy[i] = 999999;
-    bminy[i] = 0;
-  }
 
   i = max(cstart - 1, 0);
   // console.log(i, maxp[stageid]);
@@ -319,38 +306,6 @@ function collision() {
         }
       }
     }
-
-    for (j = 0; j < bmax; j++) {
-      if (bullets[j][5]) {
-
-        if (bullets[j][0] >= platforms[stageid][i][0] && bullets[j][0] <= platforms[stageid][i][0] + platforms[stageid][i][2]) {
-          if (platforms[stageid][i][1] >= bullets[j][1]) {
-            if (platforms[stageid][i][1] <= bmaxx[j]) {
-              bmaxx[j] = platforms[stageid][i][1];
-            }
-          }
-          if (platforms[stageid][i][1] + platforms[stageid][i][3] <= bullets[j][1]) {
-            if (platforms[stageid][i][1] + platforms[stageid][i][3] >= bminx[j]) {
-              bminx[j] = platforms[stageid][i][1] + platforms[stageid][i][3];
-            }
-          }
-        }
-
-        if (bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] / 2 && bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3]) {
-          if (platforms[stageid][i][0] >= bullets[j][0]) {
-            if (platforms[stageid][i][0] <= bmaxy[j]) {
-              bmaxy[j] = platforms[stageid][i][0];
-            }
-          }
-          if (platforms[stageid][i][0] + platforms[stageid][i][2] <= bullets[j][0]) {
-            if (platforms[stageid][i][0] >= bminy[j]) {
-              bminy[j] = platforms[stageid][i][0] + platforms[stageid][i][2];
-            }
-          }
-        }
-        if (bmaxx[j] <= bullets[j][1] + bullets[j][2] / 2 || bminx[j] >= bullets[j][1] - bullets[j][2] / 2 || bmaxy[j] <= bullets[j][0] + bullets[j][2] / 2 || bminy[j] >= bullets[j][0] - bullets[j][2] / 2) bullets[j][5] = false;
-      }
-    }
     i++;
   } while (i <= maxp[stageid] && pposx + resx / 4 >= platforms[stageid][i][0]);
 
@@ -359,12 +314,26 @@ function collision() {
   gravity(maxy);
   air(maxy);
   if (jumped) jump();
+  bulletsCollision();
   moveEnemies();
   enemiesDamage();
   spikesCollision();
   checkIfUnderScreen();
 }
 
+function bulletsCollision() {
+  for (h = 0; h < maxp[stageid]; h++) {
+    for (j = 0; j < bmax; j++) {
+      if (bullets[j][5]) {
+        if (bullets[j][1] <= platforms[stageid][h][1] + platforms[stageid][h][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][h][1] - bullets[j][2] * 0.75) {
+          if (bullets[j][0] >= platforms[stageid][h][0] - bullets[j][2] * 0.75 && bullets[j][0] <= platforms[stageid][h][0] + platforms[stageid][h][2] + bullets[j][2] * 0.75) {
+            bullets[j][5] = false;
+          }
+        }
+      }
+    }
+  }
+}
 
 function debugcollision(maxid, minid, xmaxid, xminid) {
   fill('red');
