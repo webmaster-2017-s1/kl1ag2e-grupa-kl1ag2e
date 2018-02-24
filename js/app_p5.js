@@ -37,6 +37,7 @@ var spos = 0;
 var grav = 7;
 
 var direction = [];
+direction[0] = true;
 
 //Bullets size
 var bsize = 20;
@@ -503,12 +504,12 @@ function newBullet(enumber) {
         }
         bullets[i][6] = false;
       } else {
-        var x = enemies[enumber][0] + (esize / 2) - px - spos;
-        var y = enemies[enumber][1] - py;
-        var z = Math.pow(x, 2) + Math.pow(y, 2);
-        var a = z / bspeed;
-        bullets[i][7] = Math.sqrt(Math.pow(x, 2) / a) * 3;
-        bullets[i][8] = Math.sqrt(Math.pow(y, 2) / a) * 3;
+        var a = enemies[enumber][0] + (esize / 2) - px - spos;
+        var b = enemies[enumber][1] - py;
+        var c = Math.pow(a, 2) + Math.pow(b, 2);
+        var d = c / bspeed;
+        bullets[i][7] = Math.sqrt(Math.pow(a, 2) / d) * 3;
+        bullets[i][8] = Math.sqrt(Math.pow(b, 2) / d) * 3;
 
         if (enemies[enumber][0] + (esize / 2) - px - spos > 0 && enemies[enumber][1] - py > 0) bullets[i][3] = 6;
         else if (enemies[enumber][0] + (esize / 2) - px - spos > 0 && enemies[enumber][1] - py <= 0) bullets[i][3] = 7;
