@@ -18,6 +18,14 @@ var pxspeed = 7;
 var sx = 50;
 var sy = 50;
 
+//Player life points
+var plifep = 3;
+//True if player can't get damage
+//False if player can get damage
+var nodamage = false;
+//No damage counter
+var ndcounter = 0;
+
 var onair = false;
 
 //True if player rise
@@ -37,6 +45,7 @@ var spos = 0;
 var grav = 7;
 
 var direction = [];
+direction[0] = true;
 
 //Bullets size
 var bsize = 20;
@@ -116,6 +125,8 @@ enemies[0][2] = 650;
 enemies[0][3] = 810;
 enemies[0][4] = true;
 enemies[0][5] = 0;
+enemies[0][6] = -1;
+enemies[0][7] = 3;
 
 enemies[1][0] = 4690;
 enemies[1][1] = 280;
@@ -124,6 +135,7 @@ enemies[1][3] = 4810;
 enemies[1][4] = true;
 enemies[1][5] = 1;
 enemies[1][6] = 0;
+enemies[1][7] = 2;
 
 var enemyimg;
 var enemyimg2;
@@ -215,12 +227,16 @@ function keyTyped() {
 }
 
 function drawObjects() {
-  //Draw Player
-  rect(px, py, sx, sy);
+  drawPlayer();
   drawPlatforms();
   drawEnemies();
   drawSpikes();
   drawBullets();
+}
+
+function drawPlayer() {
+  if (!nodamage) rect(px, py, sx, sy);
+    else noDamage();
 }
 
 function drawPlatforms() {
@@ -258,21 +274,8 @@ function collision() {
 
   var xmaxid = -1;
 
-
   minx = 0;
   var xminid = -1;
-
-  var bmaxx = [];
-  var bminx = [];
-  var bmaxy = [];
-  var bminy = [];
-
-  for (i = 0; i < bmax; i++) {
-    bmaxx[i] = 999999;
-    bminx[i] = 0;
-    bmaxy[i] = 999999;
-    bminy[i] = 0;
-  }
 
   i = max(cstart - 1, 0);
   // console.log(i, maxp[stageid]);
@@ -318,38 +321,6 @@ function collision() {
         }
       }
     }
-
-    for (j = 0; j < bmax; j++) {
-      if (bullets[j][5]) {
-
-        if (bullets[j][0] >= platforms[stageid][i][0] && bullets[j][0] <= platforms[stageid][i][0] + platforms[stageid][i][2]) {
-          if (platforms[stageid][i][1] >= bullets[j][1]) {
-            if (platforms[stageid][i][1] <= bmaxx[j]) {
-              bmaxx[j] = platforms[stageid][i][1];
-            }
-          }
-          if (platforms[stageid][i][1] + platforms[stageid][i][3] <= bullets[j][1]) {
-            if (platforms[stageid][i][1] + platforms[stageid][i][3] >= bminx[j]) {
-              bminx[j] = platforms[stageid][i][1] + platforms[stageid][i][3];
-            }
-          }
-        }
-
-        if (bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] / 2 && bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3]) {
-          if (platforms[stageid][i][0] >= bullets[j][0]) {
-            if (platforms[stageid][i][0] <= bmaxy[j]) {
-              bmaxy[j] = platforms[stageid][i][0];
-            }
-          }
-          if (platforms[stageid][i][0] + platforms[stageid][i][2] <= bullets[j][0]) {
-            if (platforms[stageid][i][0] >= bminy[j]) {
-              bminy[j] = platforms[stageid][i][0] + platforms[stageid][i][2];
-            }
-          }
-        }
-        if (bmaxx[j] <= bullets[j][1] + bullets[j][2] / 2 || bminx[j] >= bullets[j][1] - bullets[j][2] / 2 || bmaxy[j] <= bullets[j][0] + bullets[j][2] / 2 || bminy[j] >= bullets[j][0] - bullets[j][2] / 2) bullets[j][5] = false;
-      }
-    }
     i++;
   } while (i <= maxp[stageid] && pposx + resx / 4 >= platforms[stageid][i][0]);
 
@@ -358,12 +329,26 @@ function collision() {
   gravity(maxy);
   air(maxy);
   if (jumped) jump();
+  bulletsCollision();
   moveEnemies();
-  enemiesDamage();
+  damage();
   spikesCollision();
   checkIfUnderScreen();
 }
 
+function bulletsCollision() {
+  for (h = 0; h < maxp[stageid]; h++) {
+    for (j = 0; j < bmax; j++) {
+      if (bullets[j][5]) {
+        if (bullets[j][1] <= platforms[stageid][h][1] + platforms[stageid][h][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][h][1] - bullets[j][2] * 0.75) {
+          if (bullets[j][0] >= platforms[stageid][h][0] - bullets[j][2] * 0.75 && bullets[j][0] <= platforms[stageid][h][0] + platforms[stageid][h][2] + bullets[j][2] * 0.75) {
+            bullets[j][5] = false;
+          }
+        }
+      }
+    }
+  }
+}
 
 function debugcollision(maxid, minid, xmaxid, xminid) {
   fill('red');
@@ -503,12 +488,12 @@ function newBullet(enumber) {
         }
         bullets[i][6] = false;
       } else {
-        var x = enemies[enumber][0] + (esize / 2) - px - spos;
-        var y = enemies[enumber][1] - py;
-        var z = Math.pow(x, 2) + Math.pow(y, 2);
-        var a = z / bspeed;
-        bullets[i][7] = Math.sqrt(Math.pow(x, 2) / a) * 3;
-        bullets[i][8] = Math.sqrt(Math.pow(y, 2) / a) * 3;
+        var a = enemies[enumber][0] + (esize / 2) - px - spos;
+        var b = enemies[enumber][1] - py;
+        var c = Math.pow(a, 2) + Math.pow(b, 2);
+        var d = c / bspeed;
+        bullets[i][7] = Math.sqrt(Math.pow(a, 2) / d) * 3;
+        bullets[i][8] = Math.sqrt(Math.pow(b, 2) / d) * 3;
 
         if (enemies[enumber][0] + (esize / 2) - px - spos > 0 && enemies[enumber][1] - py > 0) bullets[i][3] = 6;
         else if (enemies[enumber][0] + (esize / 2) - px - spos > 0 && enemies[enumber][1] - py <= 0) bullets[i][3] = 7;
@@ -552,30 +537,40 @@ function restartGame() {
   rstart = 0;
   cstart = 0;
   paused = true;
-
+  plifep = 3;
+  nodamage = false;
+  ndcounter = 0;
+  for (j = 0; j < enumber; j++) {
+    if (enemies[j][5] === 0) enemies[j][7] = 3;
+    else enemies[j][7] = 2;
+  }
+  for (j = 0; j < bmax; j++) bullets[j][5] = 0;
 }
 
 
 function moveEnemies() {
   for (i = 0; i < enumber; i++) {
+    if (enemies[i][7] > 0) {
     //Check enemy direction
-    if (enemies[i][4]) {
+      if (enemies[i][4]) {
       //Right--->
-      if (enemies[i][3] - enemies[i][0] - esize <= espeed) {
-        enemies[i][0] = enemies[i][3] - esize;
-        enemies[i][4] = false;
-      } else {
-        enemies[i][0] += espeed;
-      }
+        if (enemies[i][3] - enemies[i][0] - esize <= espeed) {
+          enemies[i][0] = enemies[i][3] - esize;
+          enemies[i][4] = false;
+        } else {
+          enemies[i][0] += espeed;
+        }
 
-    }
-    else {
-      //Left <---
-      if (enemies[i][0] - enemies[i][2] <= espeed) {
-        enemies[i][0] = enemies[i][2];
-        enemies[i][4] = true;
-      } else {
-        enemies[i][0] -= espeed;
+      }
+      else {
+        //Left <---
+        if (enemies[i][0] - enemies[i][2] <= espeed) {
+          enemies[i][0] = enemies[i][2];
+          enemies[i][4] = true;
+        } else {
+          enemies[i][0] -= espeed;
+        }
+
       }
 
     }
@@ -587,21 +582,75 @@ function moveEnemies() {
 function drawEnemies() {
   fill('gold');
   for (i = 0; i < enumber; i++) {
-    if (enemies[i][5] === 0) image(enemyimg, enemies[i][0] - spos, enemies[i][1]);
-    else image(enemyimg2, enemies[i][0] - spos, enemies[i][1]);
+    if (enemies[i][7] > 0) {
+      if (enemies[i][5] === 0) image(enemyimg, enemies[i][0] - spos, enemies[i][1]);
+      else image(enemyimg2, enemies[i][0] - spos, enemies[i][1]);
+    }
   }
   fill('#FFFFFF');
 }
 
-function enemiesDamage() {
-  for (i = 0; i < enumber; i++) {
-    if (enemies[i][5] === 1) {
-      if (px + spos >= enemies[i][0] - 500 && px + spos <= enemies[i][0] + 500 && enemies[i][6] === 0) {
-        enemies[i][6]++;
-        newBullet(i);
-      } else if (enemies[i][6] > 0 && enemies[i][6] < 60 * ttshot + 1) enemies[i][6]++;
-      else if (enemies[i][6] === 60 * ttshot + 1) enemies[i][6] = 0;
+function damage() {
+  for (l = 0; l < enumber; l++) {
+    if (enemies[l][5] === 1 && enemies[l][7] > 0) {
+      if (px + spos >= enemies[l][0] - 500 && px + spos <= enemies[l][0] + 500 && enemies[l][6] === 0) {
+        enemies[l][6]++;
+        newBullet(l);
+      } else if (enemies[l][6] > 0 && enemies[l][6] < 60 * ttshot + 1) enemies[l][6]++;
+      else if (enemies[l][6] === 60 * ttshot + 1) enemies[l][6] = 0;
     }
+    if (enemies[l][7] > 0) {
+      if (py <= enemies[l][1] + esize - sy && py >= enemies[l][1] - sy) {
+        if (px >= enemies[l][0] - spos - sx && px <= enemies[l][0] + esize - spos) {
+          lifePoints(-1, -1);
+        }
+      }
+    }
+    for (j = 0; j < bmax; j++) {
+      if (enemies[l][7] > 0) {
+        if (bullets[j][5]) {
+          if (!bullets[j][6]) {
+            if (bullets[j][1] <= enemies[l][1] + esize + bullets[j][2] / 2 && bullets[j][1] >= enemies[l][1] - bullets[j][2] / 2) {
+              if (bullets[j][0] >= enemies[l][0] - bullets[j][2] / 2 && bullets[j][0] <= enemies[l][0] + esize + bullets[j][2] / 2) {
+                bullets[j][5] = false;
+                lifePoints(l, -1);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  for (j = 0; j < bmax; j++) {
+    if (bullets[j][6]) {
+      if (bullets[j][5]) {
+        if (bullets[j][1] <= py + sy + bullets[j][2] / 2 && bullets[j][1] >= py - bullets[j][2] / 2) {
+          if (bullets[j][0] >= px + spos - bullets[j][2] / 2 && bullets[j][0] <= px + spos + sx + bullets[j][2] / 2) {
+            bullets[j][5] = false;
+            lifePoints(-1, -1);
+          }
+        }
+      }
+    }
+  }
+}
+
+function lifePoints(id, number) {
+  if (id === -1 && !nodamage) {
+    plifep += number;
+    nodamage = true;
+  } else if (id >= 0) {
+    enemies[id][7] += number;
+  }
+  if (plifep === 0) lose();
+}
+
+function noDamage() {
+  ndcounter++;
+  if (ndcounter % 10 === 0) rect(px, py, sx, sy);
+  if (ndcounter === 60 * 1.5) {
+    nodamage = false;
+    ndcounter = 0;
   }
 }
 
@@ -626,10 +675,10 @@ function spikesCollision() {
   for (i = 0; i < maxs[stageid]; i++) {
     //Spikes UP AND DOWN
     if (pposx >= spikes[stageid][i][0] - swidth - sx && pposx <= spikes[stageid][i][0] + swidth)
-      if ((spikes[stageid][i][2] === 0 && py >= spikes[stageid][i][1] && py <= spikes[stageid][i][1] + sheight) || (spikes[stageid][i][2] === 1 && py >= spikes[stageid][i][1] - sheight && py <= spikes[stageid][i][1])) lose();
+      if ((spikes[stageid][i][2] === 0 && py >= spikes[stageid][i][1] && py <= spikes[stageid][i][1] + sheight) || (spikes[stageid][i][2] === 1 && py >= spikes[stageid][i][1] - sheight && py <= spikes[stageid][i][1])) lifePoints(-1, -1);
 
     //Spikes LEFT AND RIGHT
     if (py >= spikes[stageid][i][1] - swidth && py <= spikes[stageid][i][1] + swidth)
-      if ((spikes[stageid][i][2] === 2 && pposx >= spikes[stageid][i][0] - sheight - sx / 3 && pposx <= spikes[stageid][i][0] + sx) || (spikes[stageid][i][2] === 3 && pposx >= spikes[stageid][i][0] && pposx <= spikes[stageid][i][0] + sheight)) lose();
+      if ((spikes[stageid][i][2] === 2 && pposx >= spikes[stageid][i][0] - sheight - sx / 3 && pposx <= spikes[stageid][i][0] + sx) || (spikes[stageid][i][2] === 3 && pposx >= spikes[stageid][i][0] && pposx <= spikes[stageid][i][0] + sheight)) lifePoints(-1, -1);
   }
 }
