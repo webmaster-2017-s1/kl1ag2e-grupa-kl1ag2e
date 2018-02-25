@@ -83,6 +83,9 @@ var paused = false;
 
 var inmenu = true;
 
+//True if Stage is Completed
+var completed=false;
+
 
 for (i = 0; i < bmax; i++) {
   bullets[i] = [];
@@ -169,18 +172,26 @@ function menu() {
 }
 
 function game() {
-  if (!paused) {
+  if (!(completed||paused)){
     background(200);
     drawObjects();
     collision();
-  } else pause();
-
+  }else if(completed) stageCompleted();else pause();
 }
 
 function pause() {
   textSize(50);
   fill("#00FF00");
   text("WIP. Press Space to Continue :)", 50, 50);
+  fill('#FFFFFF');
+}
+
+function stageCompleted() {
+  textSize(50);
+  fill('#000000');
+  text("Congratulations!!!",500,100);
+  text("Level "+(stageid+1)+" Completed", 500, 400);
+  text("Press SPACE to Continue", 500, 700);
   fill('#FFFFFF');
 }
 
@@ -204,25 +215,34 @@ function keyboardEvent() {
 }
 
 function keyPressed() {
+  //Z-JUMP
   if (keyCode === 90 && !paused) {
     if (!onair) {
       jcounter = 0;
       jumped = true;
     }
   }
+  //X-Shoot
+  if (keyCode === 88) {
+    newBullet(-1);
+  }
+  //SPACE
   if (keyCode === 32) {
     if (inmenu) inmenu = false;
     else
-      paused = !paused;
+     if(completed){
+      stageid++;
+      completed=false;
+      restartGame();
+     } else paused = !paused;
 
   }
 
-
 }
 
-function keyTyped() {
-  if (key === 'x') {
-    newBullet(-1);
+function keyReleased() {
+  if(keyCode===90){
+    jumped=false;
   }
 }
 
@@ -240,10 +260,11 @@ function drawPlayer() {
 }
 
 function drawPlatforms() {
-  fill('#0000FF');
-  i = Math.max(rstart - 1, 0);
+  i = Math.max(rstart - 2, 0);
+
   do {
     if (pposx - resx > platforms[stageid][i][0]) rstart = i;
+    if(i===maxp[stageid]) fill('#00FF00'); else fill('#0000FF');
     rect(platforms[stageid][i][0] - spos, platforms[stageid][i][1], platforms[stageid][i][2], platforms[stageid][i][3]);
     i++;
   } while (i <= maxp[stageid] && pposx + resx >= platforms[stageid][i][0]);
@@ -326,7 +347,7 @@ function collision() {
 
 
   // debugcollision(maxid, minid, xmaxid, xminid); //Uncomment to debug collision
-  gravity(maxy);
+  gravity(maxy, maxid);
   air(maxy);
   if (jumped) jump();
   bulletsCollision();
@@ -363,13 +384,15 @@ function debugcollision(maxid, minid, xmaxid, xminid) {
 
 }
 
-function gravity(maxy) {
+function gravity(maxy, maxid) {
 
   if (maxy - 1 > py + sy) {
     if (maxy - 1 > py + sy + grav)
       py += grav;
     else
       py = maxy - sy - 1;
+  } else {
+    if(maxid===maxp[stageid]) completed=true;
   }
 }
 
@@ -523,6 +546,7 @@ function lose() {
   fill('#FF0000');
   text("GAME OVER", resx / 2, resy / 2);
   fill('#FFFFFF');
+  paused = true;
   restartGame();
 }
 
@@ -536,7 +560,6 @@ function restartGame() {
   jcounter = false;
   rstart = 0;
   cstart = 0;
-  paused = true;
   plifep = 3;
   nodamage = false;
   ndcounter = 0;
@@ -655,18 +678,19 @@ function noDamage() {
 }
 
 function drawSpikes() {
+  //TODO Optimise drawing
   for (i = 0; i < maxs[stageid]; i++) {
     //DOWN
     if (spikes[stageid][i][2] === 0) triangle(spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] + sheight);
 
     //UP
-    if (spikes[stageid][i][2] === 1) triangle(spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] - sheight);
+    else if (spikes[stageid][i][2] === 1) triangle(spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] - sheight);
 
     //LEFT
-    if (spikes[stageid][i][2] === 2) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos - sheight, spikes[stageid][i][1]);
+    else if (spikes[stageid][i][2] === 2) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos - sheight, spikes[stageid][i][1]);
 
     //RIGHT
-    if (spikes[stageid][i][2] === 3) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos + sheight, spikes[stageid][i][1]);
+    else if (spikes[stageid][i][2] === 3) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos + sheight, spikes[stageid][i][1]);
   }
 }
 
