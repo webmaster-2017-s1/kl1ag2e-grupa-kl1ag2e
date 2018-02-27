@@ -83,6 +83,20 @@ var paused = false;
 
 var inmenu = true;
 
+//***Inmenu Buttons
+//Buttons' X-pos
+var btnx = 483;
+//Buttons' width
+var btnwidth = 400;
+//Buttons' height
+var btnheight = 75;
+//Buttons' Y-pos
+var btny = [300, 400, 500, 600];
+//Buttons' Text
+var btntext = ['New Game', 'Continue', 'Tutorial', 'Credits'];
+//Active button id
+var btnid;
+
 //True if Stage is Completed
 var completed=false;
 
@@ -123,15 +137,80 @@ function draw() {
 
 }
 
-function menu() {
+function mouseClicked() {
   if (inmenu) {
+    switch (checkMousePos()) {
+      case 0:
+        //New Game
+        console.log("Clicked 1");
+        inmenu = false;
+        break;
+      case 1:
+        //Continue
+        break;
+      case 2:
+        //Tutorial
+        break;
+      case 3:
+        //Credits
+        break;
+
+      default:
+
+    }
+  }
+
+}
+
+
+function menu() {
+
+  checkMousePos();
+  //I'm not graphic designer. The only must works :D
     background(200);
     textSize(50);
-    fill("#FF0000");
-    text("Menu WIP. Press Space to Start :)", 300, 100);
-    fill('#FFFFFF');
+  textStyle(BOLD);
+
+
+  fill("#000000");
+  text("Platformer Game", 483, 100);
+
+  drawButtons(btnid);
+  textStyle(NORMAL);
+
+}
+
+function drawButtons(btnid) {
+
+  textSize(30);
+  for (i = 0; i < btny.length; i++) {
+    if (btnid === i) fill("#00FF00"); else fill("#FFFFFF");
+    rect(btnx, btny[i], btnwidth, btnheight);
+    fill("#000000");
+    text(btntext[i], btnx + 60, btny[i] + 50);
+    fill("#FFFFFF");
   }
 }
+
+
+function checkMousePos() {
+  //Check button vertical
+  //Refresh cursor status
+  cursor(ARROW);
+  if (mouseX >= btnx && mouseX <= btnx + btnwidth) {
+    for (i = 0; i < btny.length; i++) {
+      if (mouseY >= btny[i] && mouseY <= btny[i] + btnheight) {
+        cursor(HAND);
+        btnid = i;
+        return i;
+      }
+    }
+
+  }
+  return -1;
+}
+
+
 
 function game() {
   if (!(completed||paused)){
