@@ -98,7 +98,7 @@ var btntext = ['New Game', 'Continue', 'Tutorial', 'Credits'];
 var btnid;
 
 //True if Stage is Completed
-var completed=false;
+var completed = false;
 
 
 for (i = 0; i < bmax; i++) {
@@ -119,6 +119,7 @@ var ttshot = 2;
 //Images
 var enemyimg;
 var enemyimg2;
+
 //Load Images
 function preload() {
   enemyimg = loadImage('./assets/enemy.png');
@@ -142,11 +143,16 @@ function mouseClicked() {
     switch (checkMousePos()) {
       case 0:
         //New Game
-        console.log("Clicked 1");
+        restartGame();
         inmenu = false;
         break;
       case 1:
         //Continue
+        if (readLastLevel() > 0) {
+          stageid = readLastLevel();
+          restartGame();
+          inmenu = false;
+        }
         break;
       case 2:
         //Tutorial
@@ -166,9 +172,8 @@ function mouseClicked() {
 function menu() {
 
   checkMousePos();
-  //I'm not graphic designer. The only must works :D
-    background(200);
-    textSize(50);
+  background(200);
+  textSize(50);
   textStyle(BOLD);
 
 
@@ -210,14 +215,31 @@ function checkMousePos() {
   return -1;
 }
 
+function writeLastLevel() {
+  //Write Last Level to Cookie
+  document.cookie = "level=" + stageid + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
+}
 
+function readLastLevel() {
+  var id;
+  var cookie = document.cookie;
+
+  for (i = 0; i < cookie.length; i++) {
+    //Check cookie "level"
+    if ((cookie.charAt(i) === 'l') && (cookie.charAt(i + 2) === 'v') && (cookie.charAt(i + 4) === 'l')) {
+      id = parseInt(cookie.charAt(i + 6));
+      return id;
+    }
+  }
+  return -1;
+}
 
 function game() {
-  if (!(completed||paused)){
+  if (!(completed || paused)) {
     background(200);
     drawObjects();
     collision();
-  }else if(completed) stageCompleted();else pause();
+  } else if (completed) stageCompleted(); else pause();
 }
 
 function pause() {
@@ -230,8 +252,8 @@ function pause() {
 function stageCompleted() {
   textSize(50);
   fill('#000000');
-  text("Congratulations!!!",500,100);
-  text("Level "+(stageid+1)+" Completed", 500, 400);
+  text("Congratulations!!!", 500, 100);
+  text("Level " + (stageid + 1) + " Completed", 500, 400);
   text("Press SPACE to Continue", 500, 700);
   fill('#FFFFFF');
 }
@@ -270,20 +292,19 @@ function keyPressed() {
   //SPACE
   if (keyCode === 32) {
     if (inmenu) inmenu = false;
-    else
-     if(completed){
+    else if (completed) {
       stageid++;
-      completed=false;
+      completed = false;
       restartGame();
-     } else paused = !paused;
+    } else paused = !paused;
 
   }
 
 }
 
 function keyReleased() {
-  if(keyCode===90){
-    jumped=false;
+  if (keyCode === 90) {
+    jumped = false;
   }
 }
 
@@ -297,7 +318,7 @@ function drawObjects() {
 
 function drawPlayer() {
   if (!nodamage) rect(px, py, sx, sy);
-    else noDamage();
+  else noDamage();
 }
 
 function drawPlatforms() {
@@ -305,7 +326,7 @@ function drawPlatforms() {
 
   do {
     if (pposx - resx > platforms[stageid][i][0]) rstart = i;
-    if(i===maxp[stageid]) fill('#00FF00'); else fill('#0000FF');
+    if (i === maxp[stageid]) fill('#00FF00'); else fill('#0000FF');
     rect(platforms[stageid][i][0] - spos, platforms[stageid][i][1], platforms[stageid][i][2], platforms[stageid][i][3]);
     i++;
   } while (i <= maxp[stageid] && pposx + resx >= platforms[stageid][i][0]);
@@ -433,7 +454,7 @@ function gravity(maxy, maxid) {
     else
       py = maxy - sy - 1;
   } else {
-    if(maxid===maxp[stageid]) completed=true;
+    if (maxid === maxp[stageid]) completed = true;
   }
 }
 
@@ -580,7 +601,6 @@ function checkIfUnderScreen() {
   if (py + sy >= resy) lose();
 }
 
-
 function lose() {
 
   textSize(50);
@@ -592,6 +612,7 @@ function lose() {
 }
 
 function restartGame() {
+  writeLastLevel();
   px = 100;
   pposx = 100;
   spos = 0;
@@ -611,13 +632,12 @@ function restartGame() {
   for (j = 0; j < bmax; j++) bullets[j][5] = 0;
 }
 
-
 function moveEnemies() {
   for (i = 0; i < maxe[stageid]; i++) {
     if (enemies[stageid][i][7] > 0) {
-    //Check enemy direction
+      //Check enemy direction
       if (enemies[stageid][i][4]) {
-      //Right--->
+        //Right--->
         if (enemies[stageid][i][3] - enemies[stageid][i][0] - esize <= espeed) {
           enemies[stageid][i][0] = enemies[stageid][i][3] - esize;
           enemies[stageid][i][4] = false;
