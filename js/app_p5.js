@@ -119,11 +119,17 @@ var ttshot = 2;
 //Images
 var enemyimg;
 var enemyimg2;
+var livebelt;
+var belt1;
+var belt2;
 
 //Load Images
 function preload() {
   enemyimg = loadImage('./assets/enemy.png');
   enemyimg2 = loadImage('./assets/enemy2.png');
+  livebelt = loadImage('./assets/livebelt.png');
+  belt1 = loadImage('./assets/belt1.png');
+  belt2 = loadImage('./assets/belt2.png');
 }
 
 function setup() {
@@ -667,8 +673,21 @@ function drawEnemies() {
   fill('gold');
   for (i = 0; i < maxe[stageid]; i++) {
     if (enemies[stageid][i][7] > 0) {
-      if (enemies[stageid][i][5] === 0) image(enemyimg, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
-      else image(enemyimg2, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
+      var k = 0;
+      image(livebelt, enemies[stageid][i][0] - spos + 3, enemies[stageid][i][1] - 19);
+      if (enemies[stageid][i][5] === 0) {
+        image(enemyimg, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
+        for (l = 0; l < enemies[stageid][i][7]; l++) {
+          image(belt2, enemies[stageid][i][0] - spos + 6 + k, enemies[stageid][i][1] - 16);
+          k += 16;
+        }
+      } else {
+        image(enemyimg2, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
+        for (l = 0; l < enemies[stageid][i][7]; l++) {
+          image(belt1, enemies[stageid][i][0] - spos + 6 + k, enemies[stageid][i][1] - 16);
+          k += 24;
+        }
+      }
     }
   }
   fill('#FFFFFF');
