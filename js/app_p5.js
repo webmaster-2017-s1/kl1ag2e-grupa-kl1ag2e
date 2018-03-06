@@ -116,14 +116,26 @@ var espeed = 2;
 //Every second the opponent can shoot
 var ttshot = 2;
 
+var minutes = 0;
+var seconds = 0;
+var tcounter = 0;
+
 //Images
 var enemyimg;
 var enemyimg2;
+var livebar;
+var bar1;
+var bar2;
+var heart;
 
 //Load Images
 function preload() {
   enemyimg = loadImage('./assets/enemy.png');
   enemyimg2 = loadImage('./assets/enemy2.png');
+  livebar = loadImage('./assets/livebar.png');
+  bar1 = loadImage('./assets/bar1.png');
+  bar2 = loadImage('./assets/bar2.png');
+  heart = loadImage('./assets/heart.png');
 }
 
 function setup() {
@@ -314,6 +326,7 @@ function drawObjects() {
   drawEnemies();
   drawSpikes();
   drawBullets();
+  drawHUD();
 }
 
 function drawPlayer() {
@@ -505,33 +518,33 @@ function drawBullets() {
   for (i = 0; i < bmax; i++) {
     if (bullets[i][5]) {
       if (bullets[i][3] === 0) {
-        bullets[i][0] = bullets[i][0] + bspeed;
-        bullets[i][1] = bullets[i][1] - bspeed;
+        bullets[i][0] += bspeed;
+        bullets[i][1] -= bspeed;
       } else if (bullets[i][3] === 1) {
-        bullets[i][0] = bullets[i][0] + bspeed;
-        bullets[i][1] = bullets[i][1] + bspeed;
+        bullets[i][0] += bspeed;
+        bullets[i][1] += bspeed;
       } else if (bullets[i][3] === 2) {
-        bullets[i][0] = bullets[i][0] - bspeed;
-        bullets[i][1] = bullets[i][1] - bspeed;
+        bullets[i][0] -= bspeed;
+        bullets[i][1] -= bspeed;
       } else if (bullets[i][3] === 3) {
-        bullets[i][0] = bullets[i][0] - bspeed;
-        bullets[i][1] = bullets[i][1] + bspeed;
+        bullets[i][0] -= bspeed;
+        bullets[i][1] += bspeed;
       } else if (bullets[i][3] === 4) {
-        bullets[i][0] = bullets[i][0] + bspeed;
+        bullets[i][0] += bspeed;
       } else if (bullets[i][3] === 5) {
-        bullets[i][0] = bullets[i][0] - bspeed;
+        bullets[i][0] -= bspeed;
       } else if (bullets[i][3] === 6) {
-        bullets[i][0] = bullets[i][0] - bullets[i][7];
-        bullets[i][1] = bullets[i][1] - bullets[i][8];
+        bullets[i][0] -= bullets[i][7];
+        bullets[i][1] -= bullets[i][8];
       } else if (bullets[i][3] === 7) {
-        bullets[i][0] = bullets[i][0] - bullets[i][7];
-        bullets[i][1] = bullets[i][1] + bullets[i][8];
+        bullets[i][0] -= bullets[i][7];
+        bullets[i][1] += bullets[i][8];
       } else if (bullets[i][3] === 8) {
-        bullets[i][0] = bullets[i][0] + bullets[i][7];
-        bullets[i][1] = bullets[i][1] - bullets[i][8];
+        bullets[i][0] += bullets[i][7];
+        bullets[i][1] -= bullets[i][8];
       } else if (bullets[i][3] === 9) {
-        bullets[i][0] = bullets[i][0] + bullets[i][7];
-        bullets[i][1] = bullets[i][1] + bullets[i][8];
+        bullets[i][0] += bullets[i][7];
+        bullets[i][1] += bullets[i][8];
       }
       if (bullets[i][6] === false) fill('white');
       else fill('red');
@@ -630,6 +643,8 @@ function restartGame() {
     else enemies[stageid][j][7] = 2;
   }
   for (j = 0; j < bmax; j++) bullets[j][5] = 0;
+  seconds = 0;
+  minutes = 0;
 }
 
 function moveEnemies() {
@@ -644,7 +659,6 @@ function moveEnemies() {
         } else {
           enemies[stageid][i][0] += espeed;
         }
-
       }
       else {
         //Left <---
@@ -654,22 +668,60 @@ function moveEnemies() {
         } else {
           enemies[stageid][i][0] -= espeed;
         }
-
       }
-
     }
-
   }
-
 }
 
 function drawEnemies() {
   fill('gold');
   for (i = 0; i < maxe[stageid]; i++) {
     if (enemies[stageid][i][7] > 0) {
-      if (enemies[stageid][i][5] === 0) image(enemyimg, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
-      else image(enemyimg2, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
+      var k = 0;
+      image(livebar, enemies[stageid][i][0] - spos + 3, enemies[stageid][i][1] - 19);
+      if (enemies[stageid][i][5] === 0) {
+        image(enemyimg, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
+        for (l = 0; l < enemies[stageid][i][7]; l++) {
+          image(bar2, enemies[stageid][i][0] - spos + 6 + k, enemies[stageid][i][1] - 16);
+          k += 16;
+        }
+      } else {
+        image(enemyimg2, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
+        for (l = 0; l < enemies[stageid][i][7]; l++) {
+          image(bar1, enemies[stageid][i][0] - spos + 6 + k, enemies[stageid][i][1] - 16);
+          k += 24;
+        }
+      }
     }
+  }
+  fill('#FFFFFF');
+}
+
+function drawHUD() {
+  image(heart, 25, 25);
+  textSize(45);
+  fill('black');
+  text(plifep, 82, 65);
+  drawTimer();
+}
+
+function drawTimer() {
+  if (tcounter < 60) tcounter++;
+  else if (tcounter === 60) {
+    tcounter = 0;
+    seconds++;
+    if (seconds === 60) {
+      minutes++;
+      seconds = 0;
+    }
+  }
+  text(minutes, 647, 65);
+  text(':', 682, 65);
+  if (seconds > 9) {
+    text(seconds, 707, 65);
+  } else {
+    text('0', 707, 65);
+    text(seconds, 732, 65);
   }
   fill('#FFFFFF');
 }
@@ -691,28 +743,22 @@ function damage() {
       }
     }
     for (j = 0; j < bmax; j++) {
-      if (enemies[stageid][l][7] > 0) {
-        if (bullets[j][5]) {
-          if (!bullets[j][6]) {
-            if (bullets[j][1] <= enemies[stageid][l][1] + esize + bullets[j][2] / 2 && bullets[j][1] >= enemies[stageid][l][1] - bullets[j][2] / 2) {
-              if (bullets[j][0] >= enemies[stageid][l][0] - bullets[j][2] / 2 && bullets[j][0] <= enemies[stageid][l][0] + esize + bullets[j][2] / 2) {
-                bullets[j][5] = false;
-                lifePoints(l, -1);
-              }
-            }
+      if (enemies[stageid][l][7] > 0 && bullets[j][5] && !bullets[j][6]) {
+        if (bullets[j][1] <= enemies[stageid][l][1] + esize + bullets[j][2] / 2 && bullets[j][1] >= enemies[stageid][l][1] - bullets[j][2] / 2) {
+          if (bullets[j][0] >= enemies[stageid][l][0] - bullets[j][2] / 2 && bullets[j][0] <= enemies[stageid][l][0] + esize + bullets[j][2] / 2) {
+            bullets[j][5] = false;
+            lifePoints(l, -1);
           }
         }
       }
     }
   }
   for (j = 0; j < bmax; j++) {
-    if (bullets[j][6]) {
-      if (bullets[j][5]) {
-        if (bullets[j][1] <= py + sy + bullets[j][2] / 2 && bullets[j][1] >= py - bullets[j][2] / 2) {
-          if (bullets[j][0] >= px + spos - bullets[j][2] / 2 && bullets[j][0] <= px + spos + sx + bullets[j][2] / 2) {
-            bullets[j][5] = false;
-            lifePoints(-1, -1);
-          }
+    if (bullets[j][6] && bullets[j][5]) {
+      if (bullets[j][1] <= py + sy + bullets[j][2] / 2 && bullets[j][1] >= py - bullets[j][2] / 2) {
+        if (bullets[j][0] >= px + spos - bullets[j][2] / 2 && bullets[j][0] <= px + spos + sx + bullets[j][2] / 2) {
+          bullets[j][5] = false;
+          lifePoints(-1, -1);
         }
       }
     }
