@@ -511,33 +511,33 @@ function drawBullets() {
   for (i = 0; i < bmax; i++) {
     if (bullets[i][5]) {
       if (bullets[i][3] === 0) {
-        bullets[i][0] = bullets[i][0] + bspeed;
-        bullets[i][1] = bullets[i][1] - bspeed;
+        bullets[i][0] += bspeed;
+        bullets[i][1] -= bspeed;
       } else if (bullets[i][3] === 1) {
-        bullets[i][0] = bullets[i][0] + bspeed;
-        bullets[i][1] = bullets[i][1] + bspeed;
+        bullets[i][0] += bspeed;
+        bullets[i][1] += bspeed;
       } else if (bullets[i][3] === 2) {
-        bullets[i][0] = bullets[i][0] - bspeed;
-        bullets[i][1] = bullets[i][1] - bspeed;
+        bullets[i][0] -= bspeed;
+        bullets[i][1] -= bspeed;
       } else if (bullets[i][3] === 3) {
-        bullets[i][0] = bullets[i][0] - bspeed;
-        bullets[i][1] = bullets[i][1] + bspeed;
+        bullets[i][0] -= bspeed;
+        bullets[i][1] += bspeed;
       } else if (bullets[i][3] === 4) {
-        bullets[i][0] = bullets[i][0] + bspeed;
+        bullets[i][0] += bspeed;
       } else if (bullets[i][3] === 5) {
-        bullets[i][0] = bullets[i][0] - bspeed;
+        bullets[i][0] -= bspeed;
       } else if (bullets[i][3] === 6) {
-        bullets[i][0] = bullets[i][0] - bullets[i][7];
-        bullets[i][1] = bullets[i][1] - bullets[i][8];
+        bullets[i][0] -= bullets[i][7];
+        bullets[i][1] -= bullets[i][8];
       } else if (bullets[i][3] === 7) {
-        bullets[i][0] = bullets[i][0] - bullets[i][7];
-        bullets[i][1] = bullets[i][1] + bullets[i][8];
+        bullets[i][0] -= bullets[i][7];
+        bullets[i][1] += bullets[i][8];
       } else if (bullets[i][3] === 8) {
-        bullets[i][0] = bullets[i][0] + bullets[i][7];
-        bullets[i][1] = bullets[i][1] - bullets[i][8];
+        bullets[i][0] += bullets[i][7];
+        bullets[i][1] -= bullets[i][8];
       } else if (bullets[i][3] === 9) {
-        bullets[i][0] = bullets[i][0] + bullets[i][7];
-        bullets[i][1] = bullets[i][1] + bullets[i][8];
+        bullets[i][0] += bullets[i][7];
+        bullets[i][1] += bullets[i][8];
       }
       if (bullets[i][6] === false) fill('white');
       else fill('red');
@@ -650,7 +650,6 @@ function moveEnemies() {
         } else {
           enemies[stageid][i][0] += espeed;
         }
-
       }
       else {
         //Left <---
@@ -660,13 +659,9 @@ function moveEnemies() {
         } else {
           enemies[stageid][i][0] -= espeed;
         }
-
       }
-
     }
-
   }
-
 }
 
 function drawEnemies() {
@@ -710,28 +705,22 @@ function damage() {
       }
     }
     for (j = 0; j < bmax; j++) {
-      if (enemies[stageid][l][7] > 0) {
-        if (bullets[j][5]) {
-          if (!bullets[j][6]) {
-            if (bullets[j][1] <= enemies[stageid][l][1] + esize + bullets[j][2] / 2 && bullets[j][1] >= enemies[stageid][l][1] - bullets[j][2] / 2) {
-              if (bullets[j][0] >= enemies[stageid][l][0] - bullets[j][2] / 2 && bullets[j][0] <= enemies[stageid][l][0] + esize + bullets[j][2] / 2) {
-                bullets[j][5] = false;
-                lifePoints(l, -1);
-              }
-            }
+      if (enemies[stageid][l][7] > 0 && bullets[j][5] && !bullets[j][6]) {
+        if (bullets[j][1] <= enemies[stageid][l][1] + esize + bullets[j][2] / 2 && bullets[j][1] >= enemies[stageid][l][1] - bullets[j][2] / 2) {
+          if (bullets[j][0] >= enemies[stageid][l][0] - bullets[j][2] / 2 && bullets[j][0] <= enemies[stageid][l][0] + esize + bullets[j][2] / 2) {
+            bullets[j][5] = false;
+            lifePoints(l, -1);
           }
         }
       }
     }
   }
   for (j = 0; j < bmax; j++) {
-    if (bullets[j][6]) {
-      if (bullets[j][5]) {
-        if (bullets[j][1] <= py + sy + bullets[j][2] / 2 && bullets[j][1] >= py - bullets[j][2] / 2) {
-          if (bullets[j][0] >= px + spos - bullets[j][2] / 2 && bullets[j][0] <= px + spos + sx + bullets[j][2] / 2) {
-            bullets[j][5] = false;
-            lifePoints(-1, -1);
-          }
+    if (bullets[j][6] && bullets[j][5]) {
+      if (bullets[j][1] <= py + sy + bullets[j][2] / 2 && bullets[j][1] >= py - bullets[j][2] / 2) {
+        if (bullets[j][0] >= px + spos - bullets[j][2] / 2 && bullets[j][0] <= px + spos + sx + bullets[j][2] / 2) {
+          bullets[j][5] = false;
+          lifePoints(-1, -1);
         }
       }
     }
