@@ -116,20 +116,26 @@ var espeed = 2;
 //Every second the opponent can shoot
 var ttshot = 2;
 
+var minutes = 0;
+var seconds = 0;
+var tcounter = 0;
+
 //Images
 var enemyimg;
 var enemyimg2;
-var livebelt;
-var belt1;
-var belt2;
+var livebar;
+var bar1;
+var bar2;
+var heart;
 
 //Load Images
 function preload() {
   enemyimg = loadImage('./assets/enemy.png');
   enemyimg2 = loadImage('./assets/enemy2.png');
-  livebelt = loadImage('./assets/livebelt.png');
-  belt1 = loadImage('./assets/belt1.png');
-  belt2 = loadImage('./assets/belt2.png');
+  livebar = loadImage('./assets/livebar.png');
+  bar1 = loadImage('./assets/bar1.png');
+  bar2 = loadImage('./assets/bar2.png');
+  heart = loadImage('./assets/heart.png');
 }
 
 function setup() {
@@ -320,6 +326,7 @@ function drawObjects() {
   drawEnemies();
   drawSpikes();
   drawBullets();
+  drawHUD();
 }
 
 function drawPlayer() {
@@ -636,6 +643,8 @@ function restartGame() {
     else enemies[stageid][j][7] = 2;
   }
   for (j = 0; j < bmax; j++) bullets[j][5] = 0;
+  seconds = 0;
+  minutes = 0;
 }
 
 function moveEnemies() {
@@ -669,21 +678,50 @@ function drawEnemies() {
   for (i = 0; i < maxe[stageid]; i++) {
     if (enemies[stageid][i][7] > 0) {
       var k = 0;
-      image(livebelt, enemies[stageid][i][0] - spos + 3, enemies[stageid][i][1] - 19);
+      image(livebar, enemies[stageid][i][0] - spos + 3, enemies[stageid][i][1] - 19);
       if (enemies[stageid][i][5] === 0) {
         image(enemyimg, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
         for (l = 0; l < enemies[stageid][i][7]; l++) {
-          image(belt2, enemies[stageid][i][0] - spos + 6 + k, enemies[stageid][i][1] - 16);
+          image(bar2, enemies[stageid][i][0] - spos + 6 + k, enemies[stageid][i][1] - 16);
           k += 16;
         }
       } else {
         image(enemyimg2, enemies[stageid][i][0] - spos, enemies[stageid][i][1]);
         for (l = 0; l < enemies[stageid][i][7]; l++) {
-          image(belt1, enemies[stageid][i][0] - spos + 6 + k, enemies[stageid][i][1] - 16);
+          image(bar1, enemies[stageid][i][0] - spos + 6 + k, enemies[stageid][i][1] - 16);
           k += 24;
         }
       }
     }
+  }
+  fill('#FFFFFF');
+}
+
+function drawHUD() {
+  image(heart, 25, 25);
+  textSize(45);
+  fill('black');
+  text(plifep, 82, 65);
+  drawTimer();
+}
+
+function drawTimer() {
+  if (tcounter < 60) tcounter++;
+  else if (tcounter === 60) {
+    tcounter = 0;
+    seconds++;
+    if (seconds === 60) {
+      minutes++;
+      seconds = 0;
+    }
+  }
+  text(minutes, 647, 65);
+  text(':', 682, 65);
+  if (seconds > 9) {
+    text(seconds, 707, 65);
+  } else {
+    text('0', 707, 65);
+    text(seconds, 732, 65);
   }
   fill('#FFFFFF');
 }
