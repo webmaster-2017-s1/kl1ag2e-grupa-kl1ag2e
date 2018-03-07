@@ -1,5 +1,5 @@
 //Number on Enemies on n stage
-var maxe = [2, 0];
+var maxe = [3, 0];
 
 var enemies = [];
 
@@ -39,3 +39,11 @@ enemies[0][1][5] = 1;
 enemies[0][1][6] = 0;
 enemies[0][1][7] = 2;
 
+enemies[0][2][0] = 2260;
+enemies[0][2][1] = 350;
+enemies[0][2][2] = 2260;
+enemies[0][2][3] = 2440;
+enemies[0][2][4] = true;
+enemies[0][2][5] = 0;
+enemies[0][2][6] = -1;
+enemies[0][2][7] = 3;
