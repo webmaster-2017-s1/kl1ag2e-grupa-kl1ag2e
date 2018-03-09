@@ -439,57 +439,57 @@ platforms[1][43][1] = 190;
 platforms[1][43][2] = 180;
 platforms[1][43][3] = 10;
 
-platforms[1][45][0] = 5430;
-platforms[1][45][1] = 100;
-platforms[1][45][2] = 10;
-platforms[1][45][3] = 90;
+platforms[1][44][0] = 5430;
+platforms[1][44][1] = 100;
+platforms[1][44][2] = 10;
+platforms[1][44][3] = 90;
 
-platforms[1][46][0] = 5540;
-platforms[1][46][1] = 270;
-platforms[1][46][2] = 130;
-platforms[1][46][3] = 20;
+platforms[1][45][0] = 5540;
+platforms[1][45][1] = 270;
+platforms[1][45][2] = 130;
+platforms[1][45][3] = 20;
 
-platforms[1][47][0] = 5730;
-platforms[1][47][1] = 330;
-platforms[1][47][2] = 30;
-platforms[1][47][3] = 90;
+platforms[1][46][0] = 5730;
+platforms[1][46][1] = 330;
+platforms[1][46][2] = 30;
+platforms[1][46][3] = 90;
 
-platforms[1][48][0] = 5800;
-platforms[1][48][1] = 500;
-platforms[1][48][2] = 90;
+platforms[1][47][0] = 5800;
+platforms[1][47][1] = 500;
+platforms[1][47][2] = 90;
+platforms[1][47][3] = 10;
+
+platforms[1][48][0] = 5950;
+platforms[1][48][1] = 560;
+platforms[1][48][2] = 170;
 platforms[1][48][3] = 10;
 
-platforms[1][49][0] = 5950;
-platforms[1][49][1] = 560;
-platforms[1][49][2] = 170;
-platforms[1][49][3] = 10;
+platforms[1][49][0] = 6150;
+platforms[1][49][1] = 420;
+platforms[1][49][2] = 20;
+platforms[1][49][3] = 140;
 
-platforms[1][50][0] = 6150;
-platforms[1][50][1] = 420;
-platforms[1][50][2] = 20;
-platforms[1][50][3] = 140;
+platforms[1][50][0] = 6260;
+platforms[1][50][1] = 300;
+platforms[1][50][2] = 10;
+platforms[1][50][3] = 110;
 
-platforms[1][51][0] = 6260;
-platforms[1][51][1] = 300;
+platforms[1][51][0] = 6390;
+platforms[1][51][1] = 220;
 platforms[1][51][2] = 10;
-platforms[1][51][3] = 110;
+platforms[1][51][3] = 140;
 
-platforms[1][52][0] = 6390;
+platforms[1][52][0] = 6450;
 platforms[1][52][1] = 220;
-platforms[1][52][2] = 10;
-platforms[1][52][3] = 140;
+platforms[1][52][2] = 130;
+platforms[1][52][3] = 10;
 
-platforms[1][53][0] = 6450;
-platforms[1][53][1] = 220;
-platforms[1][53][2] = 130;
-platforms[1][53][3] = 10;
+platforms[1][53][0] = 6680;
+platforms[1][53][1] = 110;
+platforms[1][53][2] = 10;
+platforms[1][53][3] = 110;
 
-platforms[1][54][0] = 6680;
+platforms[1][54][0] = 6760;
 platforms[1][54][1] = 110;
-platforms[1][54][2] = 10;
-platforms[1][54][3] = 110;
-
-platforms[1][55][0] = 6760;
-platforms[1][55][1] = 110;
-platforms[1][55][2] = 230;
-platforms[1][55][3] = 20;
+platforms[1][54][2] = 230;
+platforms[1][54][3] = 20;
