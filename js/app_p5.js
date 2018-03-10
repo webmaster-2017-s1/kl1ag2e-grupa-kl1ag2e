@@ -116,7 +116,7 @@ var espeed = 2;
 //Every second the opponent can shoot
 var ttshot = 2;
 
-var minutes = 0;
+var minutes = 3;
 var seconds = 0;
 var tcounter = 0;
 
@@ -644,7 +644,7 @@ function restartGame() {
   }
   for (j = 0; j < bmax; j++) bullets[j][5] = 0;
   seconds = 0;
-  minutes = 0;
+  minutes = 3;
 }
 
 function moveEnemies() {
@@ -706,13 +706,14 @@ function drawHUD() {
 }
 
 function drawTimer() {
-  if (tcounter < 60) tcounter++;
-  else if (tcounter === 60) {
+  if (tcounter < 59) tcounter++;
+  else if (tcounter === 59) {
     tcounter = 0;
-    seconds++;
-    if (seconds === 60) {
-      minutes++;
-      seconds = 0;
+    seconds--;
+    if (minutes === 0 && seconds === 0) lose();
+    if (seconds === -1) {
+        seconds = 59;
+        minutes--;
     }
   }
   text(minutes, 647, 65);
