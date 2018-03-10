@@ -18,6 +18,9 @@ var pxspeed = 7;
 var sx = 50;
 var sy = 50;
 
+//Last platform pos;
+var lastp = 0;
+
 //Player life points
 var plifep = 3;
 //True if player can't get damage
@@ -160,19 +163,16 @@ function mouseClicked() {
     switch (checkMousePos()) {
       case 0:
         //New Game
-        restartGame();
-        inmenu = false;
+        newGame();
         break;
       case 1:
         //Continue
-        if (readLastLevel() > 0) {
-          stageid = readLastLevel();
-          restartGame();
-          inmenu = false;
-        }
+        continueGame();
         break;
       case 2:
         //Tutorial
+        stageid = 2;
+        inmenu = false;
         break;
       case 3:
         //Credits
@@ -185,6 +185,21 @@ function mouseClicked() {
 
 }
 
+function newGame() {
+  restartGame();
+  inmenu = false;
+}
+
+function continueGame() {
+  if (getLastLevel() > 0) {
+    restartGame();
+    inmenu = false;
+  }
+}
+
+function getLastPlatform() {
+  return platforms[stageid][maxp[stageid]][0] + platforms[stageid][maxp[stageid]][2] - resx / 2 - 50;
+}
 
 function menu() {
 
@@ -237,7 +252,7 @@ function writeLastLevel() {
   document.cookie = "level=" + stageid + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
 }
 
-function readLastLevel() {
+function getLastLevel() {
   var id;
   var cookie = document.cookie;
 
@@ -380,7 +395,7 @@ function collision() {
   minx = 0;
   var xminid = -1;
 
-  i = max(cstart - 1, 0);
+  i = max(cstart - 2, 0);
   // console.log(i, maxp[stageid]);
   do {
     if (pposx - resx / 2 > platforms[stageid][i][0]) cstart = i;
@@ -498,28 +513,32 @@ function jump() {
   } else jumped = false;
 }
 
+//TODO Optimise moving
 function movex(vector) {
   if (vector === 1) {
     //--->RIGHT
     if (pposx + sx - 1 < maxx) {
       if (maxx - pposx - sx < pxspeed) {
         pposx = maxx - sx - 1;
-        if (spos <= 0) px = pposx; else px = resx / 2;
+        if (spos <= 0 || pposx > lastp) px = pposx; else px = resx / 2;
       } else {
-        if (spos <= 0) px += pxspeed; else px = resx / 2;
+        if (spos <= 0 || pposx > lastp) px += pxspeed; else px = resx / 2;
         pposx += pxspeed;
       }
-      if (pposx < resx / 2) spos = 0; else spos = pposx - resx / 2;
+      if (pposx < resx / 2) spos = 0; else if (pposx <= lastp) spos = pposx - resx / 2;
     }
   } else {
     //<--- LEFT
     if (pposx + 1 > minx) {
-      if (pposx - minx < pxspeed)
+      if (pposx - minx < pxspeed) {
         pposx = minx + 1;
-      else
+        if (pposx > lastp) px = pposx % resx;
+      } else {
         pposx -= pxspeed;
+        if (pposx > lastp) px -= pxspeed;
+      }
       if (spos <= 0) px = pposx;
-      if (pposx < resx / 2) spos = 0; else spos = pposx - resx / 2;
+      if (pposx < resx / 2) spos = 0; else if (pposx <= lastp) spos = pposx - resx / 2;
     }
   }
 }
@@ -658,6 +677,7 @@ function restartGame() {
   minutes = 3;
   score[stageid] = 0;
   noshot = 0;
+  lastp = getLastPlatform();
 }
 
 function moveEnemies() {
