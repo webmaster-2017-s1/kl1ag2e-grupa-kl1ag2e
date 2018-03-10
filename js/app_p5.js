@@ -119,6 +119,11 @@ var ttshot = 2;
 var minutes = 3;
 var seconds = 0;
 var tcounter = 0;
+var maxtime = minutes * 60 + seconds;
+
+//Number of shot
+var noshot = 0;
+var score = [];
 
 //Images
 var enemyimg;
@@ -265,6 +270,8 @@ function stageCompleted() {
   textSize(50);
   fill('#000000');
   text("Congratulations!!!", 500, 100);
+  text("Your score:", 575, 175);
+  text(score, 640, 250);
   text("Level " + (stageid + 1) + " Completed", 500, 400);
   text("Press SPACE to Continue", 500, 700);
   fill('#FFFFFF');
@@ -467,7 +474,10 @@ function gravity(maxy, maxid) {
     else
       py = maxy - sy - 1;
   } else {
-    if (maxid === maxp[stageid]) completed = true;
+    if (maxid === maxp[stageid]) {
+      completed = true;
+      countPoints();
+    }
   }
 }
 
@@ -563,6 +573,7 @@ function newBullet(enumber) {
   for (i = 0; i < bmax; i++) {
     if (!bullets[i][5]) {
       if (enumber === -1) {
+        noshot++;
         bullets[i][1] = py;
         bullets[i][2] = bsize;
         if (direction[0] && direction[2]) {
@@ -645,6 +656,8 @@ function restartGame() {
   for (j = 0; j < bmax; j++) bullets[j][5] = 0;
   seconds = 0;
   minutes = 3;
+  score[stageid] = 0;
+  noshot = 0;
 }
 
 function moveEnemies() {
@@ -703,6 +716,7 @@ function drawHUD() {
   fill('black');
   text(plifep, 82, 65);
   drawTimer();
+  fill('#FFFFFF');
 }
 
 function drawTimer() {
@@ -724,7 +738,6 @@ function drawTimer() {
     text('0', 707, 65);
     text(seconds, 732, 65);
   }
-  fill('#FFFFFF');
 }
 
 function damage() {
@@ -749,6 +762,10 @@ function damage() {
           if (bullets[j][0] >= enemies[stageid][l][0] - bullets[j][2] / 2 && bullets[j][0] <= enemies[stageid][l][0] + esize + bullets[j][2] / 2) {
             bullets[j][5] = false;
             lifePoints(l, -1);
+            if (enemies[stageid][l][7] === 0) {
+              if (enemies[stageid][l][5] === 0) score[stageid] += 150;
+              else score[stageid] += 250;
+            }
           }
         }
       }
@@ -813,4 +830,13 @@ function spikesCollision() {
     if (py >= spikes[stageid][i][1] - swidth && py <= spikes[stageid][i][1] + swidth)
       if ((spikes[stageid][i][2] === 2 && pposx >= spikes[stageid][i][0] - sheight - sx / 3 && pposx <= spikes[stageid][i][0] + sx) || (spikes[stageid][i][2] === 3 && pposx >= spikes[stageid][i][0] && pposx <= spikes[stageid][i][0] + sheight)) lifePoints(-1, -1);
   }
+}
+
+function countPoints() {
+  for (k = 1; k <= plifep; k++) score[stageid] += 75;
+  var points = (60 * minutes + seconds) * 300 / maxtime;
+  if (noshot === 0) noshot++;
+  var points2 = 350 / noshot;
+  score[stageid] = score[stageid] + points + points2;
+  score[stageid] = Math.round(score[stageid]);
 }
