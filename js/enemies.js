@@ -1,11 +1,11 @@
 //Number on Enemies on n stage
-var maxe = [3, 2];
+var maxe = [4, 3];
 
 var enemies = [];
 
 for (var i = 0; i < maxe.length; i++) {
   enemies[i] = [];
-  for (var j = 0; j <= maxe[i]; j++) {
+  for (var j = 0; j < maxe[i]; j++) {
     enemies[i][j] = [];
   }
 }

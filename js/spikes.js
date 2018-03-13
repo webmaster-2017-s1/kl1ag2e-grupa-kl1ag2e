@@ -1,5 +1,5 @@
 //Max number of spikes on n stage
-var maxs = [10, 10];
+var maxs = [11, 11];
 
 //Spike's 1/2 width
 var swidth = 30;
@@ -10,7 +10,7 @@ var spikes = [];
 
 for (var i = 0; i < maxs.length; i++) {
   spikes[i] = [];
-  for (var j = 0; j <= maxs[i]; j++) {
+  for (var j = 0; j < maxs[i]; j++) {
     spikes[i][j] = [];
   }
 }

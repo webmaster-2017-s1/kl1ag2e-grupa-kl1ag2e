@@ -192,13 +192,14 @@ function newGame() {
 
 function continueGame() {
   if (getLastLevel() > 0) {
+    stageid = getLastLevel();
     restartGame();
     inmenu = false;
   }
 }
 
 function getLastPlatform() {
-  return platforms[stageid][maxp[stageid]][0] + platforms[stageid][maxp[stageid]][2] - resx / 2 - 50;
+  return platforms[stageid][maxp[stageid] - 1][0] + platforms[stageid][maxp[stageid] - 1][2] - resx / 2 - 50;
 }
 
 function menu() {
@@ -361,10 +362,10 @@ function drawPlatforms() {
 
   do {
     if (pposx - resx > platforms[stageid][i][0]) rstart = i;
-    if (i === maxp[stageid]) fill('#00FF00'); else fill('#0000FF');
+    if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#0000FF');
     rect(platforms[stageid][i][0] - spos, platforms[stageid][i][1], platforms[stageid][i][2], platforms[stageid][i][3]);
     i++;
-  } while (i <= maxp[stageid] && pposx + resx >= platforms[stageid][i][0]);
+  } while (i < maxp[stageid] && pposx + resx >= platforms[stageid][i][0]);
   fill('#FFFFFF');
 
 }
@@ -440,7 +441,7 @@ function collision() {
       }
     }
     i++;
-  } while (i <= maxp[stageid] && pposx + resx / 4 >= platforms[stageid][i][0]);
+  } while (i < maxp[stageid] && pposx + resx / 4 >= platforms[stageid][i][0]);
 
 
   // debugcollision(maxid, minid, xmaxid, xminid); //Uncomment to debug collision
@@ -489,7 +490,7 @@ function gravity(maxy, maxid) {
     else
       py = maxy - sy - 1;
   } else {
-    if (maxid === maxp[stageid]) {
+    if (maxid === maxp[stageid] - 1) {
       completed = true;
       countPoints();
     }
@@ -707,7 +708,6 @@ function moveEnemies() {
 }
 
 function drawEnemies() {
-  fill('gold');
   for (i = 0; i < maxe[stageid]; i++) {
     if (enemies[stageid][i][7] > 0) {
       var k = 0;
@@ -727,7 +727,6 @@ function drawEnemies() {
       }
     }
   }
-  fill('#FFFFFF');
 }
 
 function drawHUD() {
@@ -822,9 +821,11 @@ function noDamage() {
   }
 }
 
+var sstart = 1;
 function drawSpikes() {
-  //TODO Optimise drawing
-  for (i = 0; i < maxs[stageid]; i++) {
+  i = max(sstart - 1, 0);
+  do {
+    if (pposx - resx / 2 > spikes[stageid][i][0]) sstart = i;
     //DOWN
     if (spikes[stageid][i][2] === 0) triangle(spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] + sheight);
 
@@ -836,12 +837,12 @@ function drawSpikes() {
 
     //RIGHT
     else if (spikes[stageid][i][2] === 3) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos + sheight, spikes[stageid][i][1]);
-  }
+    i++;
+  } while (i < maxs[stageid] && pposx + resx >= spikes[stageid][i][0])
 }
 
 function spikesCollision() {
-  //TODO Optimise checking
-  for (i = 0; i < maxs[stageid]; i++) {
+  for (i = cstart; i < maxs[stageid]; i++) {
     //Spikes UP AND DOWN
     if (pposx >= spikes[stageid][i][0] - swidth - sx && pposx <= spikes[stageid][i][0] + swidth)
       if ((spikes[stageid][i][2] === 0 && py >= spikes[stageid][i][1] && py <= spikes[stageid][i][1] + sheight) || (spikes[stageid][i][2] === 1 && py >= spikes[stageid][i][1] - sheight && py <= spikes[stageid][i][1])) lifePoints(-1, -1);
@@ -853,7 +854,7 @@ function spikesCollision() {
 }
 
 function countPoints() {
-  for (k = 1; k <= plifep; k++) score[stageid] += 75;
+  for (var k = 1; k <= plifep; k++) score[stageid] += 75;
   var points = (60 * minutes + seconds) * 300 / maxtime;
   if (noshot === 0) noshot++;
   var points2 = 350 / noshot;

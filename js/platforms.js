@@ -2,13 +2,13 @@
 var stageid = 0;
 
 //Quantity of platforms on stages
-var maxp = [39, 55];
+var maxp = [40, 55, 4];
 
 var platforms = [];
 
 for (var i = 0; i < maxp.length; i++) {
   platforms[i] = [];
-  for (var j = 0; j <= maxp[i]; j++) {
+  for (var j = 0; j < maxp[i]; j++) {
     platforms[i][j] = [];
   }
 }
@@ -493,3 +493,24 @@ platforms[1][54][0] = 6760;
 platforms[1][54][1] = 110;
 platforms[1][54][2] = 230;
 platforms[1][54][3] = 20;
+
+//STAGEBOSS
+platforms[2][0][0] = 0;
+platforms[2][0][1] = 30;
+platforms[2][0][2] = 30;
+platforms[2][0][3] = 708;
+
+platforms[2][1][0] = 0;
+platforms[2][1][1] = 738;
+platforms[2][1][2] = 1500;
+platforms[2][1][3] = 30;
+
+platforms[2][2][0] = 0;
+platforms[2][2][1] = 0;
+platforms[2][2][2] = 1500;
+platforms[2][2][3] = 30;
+
+platforms[2][3][0] = 1336;
+platforms[2][3][1] = 30;
+platforms[2][3][2] = 30;
+platforms[2][3][3] = 708;
