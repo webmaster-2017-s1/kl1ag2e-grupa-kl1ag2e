@@ -81,6 +81,8 @@ var rstart = 0;
 //Start collision checking platforms from cstart platform;
 var cstart = 0;
 
+//Spikes' render and collision starting spike
+var sstart = 0;
 //True if game is paused(PRESS SPACE to Continue)
 var paused = false;
 
@@ -98,7 +100,7 @@ var btny = [300, 400, 500, 600];
 //Buttons' Text
 var btntext = ['New Game', 'Continue', 'Tutorial', 'Credits'];
 //Active button id
-var btnid;
+var btnid = 0;
 
 //True if Stage is Completed
 var completed = false;
@@ -159,30 +161,7 @@ function draw() {
 }
 
 function mouseClicked() {
-  if (inmenu) {
-    switch (checkMousePos()) {
-      case 0:
-        //New Game
-        newGame();
-        break;
-      case 1:
-        //Continue
-        continueGame();
-        break;
-      case 2:
-        //Tutorial
-        stageid = 2;
-        inmenu = false;
-        break;
-      case 3:
-        //Credits
-        break;
-
-      default:
-
-    }
-  }
-
+  menuSelection(checkMousePos());
 }
 
 function newGame() {
@@ -218,6 +197,29 @@ function menu() {
 
 }
 
+function menuSelection(a) {
+  if (inmenu) {
+    switch (a) {
+      case 0:
+        //New Game
+        newGame();
+        break;
+      case 1:
+        //Continue
+        continueGame();
+        break;
+      case 2:
+        //Tutorial
+        // stageid = 2;
+        // inmenu = false;
+        break;
+      case 3:
+        //Credits
+        break;
+    }
+  }
+}
+
 function drawButtons(btnid) {
 
   textSize(30);
@@ -229,7 +231,6 @@ function drawButtons(btnid) {
     fill("#FFFFFF");
   }
 }
-
 
 function checkMousePos() {
   //Check button vertical
@@ -324,17 +325,27 @@ function keyPressed() {
   if (keyCode === 88) {
     newBullet(-1);
   }
+
   //SPACE
   if (keyCode === 32) {
-    if (inmenu) inmenu = false;
-    else if (completed) {
+    if (completed) {
       stageid++;
       completed = false;
       restartGame();
-    } else paused = !paused;
-
+    } else if (!inmenu) paused = !paused;
   }
-
+  //Enter Pressed
+  if (keyCode === 13 && inmenu) {
+    menuSelection(btnid);
+  }
+  //UP_ARROW Pressed
+  if (keyCode === 38 && inmenu && btnid > 0) {
+    btnid--;
+  }
+  //DOWN_ARROW Pressed
+  if (keyCode === 40 && inmenu && btnid < 3) {
+    btnid++;
+  }
 }
 
 function keyReleased() {
@@ -679,7 +690,7 @@ function restartGame() {
   score[stageid] = 0;
   noshot = 0;
   lastp = getLastPlatform();
-  sstart= 0;
+  sstart = 0;
 }
 
 function moveEnemies() {
@@ -746,8 +757,8 @@ function drawTimer() {
     seconds--;
     if (minutes === 0 && seconds === 0) lose();
     if (seconds === -1) {
-        seconds = 59;
-        minutes--;
+      seconds = 59;
+      minutes--;
     }
   }
   text(minutes, 647, 65);
@@ -822,11 +833,10 @@ function noDamage() {
   }
 }
 
-var sstart = 1;
 function drawSpikes() {
   i = max(sstart - 1, 0);
   do {
-    if (pposx - resx / 2 > spikes[stageid][i][0]) sstart = i;
+    if (pposx - resx > spikes[stageid][i][0]) sstart = i;
     //DOWN
     if (spikes[stageid][i][2] === 0) triangle(spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] + sheight);
 
@@ -843,7 +853,7 @@ function drawSpikes() {
 }
 
 function spikesCollision() {
-  for (i = cstart; i < maxs[stageid]; i++) {
+  for (i = sstart; i < maxs[stageid]; i++) {
     //Spikes UP AND DOWN
     if (pposx >= spikes[stageid][i][0] - swidth - sx && pposx <= spikes[stageid][i][0] + swidth)
       if ((spikes[stageid][i][2] === 0 && py >= spikes[stageid][i][1] && py <= spikes[stageid][i][1] + sheight) || (spikes[stageid][i][2] === 1 && py >= spikes[stageid][i][1] - sheight && py <= spikes[stageid][i][1])) lifePoints(-1, -1);
