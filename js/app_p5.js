@@ -679,6 +679,7 @@ function restartGame() {
   score[stageid] = 0;
   noshot = 0;
   lastp = getLastPlatform();
+  sstart= 0;
 }
 
 function moveEnemies() {
