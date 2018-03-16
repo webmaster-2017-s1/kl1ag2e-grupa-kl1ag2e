@@ -1,5 +1,5 @@
 //Max number of spikes on n stage
-var maxs = [11, 11];
+var maxs = [11, 8, 5];
 
 //Spike's 1/2 width
 var swidth = 30;
@@ -52,25 +52,25 @@ spikes[0][5][0] = 2480;
 spikes[0][5][1] = 380;
 spikes[0][5][2] = 2;
 
-spikes[0][5][0] = 2750;
-spikes[0][5][1] = 410;
-spikes[0][5][2] = 1;
-
-spikes[0][6][0] = 3730;
+spikes[0][6][0] = 2750;
 spikes[0][6][1] = 410;
-spikes[0][6][2] = 2;
+spikes[0][6][2] = 1;
 
-spikes[0][7][0] = 3830;
-spikes[0][7][1] = 450;
-spikes[0][7][2] = 1;
+spikes[0][7][0] = 3730;
+spikes[0][7][1] = 410;
+spikes[0][7][2] = 2;
 
-spikes[0][8][0] = 4410;
+spikes[0][8][0] = 3830;
 spikes[0][8][1] = 450;
 spikes[0][8][2] = 1;
 
-spikes[0][9][0] = 5900;
-spikes[0][9][1] = 500;
+spikes[0][9][0] = 4410;
+spikes[0][9][1] = 450;
 spikes[0][9][2] = 1;
+
+spikes[0][10][0] = 5900;
+spikes[0][10][1] = 500;
+spikes[0][10][2] = 1;
 
 spikes[1][1][0] = 410;
 spikes[1][1][1] = 460;
@@ -99,3 +99,20 @@ spikes[1][6][2] = 1;
 spikes[1][7][0] = 6090;
 spikes[1][7][1] = 560;
 spikes[1][7][2] = 1;
+
+//Stage 2
+spikes[2][1][0] = 30;
+spikes[2][1][1] = 560;
+spikes[2][1][2] = 1;
+
+spikes[2][2][0] = 1360;
+spikes[2][2][1] = 470;
+spikes[2][2][2] = 1;
+
+spikes[2][3][0] = 2460;
+spikes[2][3][1] = 440;
+spikes[2][3][2] = 1;
+
+spikes[2][4][0] = 1960;
+spikes[2][4][1] = 270;
+spikes[2][4][2] = 1;
