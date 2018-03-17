@@ -855,12 +855,27 @@ function drawSpikes() {
 function spikesCollision() {
   for (i = sstart; i < maxs[stageid]; i++) {
     //Spikes UP AND DOWN
-    if (pposx >= spikes[stageid][i][0] - swidth - sx && pposx <= spikes[stageid][i][0] + swidth)
-      if ((spikes[stageid][i][2] === 0 && py >= spikes[stageid][i][1] && py <= spikes[stageid][i][1] + sheight) || (spikes[stageid][i][2] === 1 && py >= spikes[stageid][i][1] - sheight && py <= spikes[stageid][i][1])) lifePoints(-1, -1);
-
+    if ((spikes[stageid][i][2] === 0 || spikes[stageid][i][2] === 1) && (pposx >= spikes[stageid][i][0] - swidth - sx && pposx <= spikes[stageid][i][0] + swidth)) {
+      spikeBorderCollision(spikes[stageid][i][2]);
+    } else
     //Spikes LEFT AND RIGHT
-    if (py >= spikes[stageid][i][1] - swidth && py <= spikes[stageid][i][1] + swidth)
-      if ((spikes[stageid][i][2] === 2 && pposx >= spikes[stageid][i][0] - sheight - sx / 3 && pposx <= spikes[stageid][i][0] + sx) || (spikes[stageid][i][2] === 3 && pposx >= spikes[stageid][i][0] && pposx <= spikes[stageid][i][0] + sheight)) lifePoints(-1, -1);
+    if (py >= spikes[stageid][i][1] - swidth && py <= spikes[stageid][i][1] + swidth) {
+
+      switch (spikes[stageid][i][2]) {
+        case 2:
+
+          if (pposx >= spikes[stageid][i][0] - sheight - sx && pposx <= spikes[stageid][i][0] + sx) {
+            spikeBorderCollision(2);
+          }
+          break;
+
+        case 3:
+          if (pposx >= spikes[stageid][i][0] && pposx <= spikes[stageid][i][0] + sheight) spikeBorderCollision(3);
+          break;
+
+        default:
+      }
+    }
   }
 }
 
@@ -872,3 +887,74 @@ function countPoints() {
   score[stageid] = score[stageid] + points + points2;
   score[stageid] = Math.round(score[stageid]);
 }
+
+
+function spikeBladeHeight(part) {
+  if (part)
+  //LEFT
+    return Math.round(sheight * (swidth - spikes[stageid][i][0] + pposx + sx) / swidth);
+  else
+  //RIGHT
+    return Math.round(sheight * (spikes[stageid][i][0] + swidth - pposx) / swidth);
+}
+
+
+function spikeBorderCollision(d) {
+
+
+  var a = 0;
+
+  var l = spikeBladeHeight(true);
+  var r = spikeBladeHeight(false);
+
+  switch (d) {
+    case 0:
+      //DOWN
+      if (pposx + sx < spikes[stageid][i][0]) {
+        //LEFT
+        a = spikeBladeHeight(true);
+        if (spikes[stageid][i][1] + a > py)
+          lifePoints(-1, -1);
+      } else if (pposx >= spikes[stageid][i][0]) {
+        //RIGHT
+        a = spikeBladeHeight(false);
+        if (spikes[stageid][i][1] + a > py)
+          lifePoints(-1, -1);
+      } else {
+        //CENTER
+        if (spikes[stageid][i][1] + sy > py) {
+          lifePoints(-1, -1);
+        }
+      }
+      break;
+
+    case 1:
+      //UP
+      if (pposx + sx < spikes[stageid][i][0]) {
+        //LEFT
+        a = spikeBladeHeight(true);
+        if (spikes[stageid][i][1] - a < py + sy)
+          lifePoints(-1, -1);
+      } else if (pposx >= spikes[stageid][i][0]) {
+        //RIGHT
+        a = spikeBladeHeight(false);
+        if (spikes[stageid][i][1] - a < py + sy)
+          lifePoints(-1, -1);
+      } else {
+        //CENTER
+        if (spikes[stageid][i][1] - sy < py + sy) {
+          lifePoints(-1, -1);
+        }
+      }
+      break;
+
+    case 2:
+      break;
+
+    case 3:
+      break;
+  }
+
+
+}
+
