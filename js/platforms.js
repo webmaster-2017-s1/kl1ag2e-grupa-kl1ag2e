@@ -21,6 +21,7 @@ for (var i = 0; i < maxp.length; i++) {
 //3-Height
 
 //STAGE0
+
 platforms[0][0][0] = 0;
 platforms[0][0][1] = 0;
 platforms[0][0][2] = 30;
@@ -224,6 +225,12 @@ platforms[0][39][3] = 10;
 
 
 //STAGE1
+
+platforms[1][0][0] = 0;
+platforms[1][0][1] = 0;
+platforms[1][0][2] = 0;
+platforms[1][0][3] = 0;
+
 platforms[1][1][0] = 10;
 platforms[1][1][1] = 510;
 platforms[1][1][2] = 40;
@@ -495,6 +502,11 @@ platforms[1][54][2] = 230;
 platforms[1][54][3] = 20;
 
 //STAGE 2
+
+platforms[2][0][0] = 0;
+platforms[2][0][1] = 0;
+platforms[2][0][2] = 0;
+platforms[2][0][3] = 0;
 
 platforms[2][1][0] = 60;
 platforms[2][1][1] = 530;
@@ -837,6 +849,7 @@ platforms[2][68][2] = 450;
 platforms[2][68][3] = 30;
 
 //STAGEBOSS
+
 platforms[3][0][0] = 0;
 platforms[3][0][1] = 30;
 platforms[3][0][2] = 30;
@@ -850,14 +863,14 @@ platforms[3][1][3] = 30;
 platforms[3][2][0] = 0;
 platforms[3][2][1] = 0;
 platforms[3][2][2] = 1500;
-platforms[3][4][3] = 10;
-
-platforms[3][4][0] = 860;
-platforms[3][4][1] = 300;
-platforms[3][4][2] = 250;
 platforms[3][2][3] = 30;
 
 platforms[3][3][0] = 1336;
 platforms[3][3][1] = 30;
 platforms[3][3][2] = 30;
 platforms[3][3][3] = 708;
+
+platforms[3][4][0] = 860;
+platforms[3][4][1] = 300;
+platforms[3][4][2] = 250;
+platforms[3][4][3] = 10;
