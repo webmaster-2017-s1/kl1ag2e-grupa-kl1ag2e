@@ -51,7 +51,7 @@ var direction = [];
 direction[0] = true;
 
 //Bullets size
-var bsize = 20;
+var bsize = 12;
 //Max number of bullets
 var bmax = 10;
 //Bullets speed
@@ -142,6 +142,7 @@ var livebar;
 var bar1;
 var bar2;
 var heart;
+var pistol = [];
 
 //Load Images
 function preload() {
@@ -151,6 +152,12 @@ function preload() {
   bar1 = loadImage('./assets/bar1.png');
   bar2 = loadImage('./assets/bar2.png');
   heart = loadImage('./assets/heart.png');
+  pistol[0] = loadImage('./assets/pistol.png');
+  pistol[1] = loadImage('./assets/pistol2.png');
+  pistol[2] = loadImage('./assets/pistol3.png');
+  pistol[3] = loadImage('./assets/pistol4.png');
+  pistol[4] = loadImage('./assets/pistol5.png');
+  pistol[5] = loadImage('./assets/pistol6.png');
 }
 
 function setup() {
@@ -369,7 +376,22 @@ function drawObjects() {
 }
 
 function drawPlayer() {
-  if (!nodamage) rect(px, py, sx, sy);
+  if (!nodamage) {
+    rect(px, py, sx, sy);
+    if (direction[0] && direction[2]) {
+     image(pistol[1], px + 25, py);
+    } else if (direction[0] && direction[3]) {
+      image(pistol[2], px + 25, py + 20);
+    } else if (direction[1] && direction[2]) {
+      image(pistol[4], px - 12, py);
+    } else if (direction[1] && direction[3]) {
+      image(pistol[5], px - 7, py + 20);
+    } else if (direction[0]) {
+      image(pistol[0], px + 25, py + 20);
+    } else if (direction[1]) {
+      image(pistol[3], px - 19, py + 20);
+    }
+  }
   else noDamage();
 }
 
@@ -611,25 +633,30 @@ function newBullet(enumber) {
     if (!bullets[i][5]) {
       if (enumber === -1) {
         noshot++;
-        bullets[i][1] = py;
         bullets[i][2] = bsize;
         if (direction[0] && direction[2]) {
           bullets[i][0] = spos + px + sx;
+          bullets[i][1] = py + 10;
           bullets[i][3] = 0;
         } else if (direction[0] && direction[3]) {
-          bullets[i][0] = spos + px + sx;
+          bullets[i][0] = spos + px + sx - 3;
+          bullets[i][1] = py + 45;
           bullets[i][3] = 1;
         } else if (direction[1] && direction[2]) {
           bullets[i][0] = spos + px;
+          bullets[i][1] = py + 10;
           bullets[i][3] = 2;
         } else if (direction[1] && direction[3]) {
-          bullets[i][0] = spos + px;
+          bullets[i][0] = spos + px + 3;
+          bullets[i][1] = py + 45;
           bullets[i][3] = 3;
         } else if (direction[0]) {
-          bullets[i][0] = spos + px + sx;
+          bullets[i][0] = spos + px + sx + 10;
+          bullets[i][1] = py + 25;
           bullets[i][3] = 4;
         } else if (direction[1]) {
-          bullets[i][0] = spos + px;
+          bullets[i][0] = spos + px - 10;
+          bullets[i][1] = py + 25;
           bullets[i][3] = 5;
         }
         bullets[i][6] = false;
@@ -754,7 +781,7 @@ function drawEnemies() {
 function activeEnemies() {
   if (enemiesCounter > -1) {
    for (p = 0; p <= enemiesCounter; p++) {
-     if (!enemies[stageid][drawingenemies[enemiesCounter][2]][8]) {
+     if (!enemies[stageid][drawingenemies[p][2]][8]) {
        if (enemiesCounter === 0) enemiesCounter--;
         else {
        drawingenemies[p][0] = drawingenemies[enemiesCounter][0];
@@ -852,7 +879,22 @@ function lifePoints(id, number) {
 
 function noDamage() {
   ndcounter++;
-  if (ndcounter % 10 === 0) rect(px, py, sx, sy);
+  if (ndcounter % 10 === 0) {
+    rect(px, py, sx, sy);
+    if (direction[0] && direction[2]) {
+     image(pistol[1], px + 25, py);
+    } else if (direction[0] && direction[3]) {
+      image(pistol[2], px + 25, py + 20);
+    } else if (direction[1] && direction[2]) {
+      image(pistol[4], px - 12, py);
+    } else if (direction[1] && direction[3]) {
+      image(pistol[5], px - 7, py + 20);
+    } else if (direction[0]) {
+      image(pistol[0], px + 25, py + 20);
+    } else if (direction[1]) {
+      image(pistol[3], px - 19, py + 20);
+    }
+  }
   if (ndcounter === 60 * 1.5) {
     nodamage = false;
     ndcounter = 0;
