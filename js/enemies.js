@@ -1,5 +1,5 @@
 //Number on Enemies on n stage
-var maxe = [3, 2, 1];
+var maxe = [3, 2, 11, 1];
 
 var enemies = [];
 
@@ -22,6 +22,10 @@ for (var i = 0; i < maxe.length; i++) {
 //6-Time to shot
 //7-Life points
 //8-True if enemy is drawing
+//----------ONLY BOSS STAGE------------
+//9 Min y
+//10 Max y
+//11 Enemy Y direction //DOWN
 
 enemies[0][0][0] = 650;
 enemies[0][0][1] = 380;
@@ -33,24 +37,24 @@ enemies[0][0][6] = -1;
 enemies[0][0][7] = 3;
 enemies[0][0][8] = false;
 
-enemies[0][1][0] = 4690;
-enemies[0][1][1] = 280;
-enemies[0][1][2] = 4690;
-enemies[0][1][3] = 4810;
+enemies[0][1][0] = 2260;
+enemies[0][1][1] = 350;
+enemies[0][1][2] = 2260;
+enemies[0][1][3] = 2440;
 enemies[0][1][4] = true;
-enemies[0][1][5] = 1;
-enemies[0][1][6] = 0;
-enemies[0][1][7] = 2;
+enemies[0][1][5] = 0;
+enemies[0][1][6] = -1;
+enemies[0][1][7] = 3;
 enemies[0][1][8] = false;
 
-enemies[0][2][0] = 2260;
-enemies[0][2][1] = 350;
-enemies[0][2][2] = 2260;
-enemies[0][2][3] = 2440;
+enemies[0][2][0] = 4690;
+enemies[0][2][1] = 280;
+enemies[0][2][2] = 4690;
+enemies[0][2][3] = 4810;
 enemies[0][2][4] = true;
-enemies[0][2][5] = 0;
-enemies[0][2][6] = -1;
-enemies[0][2][7] = 3;
+enemies[0][2][5] = 1;
+enemies[0][2][6] = 0;
+enemies[0][2][7] = 2;
 enemies[0][2][8] = false;
 
 enemies[1][0][0] = 1050;
@@ -82,3 +86,126 @@ enemies[2][0][5] = 0;
 enemies[2][0][6] = -1;
 enemies[2][0][7] = 3;
 enemies[2][0][8] = false;
+
+enemies[2][1][0] = 2450;
+enemies[2][1][1] = 380;
+enemies[2][1][2] = 2450;
+enemies[2][1][3] = 2700;
+enemies[2][1][4] = true;
+enemies[2][1][5] = 0;
+enemies[2][1][6] = 0;
+enemies[2][1][7] = 3;
+enemies[2][1][8] = false;
+
+enemies[2][2][0] = 2490;
+enemies[2][2][1] = 70;
+enemies[2][2][2] = 2490;
+enemies[2][2][3] = 2740;
+enemies[2][2][4] = true;
+enemies[2][2][5] = 0;
+enemies[2][2][6] = 0;
+enemies[2][2][7] = 3;
+enemies[2][2][8] = false;
+
+enemies[2][3][0] = 4360;
+enemies[2][3][1] = 160;
+enemies[2][3][2] = 4360;
+enemies[2][3][3] = 4620;
+enemies[2][3][4] = true;
+enemies[2][3][5] = 1;
+enemies[2][3][6] = 0;
+enemies[2][3][7] = 3;
+enemies[2][3][8] = false;
+
+enemies[2][4][0] = 5010;
+enemies[2][4][1] = 130;
+enemies[2][4][2] = 5010;
+enemies[2][4][3] = 5250;
+enemies[2][4][4] = true;
+enemies[2][4][5] = 1;
+enemies[2][4][6] = 0;
+enemies[2][4][7] = 3;
+enemies[2][4][8] = false;
+
+enemies[2][5][0] = 5650;
+enemies[2][5][1] = 240;
+enemies[2][5][2] = 5650;
+enemies[2][5][3] = 5890;
+enemies[2][5][4] = true;
+enemies[2][5][5] = 0;
+enemies[2][5][6] = 0;
+enemies[2][5][7] = 2;
+enemies[2][5][8] = false;
+
+enemies[2][6][0] = 6160;
+enemies[2][6][1] = 400;
+enemies[2][6][2] = 6160;
+enemies[2][6][3] = 6390;
+enemies[2][6][4] = true;
+enemies[2][6][5] = 0;
+enemies[2][6][6] = 0;
+enemies[2][6][7] = 2;
+enemies[2][6][8] = false;
+
+enemies[2][7][0] = 6320;
+enemies[2][7][1] = 150;
+enemies[2][7][2] = 6320;
+enemies[2][7][3] = 6560;
+enemies[2][7][4] = true;
+enemies[2][7][5] = 1;
+enemies[2][7][6] = 0;
+enemies[2][7][7] = 3;
+enemies[2][7][8] = false;
+
+enemies[2][8][0] = 8610;
+enemies[2][8][1] = 70;
+enemies[2][8][2] = 8610;
+enemies[2][8][3] = 8820;
+enemies[2][8][4] = true;
+enemies[2][8][5] = 1;
+enemies[2][8][6] = 0;
+enemies[2][8][8] = false;
+
+enemies[2][9][0] = 8600;
+enemies[2][9][1] = 410;
+enemies[2][9][2] = 8600;
+enemies[2][9][3] = 8790;
+enemies[2][9][4] = true;
+enemies[2][9][5] = 1;
+enemies[2][9][6] = -1;
+enemies[2][9][7] = 2;
+enemies[2][9][8] = false;
+
+enemies[2][10][0] = 9140;
+enemies[2][10][1] = 80;
+enemies[2][10][2] = 9140;
+enemies[2][10][3] = 9360;
+enemies[2][10][4] = true;
+enemies[2][10][5] = 1;
+enemies[2][10][6] = 0;
+enemies[2][10][7] = 3;
+enemies[2][10][8] = false;
+
+
+//STAGE BOSS
+enemies[3][0][0] = 590;
+enemies[3][0][1] = 360;
+enemies[3][0][2] = 30;
+enemies[3][0][3] = 1186;
+enemies[3][0][4] = true;
+enemies[3][0][5] = 2;
+enemies[3][0][6] = -1;
+enemies[3][0][7] = 50;
+enemies[3][0][8] = false;
+enemies[3][0][9] = 30;
+enemies[3][0][10] = 450;
+enemies[3][0][11] = false;
+
+
+var minyb = 30;
+var maxyb = 450;
+var bdirect = false; //DOWN
+
+//Vector boss x
+var vbx = 5;
+var vby = 5;

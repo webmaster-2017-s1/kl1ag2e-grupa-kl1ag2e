@@ -142,7 +142,7 @@ var livebar;
 var bar1;
 var bar2;
 var heart;
-
+var boss;
 //Load Images
 function preload() {
   enemyimg = loadImage('./assets/enemy.png');
@@ -151,6 +151,7 @@ function preload() {
   bar1 = loadImage('./assets/bar1.png');
   bar2 = loadImage('./assets/bar2.png');
   heart = loadImage('./assets/heart.png');
+  boss = loadImage('./assets/boss.png');
 }
 
 function setup() {
@@ -687,8 +688,18 @@ function restartGame() {
   nodamage = false;
   ndcounter = 0;
   for (j = 0; j < maxe[stageid]; j++) {
-    if (enemies[stageid][j][5] === 0) enemies[stageid][j][7] = 3;
-    else enemies[stageid][j][7] = 2;
+    switch (enemies[stageid][j][5]) {
+      case 0:
+        enemies[stageid][j][7] = 3;
+        break;
+      case 1:
+        enemies[stageid][j][7] = 2;
+        break;
+      case 2:
+        enemies[stageid][j][7] = 150;
+        break;
+      default:
+    }
   }
   for (j = 0; j < bmax; j++) bullets[j][5] = 0;
   seconds = 0;
@@ -715,40 +726,112 @@ function drawEnemies() {
   for (p = 0; p <= enemiesCounter; p++) {
     var k = 0;
     image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
-    if (enemies[stageid][drawingenemies[p][2]][5] === 0) {
-      image(enemyimg, drawingenemies[p][0] - spos, drawingenemies[p][1]);
-      for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
-        image(bar2, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
-        k += 16;
-     }
-    } else {
-      image(enemyimg2, drawingenemies[p][0] - spos, drawingenemies[p][1]);
-      for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
-        image(bar1, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
-        k += 24;
-      }
+
+
+    switch (enemies[stageid][drawingenemies[p][2]][5]) {
+      case 0:
+        image(enemyimg, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
+          image(bar2, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
+          k += 16;
+        }
+        break;
+
+      case 1:
+        image(enemyimg2, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
+          image(bar1, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
+          k += 24;
+        }
+        break;
+
+      case 2:
+        image(boss, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
+          image(bar1, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
+          k += 24;
+        }
+        break;
+
     }
-   if (enemies[stageid][drawingenemies[p][2]][4]) {
-        //Right--->
-    if (enemies[stageid][drawingenemies[p][2]][3] - drawingenemies[p][0] - esize <= espeed) {
-     drawingenemies[p][0] = enemies[stageid][drawingenemies[p][2]][3] - esize;
-     enemies[stageid][drawingenemies[p][2]][4] = false;
+
+    if (enemies[stageid][drawingenemies[p][2]][5] === 2) {
+      //Move Boss
+      moveBoss(p);
     } else {
-     drawingenemies[p][0] += espeed;
+      //Movie Enemies(other than Boss)
+      moveEnemies();
     }
-   } else {
-        //Left <---
-    if (drawingenemies[p][0] - enemies[stageid][drawingenemies[p][2]][2] <= espeed) {
-     drawingenemies[p][0] = enemies[stageid][drawingenemies[p][2]][2];
-     enemies[stageid][drawingenemies[p][2]][4] = true;
-    } else {
-     drawingenemies[p][0] -= espeed;
+
+    if (px + spos < enemies[stageid][drawingenemies[p][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[p][2]][3] + px || enemies[stageid][drawingenemies[p][2]][7] === 0) {
+      enemies[stageid][drawingenemies[p][2]][8] = false;
     }
-   }
-   if (px + spos < enemies[stageid][drawingenemies[p][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[p][2]][3] + px || enemies[stageid][drawingenemies[p][2]][7] === 0) {
-     enemies[stageid][drawingenemies[p][2]][8] = false;
-   }
   }
+}
+
+function moveEnemies() {
+  if (enemies[stageid][drawingenemies[p][2]][4]) {
+    //Right--->
+    if (enemies[stageid][drawingenemies[p][2]][3] - drawingenemies[p][0] - esize <= espeed) {
+      drawingenemies[p][0] = enemies[stageid][drawingenemies[p][2]][3] - esize;
+      enemies[stageid][drawingenemies[p][2]][4] = false;
+    } else {
+      drawingenemies[p][0] += espeed;
+    }
+  } else {
+    //Left <---
+    if (drawingenemies[p][0] - enemies[stageid][drawingenemies[p][2]][2] <= espeed) {
+      drawingenemies[p][0] = enemies[stageid][drawingenemies[p][2]][2];
+      enemies[stageid][drawingenemies[p][2]][4] = true;
+    } else {
+      drawingenemies[p][0] -= espeed;
+    }
+  }
+
+}
+
+
+function moveBoss(p) {
+
+//X-Movement
+  if (enemies[stageid][drawingenemies[p][2]][4]) {
+    if (drawingenemies[p][0] - vbx < enemies[stageid][drawingenemies[p][2]][3]) {
+      drawingenemies[p][0] += vbx;
+    } else {
+      drawingenemies[p][0] = enemies[stageid][drawingenemies[p][2]][3];
+      enemies[stageid][drawingenemies[p][2]][4] = false;
+    }
+  } else {
+    if (drawingenemies[p][0] - vbx > enemies[stageid][drawingenemies[p][2]][2]) {
+      drawingenemies[p][0] -= vbx;
+    } else {
+      drawingenemies[p][0] = enemies[stageid][drawingenemies[p][2]][2];
+      enemies[stageid][drawingenemies[p][2]][4] = true;
+    }
+  }
+
+//Y-Movement
+  if (enemies[stageid][drawingenemies[p][2]][11]) {
+    if (drawingenemies[p][1] + vby <= enemies[stageid][drawingenemies[p][2]][10]) {
+      drawingenemies[p][1] += vby;
+    } else {
+      drawingenemies[p][1] = enemies[stageid][drawingenemies[p][2]][10];
+      enemies[stageid][drawingenemies[p][2]][11] = false;
+    }
+  } else {
+    if (drawingenemies[p][1] - vby >= enemies[stageid][drawingenemies[p][2]][9]) {
+      drawingenemies[p][1] -= vby;
+    } else {
+      drawingenemies[p][1] = enemies[stageid][drawingenemies[p][2]][9];
+      enemies[stageid][drawingenemies[p][2]][11] = true;
+    }
+  }
+}
+
+function dropEnemy() {
+
+  d
+
 }
 
 function activeEnemies() {
@@ -799,6 +882,7 @@ function drawTimer() {
 
 function damage() {
   for (l = 0; l <= enemiesCounter; l++) {
+    if (enemies[stageid][drawingenemies[l][2]][5] === 2) esize = 150; else esize = 60;
     if (enemies[stageid][drawingenemies[l][2]][5] === 1 && enemies[stageid][drawingenemies[l][2]][7] > 0) {
       if (px + spos >= enemies[stageid][drawingenemies[l][2]][0] - 500 && px + spos <= enemies[stageid][drawingenemies[l][2]][0] + 500 && enemies[stageid][drawingenemies[l][2]][6] === 0) {
         enemies[stageid][drawingenemies[l][2]][6]++;
@@ -935,6 +1019,7 @@ function spikeBladeHeight(part) {
       //DOWN
       return Math.round(sheight * (swidth - py + spikes[stageid][i][1]) / swidth);
     case 3:
+      //UP
       return Math.round(sheight * (swidth + py + sy - spikes[stageid][i][1]) / swidth);
   }
 }
@@ -993,7 +1078,6 @@ function spikeBorderCollision(d) {
       } else if (py + sy > spikes[stageid][i][1]) {
         //UP
         a = spikeBladeHeight(3);
-        console.log(pposx + sx, spikes[stageid][i][0] - a);
         if (pposx + sx >= spikes[stageid][i][0] - a)
           lifePoints(-1, -1);
       } else {
@@ -1013,7 +1097,6 @@ function spikeBorderCollision(d) {
       } else if (py + sy > spikes[stageid][i][1]) {
         //UP
         a = spikeBladeHeight(3);
-        console.log(pposx + sx, spikes[stageid][i][0] - a);
         if (pposx <= spikes[stageid][i][0] + a)
           lifePoints(-1, -1);
       } else {
