@@ -186,7 +186,6 @@ enemies[2][10][6] = 0;
 enemies[2][10][7] = 3;
 enemies[2][10][8] = false;
 
-
 //STAGE BOSS
 enemies[3][0][0] = 590;
 enemies[3][0][1] = 360;
