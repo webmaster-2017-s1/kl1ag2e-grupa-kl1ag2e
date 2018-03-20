@@ -1,5 +1,5 @@
 //Number on Enemies on n stage
-var maxe = [3, 2, 11];
+var maxe = [3, 2, 11, 1];
 
 var enemies = [];
 
@@ -22,6 +22,10 @@ for (var i = 0; i < maxe.length; i++) {
 //6-Time to shot
 //7-Life points
 //8-True if enemy is drawing
+//----------ONLY BOSS STAGE------------
+//9 Min y
+//10 Max y
+//11 Enemy Y direction //DOWN
 
 enemies[0][0][0] = 650;
 enemies[0][0][1] = 380;
@@ -181,3 +185,26 @@ enemies[2][10][5] = 1;
 enemies[2][10][6] = 0;
 enemies[2][10][7] = 3;
 enemies[2][10][8] = false;
+
+//STAGE BOSS
+enemies[3][0][0] = 590;
+enemies[3][0][1] = 360;
+enemies[3][0][2] = 30;
+enemies[3][0][3] = 1186;
+enemies[3][0][4] = true;
+enemies[3][0][5] = 2;
+enemies[3][0][6] = -1;
+enemies[3][0][7] = 50;
+enemies[3][0][8] = false;
+enemies[3][0][9] = 30;
+enemies[3][0][10] = 450;
+enemies[3][0][11] = false;
+
+
+var minyb = 30;
+var maxyb = 450;
+var bdirect = false; //DOWN
+
+//Vector boss x
+var vbx = 5;
+var vby = 5;

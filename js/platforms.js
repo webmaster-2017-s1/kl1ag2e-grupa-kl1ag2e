@@ -850,27 +850,30 @@ platforms[2][68][3] = 30;
 
 //STAGEBOSS
 
+// LEFT BORDER
 platforms[3][0][0] = 0;
 platforms[3][0][1] = 30;
 platforms[3][0][2] = 30;
 platforms[3][0][3] = 708;
-
+//DOWN BORDER
 platforms[3][1][0] = 0;
 platforms[3][1][1] = 738;
 platforms[3][1][2] = 1500;
 platforms[3][1][3] = 30;
-
+//UP BORDER
 platforms[3][2][0] = 0;
 platforms[3][2][1] = 0;
 platforms[3][2][2] = 1500;
 platforms[3][2][3] = 30;
 
-platforms[3][3][0] = 1336;
-platforms[3][3][1] = 30;
-platforms[3][3][2] = 30;
-platforms[3][3][3] = 708;
+//PLAYER PLATFORM
+platforms[3][3][0] = 330;
+platforms[3][3][1] = 600;
+platforms[3][3][2] = 706;
+platforms[3][3][3] = 30;
 
-platforms[3][4][0] = 860;
-platforms[3][4][1] = 300;
-platforms[3][4][2] = 250;
-platforms[3][4][3] = 10;
+//RIGHT BORDER
+platforms[3][4][0] = 1336;
+platforms[3][4][1] = 30;
+platforms[3][4][2] = 30;
+platforms[3][4][3] = 708;
