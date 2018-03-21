@@ -1,5 +1,5 @@
 //Number on Enemies on n stage
-var maxe = [3, 2, 11, 1];
+var maxe = [3, 2, 11, 3];
 
 var enemies = [];
 
@@ -25,7 +25,7 @@ for (var i = 0; i < maxe.length; i++) {
 //----------ONLY BOSS STAGE------------
 //9 Min y
 //10 Max y
-//11 Enemy Y direction //DOWN
+//11 BOSS Enemy Y direction || Enemy Falling vector
 
 enemies[0][0][0] = 650;
 enemies[0][0][1] = 380;
@@ -187,6 +187,7 @@ enemies[2][10][7] = 3;
 enemies[2][10][8] = false;
 
 //STAGE BOSS
+//BOSS
 enemies[3][0][0] = 590;
 enemies[3][0][1] = 360;
 enemies[3][0][2] = 30;
@@ -198,13 +199,44 @@ enemies[3][0][7] = 50;
 enemies[3][0][8] = false;
 enemies[3][0][9] = 30;
 enemies[3][0][10] = 450;
-enemies[3][0][11] = false;
+enemies[3][0][11] = false; //DOWN
+//ENEMIES
+enemies[3][1][0] = 590;
+enemies[3][1][1] = 540;
+enemies[3][1][2] = 330;
+enemies[3][1][3] = 1030;
+enemies[3][1][4] = true;
+enemies[3][1][5] = 0;
+enemies[3][1][6] = -1;
+enemies[3][1][7] = 3;
+enemies[3][1][8] = false;
+enemies[3][1][9] = 30;
+enemies[3][1][10] = 450;
+enemies[3][1][11] = 0;
 
 
-var minyb = 30;
-var maxyb = 450;
-var bdirect = false; //DOWN
+enemies[3][2][0] = 590;
+enemies[3][2][1] = 540;
+enemies[3][2][2] = 330;
+enemies[3][2][3] = 1030;
+enemies[3][2][4] = true;
+enemies[3][2][5] = 1;
+enemies[3][2][6] = 3;
+enemies[3][2][7] = 3;
+enemies[3][2][8] = false;
+enemies[3][2][9] = 30;
+enemies[3][2][10] = 450;
+enemies[3][2][11] = 0;
+
+
+
+
+
 
 //Vector boss x
 var vbx = 5;
+//Vector boss y
 var vby = 5;
+
+//Vector y Falling enemies
+var vey = 6;
