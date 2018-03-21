@@ -134,6 +134,8 @@ var drawingenemies = [];
 for (l = 0; l < 3; l++) drawingenemies[l] = [];
 
 var enemiesCounter = -1;
+//Time to drop Enemy
+var tdrop = 0;
 
 //Images
 var enemyimg;
@@ -381,7 +383,7 @@ function drawPlayer() {
   if (!nodamage) {
     rect(px, py, sx, sy);
     if (direction[0] && direction[2]) {
-     image(pistol[1], px + 25, py);
+      image(pistol[1], px + 25, py);
     } else if (direction[0] && direction[3]) {
       image(pistol[2], px + 25, py + 20);
     } else if (direction[1] && direction[2]) {
@@ -492,7 +494,7 @@ function collision() {
   damage();
   spikesCollision();
   checkIfUnderScreen();
-  newEnemy();
+  checkEnemyPos();
   activeEnemies();
 }
 
@@ -738,16 +740,22 @@ function restartGame() {
   sstart = 0;
 }
 
-function newEnemy() {
-  for (i = 0; i < maxe[stageid]; i++) {
+function checkEnemyPos() {
+  for (i = 0; i < 1; i++) {
     if (px + spos >= enemies[stageid][i][2] - (1366 - px) && px + spos <= enemies[stageid][i][3] + px && !enemies[stageid][i][8] && enemies[stageid][i][7] > 0) {
-      enemiesCounter++;
-      drawingenemies[enemiesCounter][0] = enemies[stageid][i][0];
-      drawingenemies[enemiesCounter][1] = enemies[stageid][i][1];
-      drawingenemies[enemiesCounter][2] = i;
-      enemies[stageid][i][8] = true;
+      //Add Enemy to drawingenemies
+      createNewEnemy(enemies[stageid][i][0], enemies[stageid][i][1], i);
     }
   }
+
+}
+
+function createNewEnemy(x, y, id) {
+  enemiesCounter++;
+  drawingenemies[enemiesCounter][0] = x;
+  drawingenemies[enemiesCounter][1] = y;
+  drawingenemies[enemiesCounter][2] = id;
+  enemies[stageid][i][8] = true;
 }
 
 function drawEnemies() {
@@ -755,7 +763,7 @@ function drawEnemies() {
     var k = 0;
     image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
 
-
+    //Draw Life Bars
     switch (enemies[stageid][drawingenemies[p][2]][5]) {
       case 0:
         image(enemyimg, drawingenemies[p][0] - spos, drawingenemies[p][1]);
@@ -786,9 +794,21 @@ function drawEnemies() {
     if (enemies[stageid][drawingenemies[p][2]][5] === 2) {
       //Move Boss
       moveBoss(p);
+      //Drop Enemy
+      if (tdrop > 120 && selectNotUsedEnemy() !== -1) {
+        tdrop = 0;
+        dropEnemy(selectNotUsedEnemy());
+      } else tdrop++;
     } else {
       //Movie Enemies(other than Boss)
-      moveEnemies();
+      if (drawingenemies[p][1] < enemies[stageid][drawingenemies[p][2]][1]) {
+        //If Enemy is falling (move in X and Y Axis)
+        enemyFalling(p);
+      } else {
+        //If Enemy is on platform (move in X Axis)
+        moveEnemies(p);
+      }
+
     }
 
     if (px + spos < enemies[stageid][drawingenemies[p][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[p][2]][3] + px || enemies[stageid][drawingenemies[p][2]][7] === 0) {
@@ -797,7 +817,8 @@ function drawEnemies() {
   }
 }
 
-function moveEnemies() {
+function moveEnemies(p) {
+  //X-AXIS
   if (enemies[stageid][drawingenemies[p][2]][4]) {
     //Right--->
     if (enemies[stageid][drawingenemies[p][2]][3] - drawingenemies[p][0] - esize <= espeed) {
@@ -815,13 +836,77 @@ function moveEnemies() {
       drawingenemies[p][0] -= espeed;
     }
   }
+}
+
+function enemyFalling(p) {
+
+  if (enemies[drawingenemies[p][2]][5] !== 2) {
+    //Move Y-Axis
+    if (drawingenemies[p][1] + vey <= enemies[stageid][drawingenemies[p][2]][1]) drawingenemies[p][1] += vey;
+    else drawingenemies[p][1] = enemies[stageid][drawingenemies[p][2]][1];
+    //Move X-Axis
+    if (enemies[stageid][drawingenemies[p][2]][11] > 0) {
+
+
+      //Move to right--->
+      if (drawingenemies[p][0] + enemies[stageid][drawingenemies[p][2]][11] <= enemies[stageid][drawingenemies[p][2]][12]) {
+        drawingenemies[p][0] += enemies[stageid][drawingenemies[p][2]][11];
+      }
+    }
+    //Move to left
+    if (drawingenemies[p][0] - enemies[stageid][drawingenemies[p][2]][11] >= enemies[stageid][drawingenemies[p][2]][12]) {
+      drawingenemies[p][0] += enemies[stageid][drawingenemies[p][2]][11];
+    }
+
+  }
 
 }
 
 
-function moveBoss(p) {
+function countFallingVector(x, y) {
+//x-Difference from enemy position x to destination position x
+//y-Difference from enemy position y to destination position y
+  return Math.floor((Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))) / (y / vey));
 
-//X-Movement
+}
+
+function selectNotUsedEnemy() {
+  i = 1;
+  while (enemies[stageid][i][8]) {
+    i++;
+    if (i >= maxe[stageid]) return -1;
+  }
+  return i;
+}
+
+function dropEnemy(i) {
+  //Create new enemy under boss
+  createNewEnemy(drawingenemies[0][0] + 40, drawingenemies[0][1], i);
+  //Random destination point
+  enemies[stageid][i][12] = Math.floor((Math.random() * 686) + 350);
+  var x = enemies[stageid][i][12] - drawingenemies[enemiesCounter][0];
+  var y = platforms[stageid][3][1] - drawingenemies[enemiesCounter][1] - 60;
+  enemies[stageid][i][11] = countFallingVector(x, y);
+  //Random Enemy Type
+  enemies[stageid][i][5] = Math.floor((Math.random() * 2));
+  //Invert Vector if x<0
+  if (x < 0) enemies[stageid][i][11] *= -1;
+  switch (enemies[stageid][i][5]) {
+    case 0:
+      //Not shooting enemy
+      enemies[stageid][i][6] = -1;
+      enemies[stageid][i][7] = 3;
+      break;
+    case 1:
+      //Shooting enemy
+      enemies[stageid][i][6] = 3;
+      enemies[stageid][i][7] = 2;
+      break;
+  }
+}
+
+function moveBoss(p) {
+  //X-Movement
   if (enemies[stageid][drawingenemies[p][2]][4]) {
     if (drawingenemies[p][0] - vbx < enemies[stageid][drawingenemies[p][2]][3]) {
       drawingenemies[p][0] += vbx;
@@ -837,8 +922,7 @@ function moveBoss(p) {
       enemies[stageid][drawingenemies[p][2]][4] = true;
     }
   }
-
-//Y-Movement
+  //Y-Movement
   if (enemies[stageid][drawingenemies[p][2]][11]) {
     if (drawingenemies[p][1] + vby <= enemies[stageid][drawingenemies[p][2]][10]) {
       drawingenemies[p][1] += vby;
@@ -856,26 +940,20 @@ function moveBoss(p) {
   }
 }
 
-function dropEnemy() {
-
-  d
-
-}
-
 function activeEnemies() {
-  if (enemiesCounter > -1) {
-   for (p = 0; p <= enemiesCounter; p++) {
-     if (!enemies[stageid][drawingenemies[p][2]][8]) {
-       if (enemiesCounter === 0) enemiesCounter--;
+  if (enemiesCounter >= 0) {
+    for (p = 0; p <= enemiesCounter; p++) {
+      if (!enemies[stageid][drawingenemies[p][2]][8]) {
+        if (enemiesCounter === 0) enemiesCounter--;
         else {
-       drawingenemies[p][0] = drawingenemies[enemiesCounter][0];
-       drawingenemies[p][1] = drawingenemies[enemiesCounter][1];
-       drawingenemies[p][2] = drawingenemies[enemiesCounter][2];
-       enemiesCounter--;
+          drawingenemies[p][0] = drawingenemies[enemiesCounter][0];
+          drawingenemies[p][1] = drawingenemies[enemiesCounter][1];
+          drawingenemies[p][2] = drawingenemies[enemiesCounter][2];
+          enemiesCounter--;
+        }
       }
-     }
-   }
- }
+    }
+  }
 }
 
 function drawHUD() {
@@ -967,7 +1045,7 @@ function noDamage() {
   if (ndcounter % 10 === 0) {
     rect(px, py, sx, sy);
     if (direction[0] && direction[2]) {
-     image(pistol[1], px + 25, py);
+      image(pistol[1], px + 25, py);
     } else if (direction[0] && direction[3]) {
       image(pistol[2], px + 25, py + 20);
     } else if (direction[1] && direction[2]) {
