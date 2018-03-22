@@ -41,6 +41,26 @@ var maxjh = 310;
 var jspeed = 20;
 
 
+//Jump Height
+var jheight = 150;
+//Minimum player position X-AXIS
+var minx = 0;
+//Maximum player position X-AXIS
+var maxx = 99999;
+//Minimum player position Y-AXIS
+var miny = 0;
+//Maximum player position Y-AXIS
+var maxy = 999999;
+//(FOR DEBUG)Maximum platform Y-AXIS
+var maxid = 0;
+//(FOR DEBUG)Minimum platform Y-AXIS
+var minid = -1;
+//(FOR DEBUG)Maximum platform X-AXIS
+var xmaxid = -1;
+//(FOR DEBUG)Minimum platform X-AXIS
+var xminid = -1;
+
+
 //Scene position
 var spos = 0;
 
@@ -101,10 +121,24 @@ var btny = [300, 400, 500, 600];
 var btntext = ['New Game', 'Continue', 'Tutorial', 'Credits'];
 //Active button id
 var btnid = 0;
+//Credits
+var showcredits = false;
+//Credits X-pos
+var creditsx = 483;
+//Credits scroll variable
+var creditsy = 800;
+//Credits' strings
+credits = [];
+credits[0] = "Credits";
+credits[1] = "Project Manager";
+credits[2] = "Marcin Zasuwa";
+credits[3] = "Programmers";
+credits[4] = "Marcin Saja";
+credits[5] = "Jakub Mazur";
+credits[6] = "Level Designer";
 
 //True if Stage is Completed
 var completed = false;
-
 
 for (i = 0; i < bmax; i++) {
   bullets[i] = [];
@@ -172,7 +206,7 @@ function setup() {
 
 function draw() {
   keyboardEvent();
-  if (inmenu) menu(); else game();
+  if (showcredits) drawCredits(); else if (inmenu) menu(); else game();
 
 }
 
@@ -213,6 +247,30 @@ function menu() {
 
 }
 
+function drawCredits() {
+  if (creditsy > 125)
+    creditsy -= 2;
+  background(200);
+  textSize(50);
+  textStyle(BOLD);
+  fill("#0000FF");
+  text(credits[0], creditsx, creditsy); //Credits
+  fill("#FF0000");
+  text(credits[1], creditsx, creditsy + 100); //Project Manager
+  fill("#000000");
+  text(credits[2], creditsx, creditsy + 150); //Marcin Zasuwa
+  fill("#FF0000");
+  text(credits[3], creditsx, creditsy + 250); //Programmers
+  fill("#000000");
+  text(credits[2], creditsx, creditsy + 300); //Marcin Zasuwa
+  text(credits[4], creditsx, creditsy + 350); //Marcin Saja
+  text(credits[5], creditsx, creditsy + 400); //Jakub Mazur
+  fill("#FF0000");
+  text(credits[6], creditsx, creditsy + 500); //Level Designer
+  fill("#000000");
+  text(credits[5], creditsx, creditsy + 550); //Jakub Mazur
+}
+
 function menuSelection(a) {
   if (inmenu) {
     switch (a) {
@@ -231,8 +289,11 @@ function menuSelection(a) {
         break;
       case 3:
         //Credits
+        creditsy = 800;
+        showcredits = true;
         break;
     }
+    cursor(ARROW);
   }
 }
 
@@ -288,7 +349,7 @@ function game() {
   if (!(completed || paused)) {
     background(200);
     drawObjects();
-    collision();
+    physics();
   } else if (completed) stageCompleted(); else pause();
 }
 
@@ -344,13 +405,14 @@ function keyPressed() {
 
   //SPACE
   if (keyCode === 32) {
-    if (completed) {
+    if (showcredits) showcredits = false;
+    else if (completed) {
       stageid++;
       completed = false;
       restartGame();
     } else if (!inmenu) paused = !paused;
   }
-  //Enter Pressed
+  //Enter-Select Menu Entry
   if (keyCode === 13 && inmenu) {
     menuSelection(btnid);
   }
@@ -412,32 +474,15 @@ function drawPlatforms() {
 
 }
 
-
-var jheight = 150;
-var minx = 0;
-var maxx = 99999;
-var miny = 0;
-
-
-function collision() {
-  //Maximum player position Y-AXIS
-  var maxy = 999999;
-  //(FOR DEBUG)Maximum platform Y-AXIS
-  var maxid = 0;
-
-  //TODO Optimise checking while jump
-  //Minimum player position Y-AXIS
+function platformsCollision() {
+  maxy = 999999;
+  maxid = 0;
   miny = 0;
-  //(FOR DEBUG)Minimum platform Y-AXIS
-  var minid = -1;
-
+  minid = -1;
   maxx = 999999;
-
-  var xmaxid = -1;
-
+  xmaxid = -1;
   minx = 0;
-  var xminid = -1;
-
+  xminid = -1;
   i = max(cstart - 2, 0);
   // console.log(i, maxp[stageid]);
   do {
@@ -484,8 +529,10 @@ function collision() {
     }
     i++;
   } while (i < maxp[stageid] && pposx + resx / 4 >= platforms[stageid][i][0]);
+}
 
-
+function physics() {
+  platformsCollision();
   // debugcollision(maxid, minid, xmaxid, xminid); //Uncomment to debug collision
   gravity(maxy, maxid);
   air(maxy);
@@ -741,13 +788,18 @@ function restartGame() {
 }
 
 function checkEnemyPos() {
-  for (i = 0; i < 1; i++) {
-    if (px + spos >= enemies[stageid][i][2] - (1366 - px) && px + spos <= enemies[stageid][i][3] + px && !enemies[stageid][i][8] && enemies[stageid][i][7] > 0) {
+  if (stageid !== 3)
+    for (i = 0; i < maxe[stageid]; i++) {
+      if (px + spos >= enemies[stageid][i][2] - (1366 - px) && px + spos <= enemies[stageid][i][3] + px && !enemies[stageid][i][8] && enemies[stageid][i][7] > 0) {
+        //Add Enemy to drawingenemies
+        createNewEnemy(enemies[stageid][i][0], enemies[stageid][i][1], i);
+      }
+    } else {
+    if (!enemies[stageid][0][8] && enemies[stageid][0][7] > 0) {
       //Add Enemy to drawingenemies
-      createNewEnemy(enemies[stageid][i][0], enemies[stageid][i][1], i);
+      createNewEnemy(enemies[stageid][0][0], enemies[stageid][0][1], 0);
     }
   }
-
 }
 
 function createNewEnemy(x, y, id) {
@@ -755,7 +807,7 @@ function createNewEnemy(x, y, id) {
   drawingenemies[enemiesCounter][0] = x;
   drawingenemies[enemiesCounter][1] = y;
   drawingenemies[enemiesCounter][2] = id;
-  enemies[stageid][i][8] = true;
+  enemies[stageid][id][8] = true;
 }
 
 function drawEnemies() {
@@ -795,7 +847,7 @@ function drawEnemies() {
       //Move Boss
       moveBoss(p);
       //Drop Enemy
-      if (tdrop > 120 && selectNotUsedEnemy() !== -1) {
+      if (tdrop > 180 && selectNotUsedEnemy() !== -1) {
         tdrop = 0;
         dropEnemy(selectNotUsedEnemy());
       } else tdrop++;
@@ -899,7 +951,7 @@ function dropEnemy(i) {
       break;
     case 1:
       //Shooting enemy
-      enemies[stageid][i][6] = 3;
+      enemies[stageid][i][6] = 10;
       enemies[stageid][i][7] = 2;
       break;
   }
