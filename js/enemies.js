@@ -234,9 +234,9 @@ enemies[3][2][11] = 0;
 
 
 //Vector boss x
-var vbx = 5;
+var vbx = 4;
 //Vector boss y
-var vby = 5;
+var vby = 4;
 
 //Vector y Falling enemies
-var vey = 6;
+var vey = 3;
