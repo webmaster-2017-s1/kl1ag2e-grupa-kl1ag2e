@@ -165,7 +165,7 @@ var noshot = 0;
 var score = [];
 
 var drawingenemies = [];
-for (l = 0; l < 3; l++) drawingenemies[l] = [];
+for (l = 0; l < 4; l++) drawingenemies[l] = [];
 
 var enemiesCounter = -1;
 //Time to drop Enemy
@@ -228,7 +228,7 @@ function continueGame() {
 }
 
 function getLastPlatform() {
-  return platforms[stageid][maxp[stageid] - 1][0] + platforms[stageid][maxp[stageid] - 1][2] - resx / 2 - 50;
+  return platforms[stageid][maxp[stageid] - 1][0] + platforms[stageid][maxp[stageid] - 1][2] - resx / 2;
 }
 
 function menu() {
@@ -489,7 +489,7 @@ function platformsCollision() {
     if (pposx - resx / 2 > platforms[stageid][i][0]) cstart = i;
     //***************************
     //Select platform's borders vertical
-    if (px >= platforms[stageid][i][0] - spos - sx && px <= platforms[stageid][i][0] - spos + platforms[stageid][i][2]) {
+    if (pposx >= platforms[stageid][i][0] - sx && pposx <= platforms[stageid][i][0] + platforms[stageid][i][2]) {
       //***TOP***
       // console.log("Player pos: "+i+" platform"); //Uncomment to debug TOP BORDER collision
       if (platforms[stageid][i][1] > py) {
@@ -611,7 +611,7 @@ function movex(vector) {
     if (pposx + sx - 1 < maxx) {
       if (maxx - pposx - sx < pxspeed) {
         pposx = maxx - sx - 1;
-        if (spos <= 0 || pposx > lastp) px = pposx; else px = resx / 2;
+        if (spos <= 0) px = pposx; else if (pposx > lastp) px = resx - (platforms[stageid][maxp[stageid] - 1][0] + platforms[stageid][maxp[stageid] - 1][2] - pposx); else px = resx / 2;
       } else {
         if (spos <= 0 || pposx > lastp) px += pxspeed; else px = resx / 2;
         pposx += pxspeed;
@@ -623,10 +623,10 @@ function movex(vector) {
     if (pposx + 1 > minx) {
       if (pposx - minx < pxspeed) {
         pposx = minx + 1;
-        if (pposx > lastp) px = pposx % resx;
+        if (spos <= 0) px = pposx; else if (pposx > lastp) px = resx - (platforms[stageid][maxp[stageid] - 1][0] + platforms[stageid][maxp[stageid] - 1][2] - pposx); else px = resx / 2;
       } else {
         pposx -= pxspeed;
-        if (pposx > lastp) px -= pxspeed;
+        if (pposx > lastp) px -= pxspeed; else px = resx / 2
       }
       if (spos <= 0) px = pposx;
       if (pposx < resx / 2) spos = 0; else if (pposx <= lastp) spos = pposx - resx / 2;
