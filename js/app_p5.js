@@ -637,34 +637,45 @@ function movex(vector) {
 function drawBullets() {
   for (i = 0; i < bmax; i++) {
     if (bullets[i][5]) {
-      if (bullets[i][3] === 0) {
+      switch (bullets[i][3]) {
+      case 0:
         bullets[i][0] += bspeed;
         bullets[i][1] -= bspeed;
-      } else if (bullets[i][3] === 1) {
+        break;
+      case 1:
         bullets[i][0] += bspeed;
         bullets[i][1] += bspeed;
-      } else if (bullets[i][3] === 2) {
+        break;
+      case 2:
         bullets[i][0] -= bspeed;
         bullets[i][1] -= bspeed;
-      } else if (bullets[i][3] === 3) {
+        break;
+      case 3:
         bullets[i][0] -= bspeed;
         bullets[i][1] += bspeed;
-      } else if (bullets[i][3] === 4) {
+        break;
+      case 4:
         bullets[i][0] += bspeed;
-      } else if (bullets[i][3] === 5) {
+        break;
+      case 5:
         bullets[i][0] -= bspeed;
-      } else if (bullets[i][3] === 6) {
+        break;
+      case 6:
         bullets[i][0] -= bullets[i][7];
         bullets[i][1] -= bullets[i][8];
-      } else if (bullets[i][3] === 7) {
+        break;
+      case 7:
         bullets[i][0] -= bullets[i][7];
         bullets[i][1] += bullets[i][8];
-      } else if (bullets[i][3] === 8) {
+        break;
+      case 8:
         bullets[i][0] += bullets[i][7];
         bullets[i][1] -= bullets[i][8];
-      } else if (bullets[i][3] === 9) {
+        break;
+      case 9:
         bullets[i][0] += bullets[i][7];
         bullets[i][1] += bullets[i][8];
+        break;
       }
       if (bullets[i][6] === false) fill('white');
       else fill('red');
@@ -785,6 +796,10 @@ function restartGame() {
   noshot = 0;
   lastp = getLastPlatform();
   sstart = 0;
+  for (p = 0; p <= enemiesCounter; p++) {
+    enemies[stageid][drawingenemies[p][2]][8] = false;
+  }
+  enemiesCounter = -1;
 }
 
 function checkEnemyPos() {
