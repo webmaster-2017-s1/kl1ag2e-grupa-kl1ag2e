@@ -175,8 +175,10 @@ var tdrop = 0;
 var enemyimg;
 var enemyimg2;
 var livebar;
+var livebar2;
 var bar1;
 var bar2;
+var bar3;
 var heart;
 var boss;
 var pistol = [];
@@ -186,8 +188,10 @@ function preload() {
   enemyimg = loadImage('./assets/enemy.png');
   enemyimg2 = loadImage('./assets/enemy2.png');
   livebar = loadImage('./assets/livebar.png');
+  livebar2 = loadImage('./assets/livebar2.png');
   bar1 = loadImage('./assets/bar1.png');
   bar2 = loadImage('./assets/bar2.png');
+  bar3 = loadImage('./assets/bar3.png');
   heart = loadImage('./assets/heart.png');
   boss = loadImage('./assets/boss.png');
   pistol[0] = loadImage('./assets/pistol.png');
@@ -784,7 +788,7 @@ function restartGame() {
         enemies[stageid][j][7] = 2;
         break;
       case 2:
-        enemies[stageid][j][7] = 150;
+        enemies[stageid][j][7] = 75;
         break;
       default:
     }
@@ -828,11 +832,10 @@ function createNewEnemy(x, y, id) {
 function drawEnemies() {
   for (p = 0; p <= enemiesCounter; p++) {
     var k = 0;
-    image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
-
     //Draw Life Bars
     switch (enemies[stageid][drawingenemies[p][2]][5]) {
       case 0:
+        image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
         image(enemyimg, drawingenemies[p][0] - spos, drawingenemies[p][1]);
         for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
           image(bar2, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
@@ -841,6 +844,7 @@ function drawEnemies() {
         break;
 
       case 1:
+        image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
         image(enemyimg2, drawingenemies[p][0] - spos, drawingenemies[p][1]);
         for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
           image(bar1, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
@@ -850,9 +854,10 @@ function drawEnemies() {
 
       case 2:
         image(boss, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        image(livebar2, 383, 80);
         for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
-          image(bar1, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
-          k += 24;
+          image(bar3, 386 + k, 83);
+          k += 8;
         }
         break;
 
