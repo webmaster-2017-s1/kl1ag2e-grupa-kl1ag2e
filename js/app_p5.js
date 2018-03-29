@@ -163,8 +163,12 @@ var tcounter = 0;
 var maxtime = minutes * 60 + seconds;
 
 //Number of shot
-var noshot = 0;
-var score = [];
+var noshot = 1;
+var score = 0;
+var points = 0;
+var points2 = 0;
+var currentscore = 0;
+var generalscore = 0;
 
 var drawingenemies = [];
 for (l = 0; l < 4; l++) drawingenemies[l] = [];
@@ -370,8 +374,8 @@ function stageCompleted() {
   textSize(50);
   fill('#000000');
   text("Congratulations!!!", 500, 100);
-  text("Your score:", 575, 175);
-  text(score, 640, 250);
+  text("Your current score:", 490, 175);
+  text(generalscore, 640, 250);
   text("Level " + (stageid + 1) + " Completed", 500, 400);
   text("Press SPACE to Continue", 500, 700);
   fill('#FFFFFF');
@@ -589,7 +593,7 @@ function gravity(maxy, maxid) {
   } else {
     if (maxid === maxp[stageid] - 1) {
       completed = true;
-      countPoints();
+      countPoints(1);
     }
   }
 }
@@ -818,8 +822,8 @@ function restartGame() {
   bulletsCounter = -1;
   seconds = 0;
   minutes = 3;
-  score[stageid] = 0;
-  noshot = 0;
+  score = 0;
+  noshot = 1;
   lastp = getLastPlatform();
   sstart = 0;
   for (p = 0; p <= enemiesCounter; p++) {
@@ -1056,6 +1060,7 @@ function drawHUD() {
   fill('black');
   text(plifep, 82, 65);
   drawTimer();
+  text(countPoints(0), 1245, 65);
   fill('#FFFFFF');
 }
 
@@ -1104,8 +1109,9 @@ function damage() {
             bullets[j][5] = false;
             lifePoints(drawingenemies[l][2], -1);
             if (enemies[stageid][drawingenemies[l][2]][7] === 0) {
-              if (enemies[stageid][drawingenemies[l][2]][5] === 0) score[stageid] += 150;
-              else score[stageid] += 250;
+              if (enemies[stageid][drawingenemies[l][2]][5] === 0) score += 150;
+                else if (enemies[stageid][drawingenemies[l][2]][5] === 1) score += 250;
+                  else score += 400;
             }
           }
         }
@@ -1211,13 +1217,18 @@ function spikesCollision() {
   }
 }
 
-function countPoints() {
-  for (var k = 1; k <= plifep; k++) score[stageid] += 75;
-  var points = (60 * minutes + seconds) * 300 / maxtime;
-  if (noshot === 0) noshot++;
-  var points2 = 350 / noshot;
-  score[stageid] = score[stageid] + points + points2;
-  score[stageid] = Math.round(score[stageid]);
+function countPoints(type) {
+  switch (type) {
+    case 0:
+      points = (60 * minutes + seconds) * 600 / maxtime;
+      points2 = 500 / noshot;
+      currentscore = Math.round(points + points2 + score);
+      return currentscore + generalscore;
+      break;
+    case 1:
+      generalscore = generalscore + currentscore;
+      break;
+  }
 }
 
 
