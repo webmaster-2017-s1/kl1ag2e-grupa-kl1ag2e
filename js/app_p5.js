@@ -135,8 +135,14 @@ function Player() {
       }
       i++;
     } while (i < maxp[stageid] && this.pos + resx / 4 >= oplatforms[i].x);
+  };
 
+  this.spikesCollision = function () {
+    for (i = sstart; i < maxs[stageid]; i++) {
+      ospikes[i].spikesCollision();
+    }
   }
+
 }
 
 
@@ -193,6 +199,173 @@ function Platform(x, y, width, height) {
       }
     }
   }
+}
+
+var ospikes = [];
+for (i = 0; i < maxs[stageid]; i++) {
+  ospikes.push(new Spike(
+    spikes[stageid][i][0],
+    spikes[stageid][i][1],
+    spikes[stageid][i][2]
+  ))
+}
+
+function Spike(x, y, type) {
+  this.x = x;
+  this.y = y;
+  this.type = type;
+
+
+  this.draw = function () {
+
+    switch (this.type) {
+      case 0:
+        triangle(this.x - spos - swidth, this.y, this.x - spos + swidth, this.y, this.x - spos, this.y + sheight);
+        break;
+      case 1:
+        triangle(this.x - spos + swidth, this.y, this.x - spos - swidth, this.y, this.x - spos, this.y - sheight);
+        break;
+      case 2:
+        triangle(this.x - spos, this.y + swidth, this.x - spos, this.y - swidth, this.x - spos - sheight, this.y);
+        break;
+      case 3:
+        triangle(this.x - spos, this.y - swidth, this.x - spos, this.y + swidth, this.x - spos + sheight, this.y);
+        break;
+    }
+  };
+
+  this.detectBorder = function (type) {
+    var a = 0;
+    switch (type) {
+      case 0:
+        //DOWN
+        if (player.pos + player.sx < this.x) {
+          //LEFT
+          a = this.bladeHeight(0);
+          if (this.y + a > player.y)
+            lifePoints(-1, -1);
+        } else if (player.pos >= this.x) {
+          //RIGHT
+          a = this.bladeHeight(1);
+          if (this.y + a > player.y)
+            lifePoints(-1, -1);
+        } else {
+          //CENTER
+          if (this.y + player.sy > player.y) {
+            lifePoints(-1, -1);
+          }
+        }
+        break;
+
+      case 1:
+        //UP
+        if (player.pos + player.sx < this.x) {
+          //LEFT
+          a = this.bladeHeight(0);
+          if (this.y - a < player.y + player.sy)
+            lifePoints(-1, -1);
+        } else if (player.pos >= this.x) {
+          //RIGHT
+          a = this.bladeHeight(1);
+          if (this.y - a < player.y + player.sy)
+            lifePoints(-1, -1);
+        } else {
+          //CENTER
+          if (this.y - player.sy < player.y + player.sy) {
+            lifePoints(-1, -1);
+          }
+        }
+        break;
+
+      case 2:
+        //LEFT
+        if (player.y > this.y) {
+          //DOWN
+          a = this.bladeHeight(2);
+          if (player.pos + player.sx >= this.x - a)
+            lifePoints(-1, -1);
+        } else if (player.y + player.sy > this.y) {
+          //UP
+          a = this.bladeHeight(3);
+          if (player.pos + player.sx >= this.x - a)
+            lifePoints(-1, -1);
+        } else {
+          //CENTER
+          if (player.pos + player.sx >= this.x - sheight)
+            lifePoints(-1, -1);
+        }
+        break;
+
+      case 3:
+        //RIGHT
+        if (player.y > this.y) {
+          //DOWN
+          a = this.bladeHeight(2);
+          if (player.pos <= this.x + a)
+            lifePoints(-1, -1);
+        } else if (player.y + player.sy > this.y) {
+          //UP
+          a = this.bladeHeight(3);
+          if (player.pos <= this.x + a)
+            lifePoints(-1, -1);
+        } else {
+          //CENTER
+          if (player.pos <= this.x + sheight)
+            lifePoints(-1, -1);
+        }
+        break;
+    }
+  };
+
+  this.bladeHeight = function (part) {
+    switch (part) {
+      case 0:
+        //LEFT
+        return Math.round(sheight * (swidth - this.x + player.pos + player.sx) / swidth);
+      case 1:
+        //RIGHT
+        return Math.round(sheight * (this.x + swidth - player.pos) / swidth);
+      case 2:
+        //DOWN
+        return Math.round(sheight * (swidth - player.y + this.y) / swidth);
+      case 3:
+        //UP
+        return Math.round(sheight * (swidth + player.y + player.sy - this.y) / swidth);
+    }
+  };
+
+  this.spikesCollision = function () {
+    if ((this.type === 0 || this.type === 1) && (player.pos >= this.x - swidth - player.sx && player.pos <= this.x + swidth)) {
+
+      switch (this.type) {
+        case 0:
+          //DOWN
+          if (player.y > this.y) ospikes[i].detectBorder(0);
+          break;
+        case 1:
+          //UP
+          if (player.y < this.y) ospikes[i].detectBorder(1);
+          break;
+      }
+
+    } else
+//Spikes LEFT AND RIGHT
+    if (player.y >= this.y - swidth && player.y <= this.y + swidth) {
+
+      switch (this.type) {
+        case 2:
+          //LEFT
+          if (player.pos >= this.x - sheight - player.sx && player.pos <= this.x + player.sx) ospikes[i].detectBorder(2);
+          break;
+        case 3:
+          //RIGHT
+          if (player.pos >= this.x && player.pos <= this.x + sheight) ospikes[i].detectBorder(3);
+          break;
+      }
+    }
+  }
+
+
 }
 
 
@@ -623,7 +796,16 @@ function drawObjects() {
 
 
   drawEnemies();
-  drawSpikes();
+
+  // Draw Spikes
+  i = Math.max(sstart - 1, 0);
+  do {
+    if (player.pos - resx > spikes[stageid][i][0]) sstart = i;
+    ospikes[i].draw();
+    i++;
+  } while (i < maxs[stageid] && player.pos + resx >= ospikes[i].x);
+
+
   drawBullets();
   drawHUD();
 }
@@ -637,7 +819,7 @@ function physics() {
   if (player.rise) player.jump();
   bulletsCollision();
   damage();
-  spikesCollision();
+  player.spikesCollision();
   checkIfUnderScreen();
   checkEnemyPos();
   activeEnemies();
@@ -1172,59 +1354,6 @@ function nodamage() {
   }
 }
 
-function drawSpikes() {
-  i = Math.max(sstart - 1, 0);
-  do {
-    if (player.pos - resx > spikes[stageid][i][0]) sstart = i;
-    //DOWN
-    if (spikes[stageid][i][2] === 0) triangle(spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] + sheight);
-
-    //UP
-    else if (spikes[stageid][i][2] === 1) triangle(spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] - sheight);
-
-    //LEFT
-    else if (spikes[stageid][i][2] === 2) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos - sheight, spikes[stageid][i][1]);
-
-    //RIGHT
-    else if (spikes[stageid][i][2] === 3) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos + sheight, spikes[stageid][i][1]);
-    i++;
-  } while (i < maxs[stageid] && player.pos + resx >= spikes[stageid][i][0])
-}
-
-function spikesCollision() {
-  for (i = sstart; i < maxs[stageid]; i++) {
-    //Spikes UP AND DOWN
-    if ((spikes[stageid][i][2] === 0 || spikes[stageid][i][2] === 1) && (player.pos >= spikes[stageid][i][0] - swidth - player.sx && player.pos <= spikes[stageid][i][0] + swidth)) {
-
-      switch (spikes[stageid][i][2]) {
-        case 0:
-          //DOWN
-          if (player.y > spikes[stageid][i][1]) spikeBorderCollision(0);
-          break;
-        case 1:
-          //UP
-          if (player.y < spikes[stageid][i][1]) spikeBorderCollision(1);
-          break;
-      }
-
-    } else
-    //Spikes LEFT AND RIGHT
-    if (player.y >= spikes[stageid][i][1] - swidth && player.y <= spikes[stageid][i][1] + swidth) {
-
-      switch (spikes[stageid][i][2]) {
-        case 2:
-          //LEFT
-          if (player.pos >= spikes[stageid][i][0] - sheight - player.sx && player.pos <= spikes[stageid][i][0] + player.sx) spikeBorderCollision(2);
-          break;
-        case 3:
-          //RIGHT
-          if (player.pos >= spikes[stageid][i][0] && player.pos <= spikes[stageid][i][0] + sheight) spikeBorderCollision(3);
-          break;
-      }
-    }
-  }
-}
-
 function countPoints() {
   for (var k = 1; k <= player.life; k++) score[stageid] += 75;
   var points = (60 * minutes + seconds) * 300 / maxtime;
@@ -1234,105 +1363,3 @@ function countPoints() {
   score[stageid] = Math.round(score[stageid]);
 }
 
-
-function spikeBladeHeight(part) {
-
-  switch (part) {
-    case 0:
-      //LEFT
-      return Math.round(sheight * (swidth - spikes[stageid][i][0] + player.pos + player.sx) / swidth);
-    case 1:
-      //RIGHT
-      return Math.round(sheight * (spikes[stageid][i][0] + swidth - player.pos) / swidth);
-    case 2:
-      //DOWN
-      return Math.round(sheight * (swidth - player.y + spikes[stageid][i][1]) / swidth);
-    case 3:
-      //UP
-      return Math.round(sheight * (swidth + player.y + player.sy - spikes[stageid][i][1]) / swidth);
-  }
-}
-
-function spikeBorderCollision(d) {
-  var a = 0;
-
-  switch (d) {
-    case 0:
-      //DOWN
-      if (player.pos + player.sx < spikes[stageid][i][0]) {
-        //LEFT
-        a = spikeBladeHeight(0);
-        if (spikes[stageid][i][1] + a > player.y)
-          lifePoints(-1, -1);
-      } else if (player.pos >= spikes[stageid][i][0]) {
-        //RIGHT
-        a = spikeBladeHeight(1);
-        if (spikes[stageid][i][1] + a > player.y)
-          lifePoints(-1, -1);
-      } else {
-        //CENTER
-        if (spikes[stageid][i][1] + player.sy > player.y) {
-          lifePoints(-1, -1);
-        }
-      }
-      break;
-
-    case 1:
-      //UP
-      if (player.pos + player.sx < spikes[stageid][i][0]) {
-        //LEFT
-        a = spikeBladeHeight(0);
-        if (spikes[stageid][i][1] - a < player.y + player.sy)
-          lifePoints(-1, -1);
-      } else if (player.pos >= spikes[stageid][i][0]) {
-        //RIGHT
-        a = spikeBladeHeight(1);
-        if (spikes[stageid][i][1] - a < player.y + player.sy)
-          lifePoints(-1, -1);
-      } else {
-        //CENTER
-        if (spikes[stageid][i][1] - player.sy < player.y + player.sy) {
-          lifePoints(-1, -1);
-        }
-      }
-      break;
-
-    case 2:
-      //LEFT
-      if (player.y > spikes[stageid][i][1]) {
-        //DOWN
-        a = spikeBladeHeight(2);
-        if (player.pos + player.sx >= spikes[stageid][i][0] - a)
-          lifePoints(-1, -1);
-      } else if (player.y + player.sy > spikes[stageid][i][1]) {
-        //UP
-        a = spikeBladeHeight(3);
-        if (player.pos + player.sx >= spikes[stageid][i][0] - a)
-          lifePoints(-1, -1);
-      } else {
-        //CENTER
-        if (player.pos + player.sx >= spikes[stageid][i][0] - sheight)
-          lifePoints(-1, -1);
-      }
-      break;
-
-    case 3:
-      //RIGHT
-      if (player.y > spikes[stageid][i][1]) {
-        //DOWN
-        a = spikeBladeHeight(2);
-        if (player.pos <= spikes[stageid][i][0] + a)
-          lifePoints(-1, -1);
-      } else if (player.y + player.sy > spikes[stageid][i][1]) {
-        //UP
-        a = spikeBladeHeight(3);
-        if (player.pos <= spikes[stageid][i][0] + a)
-          lifePoints(-1, -1);
-      } else {
-        //CENTER
-        if (player.pos <= spikes[stageid][i][0] + sheight)
-          lifePoints(-1, -1);
-      }
-      break;
-  }
-}
