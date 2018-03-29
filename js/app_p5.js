@@ -3,46 +3,202 @@
 var resx = 1366;
 var resy = 768;
 
-//Player position render
-var px = 100;
-var py = 40;
+var player = new Player();
 
-//Player position
-var pposx = 100;
+function Player() {
+  //Position x-Render
+  this.x = 100;
+  //Position y-Render
+  this.y = 40;
+  //Position on stage
+  this.pos = 100;
+  //X-speed
+  this.speedx = 7;
+  //Size X
+  this.sx = 50;
+  //Size Y
+  this.sy = 50;
+  //Life
+  this.life = 3;
+  //Nodamage
+  this.nodamage = false;
+  //Player rising
+  this.rise = false;
+  //God time counter
+  this.godtime = 0;
+  //On air
+  this.onair = false;
+  //Jump Speed
+  this.jumpspeed = 20;
+  //Maximum Jump
+  this.maxjumpheight = 310;
+  //Current Jump Height
+  this.jumpcounter = 0;
 
-//Player speed
+  //Draw
+  this.draw = function () {
+    if (!this.nodamage) {
+      rect(this.x, this.y, this.sx, this.sy);
+      if (direction[0] && direction[2]) {
+        image(pistol[1], this.x + 25, this.y);
+      } else if (direction[0] && direction[3]) {
+        image(pistol[2], this.x + 25, this.y + 20);
+      } else if (direction[1] && direction[2]) {
+        image(pistol[4], this.x - 12, this.y);
+      } else if (direction[1] && direction[3]) {
+        image(pistol[5], this.x - 7, this.y + 20);
+      } else if (direction[0]) {
+        image(pistol[0], this.x + 25, this.y + 20);
+      } else if (direction[1]) {
+        image(pistol[3], this.x - 19, this.y + 20);
+      }
+    }
+    else nodamage();
+  };
 
-var pxspeed = 7;
+  //Move
+  this.move = function (vector) {
+    if (vector === 1) {
+      //--->RIGHT
+      if (this.pos + this.sx - 1 < maxx) {
+        if (maxx - this.pos - this.sx < this.speedx) {
+          this.pos = maxx - this.sx - 1;
+          if (spos <= 0) this.x = this.pos; else if (this.pos > lastp) this.x = resx - (oplatforms[maxp[stageid] - 1].x + oplatforms[maxp[stageid] - 1] - this.pos); else this.x = resx / 2;
+        } else {
+          if (spos <= 0 || this.pos > lastp) this.x += this.speedx; else this.x = resx / 2;
+          this.pos += this.speedx;
+        }
+        if (this.pos < resx / 2) spos = 0; else if (this.pos <= lastp) spos = this.pos - resx / 2;
+      }
+    } else {
+      //<--- LEFT
+      if (this.pos + 1 > minx) {
+        if (this.pos - minx < this.speedx) {
+          this.pos = minx + 1;
+          if (spos <= 0) this.x = this.pos; else if (this.pos > lastp) this.x = resx - (oplatforms[maxp[stageid] - 1].x + oplatforms[maxp[stageid] - 1].width - this.pos); else this.x = resx / 2;
+        } else {
+          this.pos -= this.speedx;
+          if (this.pos > lastp) this.x -= this.speedx; else this.x = resx / 2
+        }
+        if (spos <= 0) this.x = this.pos;
+        if (this.pos < resx / 2) spos = 0; else if (this.pos <= lastp) spos = this.pos - resx / 2;
+      }
+    }
 
-//Player size
-var sx = 50;
-var sy = 50;
+  };
+  //Jump
+  this.jump = function () {
+    if (this.rise && this.jumpcounter < this.maxjumpheight - this.jumpspeed) {
+      console.log(miny);
+      if (miny + 1 < this.y - this.jumpspeed) {
+        this.y -= this.jumpspeed;
+        this.jumpcounter += this.jumpspeed;
+      } else {
+        this.y = miny + 1;
+        this.rise = false;
+      }
+    } else this.rise = false;
+    return 0;
+  };
+
+  this.collision = function () {
+    maxy = 999999;
+    maxid = 0;
+    miny = 0;
+    minid = -1;
+    maxx = 999999;
+    xmaxid = -1;
+    minx = 0;
+    xminid = -1;
+    i = Math.max(cstart - 2, 0);
+    // console.log(i, maxp[stageid]);
+    do {
+      if (this.pos - resx / 2 > oplatforms[i].x) cstart = i;
+      //***************************
+      //Select platform's borders vertical
+      if (this.pos >= oplatforms[i].x - this.sx && this.pos <= oplatforms[i].x + oplatforms[i].width) {
+        if (oplatforms[i].y > this.y) {
+          oplatforms[i].collisionTop();
+        } else
+          oplatforms[i].collisionBottom();
+
+      }
+      //***************************
+      //Select platform's borders horizontal
+      if (this.y >= oplatforms[i].y - this.sy && this.y <= oplatforms[i].y + oplatforms[i].height) {
+        //***LEFT***
+        if (oplatforms[i].x >= this.sx + this.pos) {
+          oplatforms[i].collisionLeft();
+        } else
+        //***RIGHT***
+          oplatforms[i].collisionRight();
+      }
+      i++;
+    } while (i < maxp[stageid] && this.pos + resx / 4 >= oplatforms[i].x);
+
+  }
+}
+
+
+var oplatforms = [];
+
+//Make platforms objects array
+for (i = 0; i < maxp[stageid]; i++) {
+  oplatforms.push(new Platform(
+    platforms[stageid][i][0],
+    platforms[stageid][i][1],
+    platforms[stageid][i][2],
+    platforms[stageid][i][3]
+  ))
+}
+
+function Platform(x, y, width, height) {
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.height = height;
+  this.draw = function () {
+    rect(this.x - spos, this.y, this.width, this.height);
+  };
+
+  this.collisionLeft = function () {
+    if (this.x < maxx) {
+      maxx = this.x;
+      xmaxid = i;
+    }
+  };
+
+  this.collisionRight = function () {
+    if (this.x + this.width <= player.pos) {
+      if (this.x >= minx) {
+        minx = this.x + this.width;
+        xminid = i;
+      }
+    }
+  };
+
+  this.collisionTop = function () {
+    if (this.y < maxy) {
+      maxy = this.y;
+      maxid = i;
+    }
+  };
+
+  this.collisionBottom = function () {
+    if (this.y + this.height < player.y) {
+      if (this.y + this.height > miny) {
+        miny = this.y + this.height;
+        // jheight = Math.min(miny, 150);
+        minid = i;
+      }
+    }
+  }
+}
+
 
 //Last platform pos;
 var lastp = 0;
 
-//Player life points
-var plifep = 3;
-//True if player can't get damage
-//False if player can get damage
-var nodamage = false;
-//No damage counter
-var ndcounter = 0;
-
-var onair = false;
-
-//True if player rise
-var jumped = false;
-//Jump counter;
-var jcounter = 0;
-//Max Jump Height
-var maxjh = 310;
-//Jump speed
-var jspeed = 20;
-
-
-//Jump Height
-var jheight = 150;
 //Minimum player position X-AXIS
 var minx = 0;
 //Maximum player position X-AXIS
@@ -391,13 +547,13 @@ function stageCompleted() {
 
 function keyboardEvent() {
   if (keyIsDown(RIGHT_ARROW) && !paused) {
-    movex(1);
+    player.move(1);
     direction[0] = true;
     direction[1] = false;
   }
 
   if (keyIsDown(LEFT_ARROW) && !paused) {
-    movex(-1);
+    player.move(-1);
     direction[1] = true;
     direction[0] = false;
   }
@@ -411,9 +567,9 @@ function keyboardEvent() {
 function keyPressed() {
   //Z-JUMP
   if (keyCode === 90 && !paused) {
-    if (!onair) {
-      jcounter = 0;
-      jumped = true;
+    if (!player.onair) {
+      player.jumpcounter = 0;
+      player.rise = true;
     }
   }
   //X-Shoot
@@ -447,115 +603,38 @@ function keyPressed() {
 
 function keyReleased() {
   if (keyCode === 90) {
-    jumped = false;
+    player.rise = false;
   }
 }
 
 function drawObjects() {
-  drawPlayer();
-  drawPlatforms();
+  player.draw();
+
+
+  //Draw Platforms
+  i = Math.max(rstart - 2, 0);
+  do {
+    if (player.pos - resx > oplatforms[i].x) rstart = i;
+    if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#0000FF');
+    oplatforms[i].draw();
+    i++;
+  } while (i < maxp[stageid] && player.pos + resx >= oplatforms[i].x);
+  fill('#FFFFFF');
+
+
   drawEnemies();
   drawSpikes();
   drawBullets();
   drawHUD();
 }
 
-function drawPlayer() {
-  if (!nodamage) {
-    rect(px, py, sx, sy);
-    if (direction[0] && direction[2]) {
-      image(pistol[1], px + 25, py);
-    } else if (direction[0] && direction[3]) {
-      image(pistol[2], px + 25, py + 20);
-    } else if (direction[1] && direction[2]) {
-      image(pistol[4], px - 12, py);
-    } else if (direction[1] && direction[3]) {
-      image(pistol[5], px - 7, py + 20);
-    } else if (direction[0]) {
-      image(pistol[0], px + 25, py + 20);
-    } else if (direction[1]) {
-      image(pistol[3], px - 19, py + 20);
-    }
-  }
-  else noDamage();
-}
-
-function drawPlatforms() {
-  i = Math.max(rstart - 2, 0);
-
-  do {
-    if (pposx - resx > platforms[stageid][i][0]) rstart = i;
-    if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#0000FF');
-    rect(platforms[stageid][i][0] - spos, platforms[stageid][i][1], platforms[stageid][i][2], platforms[stageid][i][3]);
-    i++;
-  } while (i < maxp[stageid] && pposx + resx >= platforms[stageid][i][0]);
-  fill('#FFFFFF');
-
-}
-
-function platformsCollision() {
-  maxy = 999999;
-  maxid = 0;
-  miny = 0;
-  minid = -1;
-  maxx = 999999;
-  xmaxid = -1;
-  minx = 0;
-  xminid = -1;
-  i = Math.max(cstart - 2, 0);
-  // console.log(i, maxp[stageid]);
-  do {
-    if (pposx - resx / 2 > platforms[stageid][i][0]) cstart = i;
-    //***************************
-    //Select platform's borders vertical
-    if (pposx >= platforms[stageid][i][0] - sx && pposx <= platforms[stageid][i][0] + platforms[stageid][i][2]) {
-      //***TOP***
-      // console.log("Player pos: "+i+" platform"); //Uncomment to debug TOP BORDER collision
-      if (platforms[stageid][i][1] > py) {
-        if (platforms[stageid][i][1] < maxy) {
-          maxy = platforms[stageid][i][1];
-          maxid = i;
-        }
-      } else
-      //***BOTTOM***
-      // console.log("Player pos: "+i+" platform"); //Uncomment to debug collision
-      if (platforms[stageid][i][1] + platforms[stageid][i][3] < py) {
-        if (platforms[stageid][i][1] + platforms[stageid][i][3] > miny) {
-          miny = platforms[stageid][i][1] + platforms[stageid][i][3];
-          jheight = Math.min(miny, 150);
-          minid = i;
-          // console.log("Max Jump Height: "+jheight); //Uncomment to debug Max Jump Height
-        }
-      }
-    }
-    //***************************
-    //Select platform's borders horizontal
-    if (py >= platforms[stageid][i][1] - sy && py <= platforms[stageid][i][1] + platforms[stageid][i][3]) {
-      //***LEFT***
-      if (platforms[stageid][i][0] >= sx + pposx) {
-        if (platforms[stageid][i][0] < maxx) {
-          maxx = platforms[stageid][i][0];
-          xmaxid = i;
-        }
-      } else
-      //***RIGHT***
-      if (platforms[stageid][i][0] + platforms[stageid][i][2] <= pposx) {
-        if (platforms[stageid][i][0] >= minx) {
-          minx = platforms[stageid][i][0] + platforms[stageid][i][2];
-          xminid = i;
-        }
-      }
-    }
-    i++;
-  } while (i < maxp[stageid] && pposx + resx / 4 >= platforms[stageid][i][0]);
-}
-
 function physics() {
-  platformsCollision();
+  // platformsCollision();
+  player.collision();
   // debugcollision(maxid, minid, xmaxid, xminid); //Uncomment to debug collision
   gravity(maxy, maxid);
   air(maxy);
-  if (jumped) jump();
+  if (player.rise) player.jump();
   bulletsCollision();
   damage();
   spikesCollision();
@@ -594,11 +673,11 @@ function bulletsCollision() {
 
 function gravity(maxy, maxid) {
 
-  if (maxy - 1 > py + sy) {
-    if (maxy - 1 > py + sy + grav)
-      py += grav;
+  if (maxy - 1 > player.y + player.sy) {
+    if (maxy - 1 > player.y + player.sy + grav)
+      player.y += grav;
     else
-      py = maxy - sy - 1;
+      player.y = maxy - player.sy - 1;
   } else {
     if (maxid === maxp[stageid] - 1) {
       completed = true;
@@ -608,48 +687,7 @@ function gravity(maxy, maxid) {
 }
 
 function air(maxy) {
-  onair = py + sy + grav < maxy;
-}
-
-function jump() {
-  if (jumped && jcounter < maxjh - jspeed) {
-    if (miny + 1 < py - jspeed) {
-      py -= jspeed;
-      jcounter += jspeed;
-    } else {
-      py = miny + 1;
-      jumped = false;
-    }
-  } else jumped = false;
-}
-
-function movex(vector) {
-  if (vector === 1) {
-    //--->RIGHT
-    if (pposx + sx - 1 < maxx) {
-      if (maxx - pposx - sx < pxspeed) {
-        pposx = maxx - sx - 1;
-        if (spos <= 0) px = pposx; else if (pposx > lastp) px = resx - (platforms[stageid][maxp[stageid] - 1][0] + platforms[stageid][maxp[stageid] - 1][2] - pposx); else px = resx / 2;
-      } else {
-        if (spos <= 0 || pposx > lastp) px += pxspeed; else px = resx / 2;
-        pposx += pxspeed;
-      }
-      if (pposx < resx / 2) spos = 0; else if (pposx <= lastp) spos = pposx - resx / 2;
-    }
-  } else {
-    //<--- LEFT
-    if (pposx + 1 > minx) {
-      if (pposx - minx < pxspeed) {
-        pposx = minx + 1;
-        if (spos <= 0) px = pposx; else if (pposx > lastp) px = resx - (platforms[stageid][maxp[stageid] - 1][0] + platforms[stageid][maxp[stageid] - 1][2] - pposx); else px = resx / 2;
-      } else {
-        pposx -= pxspeed;
-        if (pposx > lastp) px -= pxspeed; else px = resx / 2
-      }
-      if (spos <= 0) px = pposx;
-      if (pposx < resx / 2) spos = 0; else if (pposx <= lastp) spos = pposx - resx / 2;
-    }
-  }
+  player.onair = player.y + player.sy + grav < maxy;
 }
 
 function drawBullets() {
@@ -704,43 +742,43 @@ function newBullet(enumber) {
         noshot++;
         bullets[i][2] = bsize;
         if (direction[0] && direction[2]) {
-          bullets[i][0] = spos + px + sx;
-          bullets[i][1] = py + 10;
+          bullets[i][0] = spos + player.x + player.sx;
+          bullets[i][1] = player.y + 10;
           bullets[i][3] = 0;
         } else if (direction[0] && direction[3]) {
-          bullets[i][0] = spos + px + sx - 3;
-          bullets[i][1] = py + 45;
+          bullets[i][0] = spos + player.x + player.sx - 3;
+          bullets[i][1] = player.y + 45;
           bullets[i][3] = 1;
         } else if (direction[1] && direction[2]) {
-          bullets[i][0] = spos + px;
-          bullets[i][1] = py + 10;
+          bullets[i][0] = spos + player.x;
+          bullets[i][1] = player.y + 10;
           bullets[i][3] = 2;
         } else if (direction[1] && direction[3]) {
-          bullets[i][0] = spos + px + 3;
-          bullets[i][1] = py + 45;
+          bullets[i][0] = spos + player.x + 3;
+          bullets[i][1] = player.y + 45;
           bullets[i][3] = 3;
         } else if (direction[0]) {
-          bullets[i][0] = spos + px + sx + 10;
-          bullets[i][1] = py + 25;
+          bullets[i][0] = spos + player.x + player.sx + 10;
+          bullets[i][1] = player.y + 25;
           bullets[i][3] = 4;
         } else if (direction[1]) {
-          bullets[i][0] = spos + px - 10;
-          bullets[i][1] = py + 25;
+          bullets[i][0] = spos + player.x - 10;
+          bullets[i][1] = player.y + 25;
           bullets[i][3] = 5;
         }
         bullets[i][6] = false;
       } else {
-        var a = drawingenemies[enumber][0] + (esize / 2) - px - spos;
-        var b = drawingenemies[enumber][1] - py;
+        var a = drawingenemies[enumber][0] + (esize / 2) - player.x - spos;
+        var b = drawingenemies[enumber][1] - player.y;
         var c = Math.pow(a, 2) + Math.pow(b, 2);
         var d = c / bspeed;
         bullets[i][7] = Math.sqrt(Math.pow(a, 2) / d) * 3;
         bullets[i][8] = Math.sqrt(Math.pow(b, 2) / d) * 3;
 
-        if (drawingenemies[enumber][0] + (esize / 2) - px - spos > 0 && drawingenemies[enumber][1] - py > 0) bullets[i][3] = 6;
-        else if (drawingenemies[enumber][0] + (esize / 2) - px - spos > 0 && drawingenemies[enumber][1] - py <= 0) bullets[i][3] = 7;
-        else if (drawingenemies[enumber][0] + (esize / 2) - px - spos <= 0 && drawingenemies[enumber][1] - py > 0) bullets[i][3] = 8;
-        else if (drawingenemies[enumber][0] + (esize / 2) - px - spos <= 0 && drawingenemies[enumber][1] - py <= 0) bullets[i][3] = 9;
+        if (drawingenemies[enumber][0] + (esize / 2) - player.x - spos > 0 && drawingenemies[enumber][1] - player.y > 0) bullets[i][3] = 6;
+        else if (drawingenemies[enumber][0] + (esize / 2) - player.x - spos > 0 && drawingenemies[enumber][1] - player.y <= 0) bullets[i][3] = 7;
+        else if (drawingenemies[enumber][0] + (esize / 2) - player.x - spos <= 0 && drawingenemies[enumber][1] - player.y > 0) bullets[i][3] = 8;
+        else if (drawingenemies[enumber][0] + (esize / 2) - player.x - spos <= 0 && drawingenemies[enumber][1] - player.y <= 0) bullets[i][3] = 9;
 
         bullets[i][0] = drawingenemies[enumber][0] + (esize / 2);
         bullets[i][1] = drawingenemies[enumber][1];
@@ -755,7 +793,7 @@ function newBullet(enumber) {
 }
 
 function checkIfUnderScreen() {
-  if (py + sy >= resy) lose();
+  if (player.y + player.sy >= resy) lose();
 }
 
 function lose() {
@@ -770,18 +808,18 @@ function lose() {
 
 function restartGame() {
   writeLastLevel();
-  px = 100;
-  pposx = 100;
+  player.x = 100;
+  player.pos = 100;
   spos = 0;
-  py = 100;
-  onair = false;
-  jumped = false;
-  jcounter = false;
+  player.y = 100;
+  player.onair = false;
+  player.rise = false;
+  player.jumpcounter = false;
   rstart = 0;
   cstart = 0;
-  plifep = 3;
-  nodamage = false;
-  ndcounter = 0;
+  player.life = 3;
+  player.nodamage = false;
+  player.godtime = 0;
   for (j = 0; j < maxe[stageid]; j++) {
     switch (enemies[stageid][j][5]) {
       case 0:
@@ -808,7 +846,7 @@ function restartGame() {
 function checkEnemyPos() {
   if (stageid !== 3)
     for (i = 0; i < maxe[stageid]; i++) {
-      if (px + spos >= enemies[stageid][i][2] - (1366 - px) && px + spos <= enemies[stageid][i][3] + px && !enemies[stageid][i][8] && enemies[stageid][i][7] > 0) {
+      if (player.x + spos >= enemies[stageid][i][2] - (1366 - player.x) && player.x + spos <= enemies[stageid][i][3] + player.x && !enemies[stageid][i][8] && enemies[stageid][i][7] > 0) {
         //Add Enemy to drawingenemies
         createNewEnemy(enemies[stageid][i][0], enemies[stageid][i][1], i);
       }
@@ -881,7 +919,7 @@ function drawEnemies() {
 
     }
 
-    if (px + spos < enemies[stageid][drawingenemies[i][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[i][2]][3] + px || enemies[stageid][drawingenemies[i][2]][7] === 0) {
+    if (player.x + spos < enemies[stageid][drawingenemies[i][2]][2] - (1366 - player.x) || player.x + spos > enemies[stageid][drawingenemies[i][2]][3] + player.x || enemies[stageid][drawingenemies[i][2]][7] === 0) {
       enemies[stageid][drawingenemies[i][2]][8] = false;
     }
   }
@@ -1030,7 +1068,7 @@ function drawHUD() {
   image(heart, 25, 25);
   textSize(45);
   fill('black');
-  text(plifep, 82, 65);
+  text(player.life, 82, 65);
   drawTimer();
   fill('#FFFFFF');
 }
@@ -1060,15 +1098,15 @@ function damage() {
   for (var l = 0; l <= enemiesCounter; l++) {
     if (enemies[stageid][drawingenemies[l][2]][5] === 2) esize = 150; else esize = 60;
     if (enemies[stageid][drawingenemies[l][2]][5] === 1 && enemies[stageid][drawingenemies[l][2]][7] > 0) {
-      if (px + spos >= enemies[stageid][drawingenemies[l][2]][0] - 500 && px + spos <= enemies[stageid][drawingenemies[l][2]][0] + 500 && enemies[stageid][drawingenemies[l][2]][6] === 0) {
+      if (player.x + spos >= enemies[stageid][drawingenemies[l][2]][0] - 500 && player.x + spos <= enemies[stageid][drawingenemies[l][2]][0] + 500 && enemies[stageid][drawingenemies[l][2]][6] === 0) {
         enemies[stageid][drawingenemies[l][2]][6]++;
         newBullet(l);
       } else if (enemies[stageid][drawingenemies[l][2]][6] > 0 && enemies[stageid][drawingenemies[l][2]][6] < 60 * ttshot + 1) enemies[stageid][drawingenemies[l][2]][6]++;
       else if (enemies[stageid][drawingenemies[l][2]][6] === 60 * ttshot + 1) enemies[stageid][drawingenemies[l][2]][6] = 0;
     }
     if (enemies[stageid][drawingenemies[l][2]][7] > 0) {
-      if (py <= drawingenemies[l][1] + esize - sy && py >= drawingenemies[l][1] - sy) {
-        if (px >= drawingenemies[l][0] - spos - sx && px <= drawingenemies[l][0] + esize - spos) {
+      if (player.y <= drawingenemies[l][1] + esize - player.sy && player.y >= drawingenemies[l][1] - player.sy) {
+        if (player.x >= drawingenemies[l][0] - spos - player.sx && player.x <= drawingenemies[l][0] + esize - spos) {
           lifePoints(-1, -1);
         }
       }
@@ -1090,8 +1128,8 @@ function damage() {
   }
   for (j = 0; j < bmax; j++) {
     if (bullets[j][6] && bullets[j][5]) {
-      if (bullets[j][1] <= py + sy + bullets[j][2] / 2 && bullets[j][1] >= py - bullets[j][2] / 2) {
-        if (bullets[j][0] >= px + spos - bullets[j][2] / 2 && bullets[j][0] <= px + spos + sx + bullets[j][2] / 2) {
+      if (bullets[j][1] <= player.y + player.sy + bullets[j][2] / 2 && bullets[j][1] >= player.y - bullets[j][2] / 2) {
+        if (bullets[j][0] >= player.x + spos - bullets[j][2] / 2 && bullets[j][0] <= player.x + spos + player.sx + bullets[j][2] / 2) {
           bullets[j][5] = false;
           lifePoints(-1, -1);
         }
@@ -1101,43 +1139,43 @@ function damage() {
 }
 
 function lifePoints(id, number) {
-  if (id === -1 && !nodamage) {
-    plifep += number;
-    nodamage = true;
+  if (id === -1 && !player.nodamage) {
+    player.life += number;
+    player.nodamage = true;
   } else if (id >= 0) {
     enemies[stageid][id][7] += number;
   }
-  if (plifep === 0) lose();
+  if (player.life === 0) lose();
 }
 
-function noDamage() {
-  ndcounter++;
-  if (ndcounter % 10 === 0) {
-    rect(px, py, sx, sy);
+function nodamage() {
+  player.godtime++;
+  if (player.godtime % 10 === 0) {
+    rect(player.x, player.y, player.sx, player.sy);
     if (direction[0] && direction[2]) {
-      image(pistol[1], px + 25, py);
+      image(pistol[1], player.x + 25, player.y);
     } else if (direction[0] && direction[3]) {
-      image(pistol[2], px + 25, py + 20);
+      image(pistol[2], player.x + 25, player.y + 20);
     } else if (direction[1] && direction[2]) {
-      image(pistol[4], px - 12, py);
+      image(pistol[4], player.x - 12, player.y);
     } else if (direction[1] && direction[3]) {
-      image(pistol[5], px - 7, py + 20);
+      image(pistol[5], player.x - 7, player.y + 20);
     } else if (direction[0]) {
-      image(pistol[0], px + 25, py + 20);
+      image(pistol[0], player.x + 25, player.y + 20);
     } else if (direction[1]) {
-      image(pistol[3], px - 19, py + 20);
+      image(pistol[3], player.x - 19, player.y + 20);
     }
   }
-  if (ndcounter === 60 * 1.5) {
-    nodamage = false;
-    ndcounter = 0;
+  if (player.godtime === 60 * 1.5) {
+    player.nodamage = false;
+    player.godtime = 0;
   }
 }
 
 function drawSpikes() {
   i = Math.max(sstart - 1, 0);
   do {
-    if (pposx - resx > spikes[stageid][i][0]) sstart = i;
+    if (player.pos - resx > spikes[stageid][i][0]) sstart = i;
     //DOWN
     if (spikes[stageid][i][2] === 0) triangle(spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] + sheight);
 
@@ -1150,37 +1188,37 @@ function drawSpikes() {
     //RIGHT
     else if (spikes[stageid][i][2] === 3) triangle(spikes[stageid][i][0] - spos, spikes[stageid][i][1] - swidth, spikes[stageid][i][0] - spos, spikes[stageid][i][1] + swidth, spikes[stageid][i][0] - spos + sheight, spikes[stageid][i][1]);
     i++;
-  } while (i < maxs[stageid] && pposx + resx >= spikes[stageid][i][0])
+  } while (i < maxs[stageid] && player.pos + resx >= spikes[stageid][i][0])
 }
 
 function spikesCollision() {
   for (i = sstart; i < maxs[stageid]; i++) {
     //Spikes UP AND DOWN
-    if ((spikes[stageid][i][2] === 0 || spikes[stageid][i][2] === 1) && (pposx >= spikes[stageid][i][0] - swidth - sx && pposx <= spikes[stageid][i][0] + swidth)) {
+    if ((spikes[stageid][i][2] === 0 || spikes[stageid][i][2] === 1) && (player.pos >= spikes[stageid][i][0] - swidth - player.sx && player.pos <= spikes[stageid][i][0] + swidth)) {
 
       switch (spikes[stageid][i][2]) {
         case 0:
           //DOWN
-          if (py > spikes[stageid][i][1]) spikeBorderCollision(0);
+          if (player.y > spikes[stageid][i][1]) spikeBorderCollision(0);
           break;
         case 1:
           //UP
-          if (py < spikes[stageid][i][1]) spikeBorderCollision(1);
+          if (player.y < spikes[stageid][i][1]) spikeBorderCollision(1);
           break;
       }
 
     } else
     //Spikes LEFT AND RIGHT
-    if (py >= spikes[stageid][i][1] - swidth && py <= spikes[stageid][i][1] + swidth) {
+    if (player.y >= spikes[stageid][i][1] - swidth && player.y <= spikes[stageid][i][1] + swidth) {
 
       switch (spikes[stageid][i][2]) {
         case 2:
           //LEFT
-          if (pposx >= spikes[stageid][i][0] - sheight - sx && pposx <= spikes[stageid][i][0] + sx) spikeBorderCollision(2);
+          if (player.pos >= spikes[stageid][i][0] - sheight - player.sx && player.pos <= spikes[stageid][i][0] + player.sx) spikeBorderCollision(2);
           break;
         case 3:
           //RIGHT
-          if (pposx >= spikes[stageid][i][0] && pposx <= spikes[stageid][i][0] + sheight) spikeBorderCollision(3);
+          if (player.pos >= spikes[stageid][i][0] && player.pos <= spikes[stageid][i][0] + sheight) spikeBorderCollision(3);
           break;
       }
     }
@@ -1188,7 +1226,7 @@ function spikesCollision() {
 }
 
 function countPoints() {
-  for (var k = 1; k <= plifep; k++) score[stageid] += 75;
+  for (var k = 1; k <= player.life; k++) score[stageid] += 75;
   var points = (60 * minutes + seconds) * 300 / maxtime;
   if (noshot === 0) noshot++;
   var points2 = 350 / noshot;
@@ -1202,16 +1240,16 @@ function spikeBladeHeight(part) {
   switch (part) {
     case 0:
       //LEFT
-      return Math.round(sheight * (swidth - spikes[stageid][i][0] + pposx + sx) / swidth);
+      return Math.round(sheight * (swidth - spikes[stageid][i][0] + player.pos + player.sx) / swidth);
     case 1:
       //RIGHT
-      return Math.round(sheight * (spikes[stageid][i][0] + swidth - pposx) / swidth);
+      return Math.round(sheight * (spikes[stageid][i][0] + swidth - player.pos) / swidth);
     case 2:
       //DOWN
-      return Math.round(sheight * (swidth - py + spikes[stageid][i][1]) / swidth);
+      return Math.round(sheight * (swidth - player.y + spikes[stageid][i][1]) / swidth);
     case 3:
       //UP
-      return Math.round(sheight * (swidth + py + sy - spikes[stageid][i][1]) / swidth);
+      return Math.round(sheight * (swidth + player.y + player.sy - spikes[stageid][i][1]) / swidth);
   }
 }
 
@@ -1221,19 +1259,19 @@ function spikeBorderCollision(d) {
   switch (d) {
     case 0:
       //DOWN
-      if (pposx + sx < spikes[stageid][i][0]) {
+      if (player.pos + player.sx < spikes[stageid][i][0]) {
         //LEFT
         a = spikeBladeHeight(0);
-        if (spikes[stageid][i][1] + a > py)
+        if (spikes[stageid][i][1] + a > player.y)
           lifePoints(-1, -1);
-      } else if (pposx >= spikes[stageid][i][0]) {
+      } else if (player.pos >= spikes[stageid][i][0]) {
         //RIGHT
         a = spikeBladeHeight(1);
-        if (spikes[stageid][i][1] + a > py)
+        if (spikes[stageid][i][1] + a > player.y)
           lifePoints(-1, -1);
       } else {
         //CENTER
-        if (spikes[stageid][i][1] + sy > py) {
+        if (spikes[stageid][i][1] + player.sy > player.y) {
           lifePoints(-1, -1);
         }
       }
@@ -1241,19 +1279,19 @@ function spikeBorderCollision(d) {
 
     case 1:
       //UP
-      if (pposx + sx < spikes[stageid][i][0]) {
+      if (player.pos + player.sx < spikes[stageid][i][0]) {
         //LEFT
         a = spikeBladeHeight(0);
-        if (spikes[stageid][i][1] - a < py + sy)
+        if (spikes[stageid][i][1] - a < player.y + player.sy)
           lifePoints(-1, -1);
-      } else if (pposx >= spikes[stageid][i][0]) {
+      } else if (player.pos >= spikes[stageid][i][0]) {
         //RIGHT
         a = spikeBladeHeight(1);
-        if (spikes[stageid][i][1] - a < py + sy)
+        if (spikes[stageid][i][1] - a < player.y + player.sy)
           lifePoints(-1, -1);
       } else {
         //CENTER
-        if (spikes[stageid][i][1] - sy < py + sy) {
+        if (spikes[stageid][i][1] - player.sy < player.y + player.sy) {
           lifePoints(-1, -1);
         }
       }
@@ -1261,38 +1299,38 @@ function spikeBorderCollision(d) {
 
     case 2:
       //LEFT
-      if (py > spikes[stageid][i][1]) {
+      if (player.y > spikes[stageid][i][1]) {
         //DOWN
         a = spikeBladeHeight(2);
-        if (pposx + sx >= spikes[stageid][i][0] - a)
+        if (player.pos + player.sx >= spikes[stageid][i][0] - a)
           lifePoints(-1, -1);
-      } else if (py + sy > spikes[stageid][i][1]) {
+      } else if (player.y + player.sy > spikes[stageid][i][1]) {
         //UP
         a = spikeBladeHeight(3);
-        if (pposx + sx >= spikes[stageid][i][0] - a)
+        if (player.pos + player.sx >= spikes[stageid][i][0] - a)
           lifePoints(-1, -1);
       } else {
         //CENTER
-        if (pposx + sx >= spikes[stageid][i][0] - sheight)
+        if (player.pos + player.sx >= spikes[stageid][i][0] - sheight)
           lifePoints(-1, -1);
       }
       break;
 
     case 3:
       //RIGHT
-      if (py > spikes[stageid][i][1]) {
+      if (player.y > spikes[stageid][i][1]) {
         //DOWN
         a = spikeBladeHeight(2);
-        if (pposx <= spikes[stageid][i][0] + a)
+        if (player.pos <= spikes[stageid][i][0] + a)
           lifePoints(-1, -1);
-      } else if (py + sy > spikes[stageid][i][1]) {
+      } else if (player.y + player.sy > spikes[stageid][i][1]) {
         //UP
         a = spikeBladeHeight(3);
-        if (pposx <= spikes[stageid][i][0] + a)
+        if (player.pos <= spikes[stageid][i][0] + a)
           lifePoints(-1, -1);
       } else {
         //CENTER
-        if (pposx <= spikes[stageid][i][0] + sheight)
+        if (player.pos <= spikes[stageid][i][0] + sheight)
           lifePoints(-1, -1);
       }
       break;
