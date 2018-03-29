@@ -168,7 +168,7 @@ var noshot = 0;
 var score = [];
 
 var drawingenemies = [];
-for (l = 0; l < 4; l++) drawingenemies[l] = [];
+for (var n = 0; n < 4; n++) drawingenemies[n] = [];
 
 var enemiesCounter = -1;
 //Time to drop Enemy
@@ -193,12 +193,9 @@ function preload() {
   bar2 = loadImage('./assets/bar2.png');
   heart = loadImage('./assets/heart.png');
   boss = loadImage('./assets/boss.png');
-  pistol[0] = loadImage('./assets/pistol.png');
-  pistol[1] = loadImage('./assets/pistol2.png');
-  pistol[2] = loadImage('./assets/pistol3.png');
-  pistol[3] = loadImage('./assets/pistol4.png');
-  pistol[4] = loadImage('./assets/pistol5.png');
-  pistol[5] = loadImage('./assets/pistol6.png');
+  for (i = 0; i < 6; i++) {
+    pistol[i] = loadImage('./assets/pistol' + i + '.png');
+  }
 }
 
 function setup() {
@@ -505,7 +502,7 @@ function platformsCollision() {
   xmaxid = -1;
   minx = 0;
   xminid = -1;
-  i = max(cstart - 2, 0);
+  i = Math.max(cstart - 2, 0);
   // console.log(i, maxp[stageid]);
   do {
     if (pposx - resx / 2 > platforms[stageid][i][0]) cstart = i;
@@ -525,7 +522,7 @@ function platformsCollision() {
       if (platforms[stageid][i][1] + platforms[stageid][i][3] < py) {
         if (platforms[stageid][i][1] + platforms[stageid][i][3] > miny) {
           miny = platforms[stageid][i][1] + platforms[stageid][i][3];
-          jheight = min(miny, 150);
+          jheight = Math.min(miny, 150);
           minid = i;
           // console.log("Max Jump Height: "+jheight); //Uncomment to debug Max Jump Height
         }
@@ -568,11 +565,11 @@ function physics() {
 }
 
 function bulletsCollision() {
-  for (h = 0; h < maxp[stageid]; h++) {
+  for (i = 0; i < maxp[stageid]; i++) {
     for (j = 0; j < bmax; j++) {
       if (bullets[j][5]) {
-        if (bullets[j][1] <= platforms[stageid][h][1] + platforms[stageid][h][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][h][1] - bullets[j][2] * 0.75) {
-          if (bullets[j][0] >= platforms[stageid][h][0] - bullets[j][2] * 0.75 && bullets[j][0] <= platforms[stageid][h][0] + platforms[stageid][h][2] + bullets[j][2] * 0.75) {
+        if (bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] * 0.75) {
+          if (bullets[j][0] >= platforms[stageid][i][0] - bullets[j][2] * 0.75 && bullets[j][0] <= platforms[stageid][i][0] + platforms[stageid][i][2] + bullets[j][2] * 0.75) {
             bullets[j][5] = false;
           }
         }
@@ -581,18 +578,19 @@ function bulletsCollision() {
   }
 }
 
-function debugcollision(maxid, minid, xmaxid, xminid) {
-  fill('red');
-  rect(platforms[stageid][maxid][0] - spos, platforms[stageid][maxid][1], platforms[stageid][maxid][2], platforms[stageid][maxid][3]);
-  fill('green');
-  if (minid !== -1) rect(platforms[stageid][minid][0] - spos, platforms[stageid][minid][1], platforms[stageid][minid][2], platforms[stageid][minid][3]);
-  fill('yellow');
-  if (xmaxid !== -1) rect(platforms[stageid][xmaxid][0] - spos, platforms[stageid][xmaxid][1], platforms[stageid][xmaxid][2], platforms[stageid][xmaxid][3]);
-  fill('orange');
-  if (xminid !== -1) rect(platforms[stageid][xminid][0] - spos, platforms[stageid][xminid][1], platforms[stageid][xminid][2], platforms[stageid][xminid][3]);
-  fill('white');
-
-}
+//**********COLLISION DEBUG**********
+// function debugcollision(maxid, minid, xmaxid, xminid) {
+//   fill('red');
+//   rect(platforms[stageid][maxid][0] - spos, platforms[stageid][maxid][1], platforms[stageid][maxid][2], platforms[stageid][maxid][3]);
+//   fill('green');
+//   if (minid !== -1) rect(platforms[stageid][minid][0] - spos, platforms[stageid][minid][1], platforms[stageid][minid][2], platforms[stageid][minid][3]);
+//   fill('yellow');
+//   if (xmaxid !== -1) rect(platforms[stageid][xmaxid][0] - spos, platforms[stageid][xmaxid][1], platforms[stageid][xmaxid][2], platforms[stageid][xmaxid][3]);
+//   fill('orange');
+//   if (xminid !== -1) rect(platforms[stageid][xminid][0] - spos, platforms[stageid][xminid][1], platforms[stageid][xminid][2], platforms[stageid][xminid][3]);
+//   fill('white');
+//
+// }
 
 function gravity(maxy, maxid) {
 
@@ -831,41 +829,41 @@ function createNewEnemy(x, y, id) {
 }
 
 function drawEnemies() {
-  for (p = 0; p <= enemiesCounter; p++) {
+  for (i = 0; i <= enemiesCounter; i++) {
     var k = 0;
-    image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
+    image(livebar, drawingenemies[i][0] - spos + 3, drawingenemies[i][1] - 19);
 
     //Draw Life Bars
-    switch (enemies[stageid][drawingenemies[p][2]][5]) {
+    switch (enemies[stageid][drawingenemies[i][2]][5]) {
       case 0:
-        image(enemyimg, drawingenemies[p][0] - spos, drawingenemies[p][1]);
-        for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
-          image(bar2, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
+        image(enemyimg, drawingenemies[i][0] - spos, drawingenemies[i][1]);
+        for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
+          image(bar2, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
           k += 16;
         }
         break;
 
       case 1:
-        image(enemyimg2, drawingenemies[p][0] - spos, drawingenemies[p][1]);
-        for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
-          image(bar1, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
+        image(enemyimg2, drawingenemies[i][0] - spos, drawingenemies[i][1]);
+        for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
+          image(bar1, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
           k += 24;
         }
         break;
 
       case 2:
-        image(boss, drawingenemies[p][0] - spos, drawingenemies[p][1]);
-        for (l = 0; l < enemies[stageid][drawingenemies[p][2]][7]; l++) {
-          image(bar1, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
+        image(boss, drawingenemies[i][0] - spos, drawingenemies[i][1]);
+        for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
+          image(bar1, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
           k += 24;
         }
         break;
 
     }
 
-    if (enemies[stageid][drawingenemies[p][2]][5] === 2) {
+    if (enemies[stageid][drawingenemies[i][2]][5] === 2) {
       //Move Boss
-      moveBoss(p);
+      moveBoss(i);
       //Drop Enemy
       if (tdrop > 180 && selectNotUsedEnemy() !== -1) {
         tdrop = 0;
@@ -873,18 +871,18 @@ function drawEnemies() {
       } else tdrop++;
     } else {
       //Movie Enemies(other than Boss)
-      if (drawingenemies[p][1] < enemies[stageid][drawingenemies[p][2]][1]) {
+      if (drawingenemies[i][1] < enemies[stageid][drawingenemies[i][2]][1]) {
         //If Enemy is falling (move in X and Y Axis)
-        enemyFalling(p);
+        enemyFalling(i);
       } else {
         //If Enemy is on platform (move in X Axis)
-        moveEnemies(p);
+        moveEnemies(i);
       }
 
     }
 
-    if (px + spos < enemies[stageid][drawingenemies[p][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[p][2]][3] + px || enemies[stageid][drawingenemies[p][2]][7] === 0) {
-      enemies[stageid][drawingenemies[p][2]][8] = false;
+    if (px + spos < enemies[stageid][drawingenemies[i][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[i][2]][3] + px || enemies[stageid][drawingenemies[i][2]][7] === 0) {
+      enemies[stageid][drawingenemies[i][2]][8] = false;
     }
   }
 }
@@ -935,10 +933,10 @@ function enemyFalling(p) {
 }
 
 
-function countFallingVector(x, y) {
+function countFallingVector(x, h) {
 //x-Difference from enemy position x to destination position x
 //y-Difference from enemy position y to destination position y
-  return Math.floor((Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))) / (y / vey));
+  return Math.floor((Math.sqrt(Math.pow(x, 2) + Math.pow(h, 2))) / (h / vey));
 
 }
 
@@ -957,8 +955,8 @@ function dropEnemy(i) {
   //Random destination point
   enemies[stageid][i][12] = Math.floor((Math.random() * 686) + 350);
   var x = enemies[stageid][i][12] - drawingenemies[enemiesCounter][0];
-  var y = platforms[stageid][3][1] - drawingenemies[enemiesCounter][1] - 60;
-  enemies[stageid][i][11] = countFallingVector(x, y);
+  var h = platforms[stageid][3][1] - drawingenemies[enemiesCounter][1] - 60;
+  enemies[stageid][i][11] = countFallingVector(x, h);
   //Random Enemy Type
   enemies[stageid][i][5] = Math.floor((Math.random() * 2));
   //Invert Vector if x<0
@@ -1014,7 +1012,7 @@ function moveBoss(p) {
 
 function activeEnemies() {
   if (enemiesCounter >= 0) {
-    for (p = 0; p <= enemiesCounter; p++) {
+    for (var p = 0; p <= enemiesCounter; p++) {
       if (!enemies[stageid][drawingenemies[p][2]][8]) {
         if (enemiesCounter === 0) enemiesCounter--;
         else {
@@ -1059,7 +1057,7 @@ function drawTimer() {
 }
 
 function damage() {
-  for (l = 0; l <= enemiesCounter; l++) {
+  for (var l = 0; l <= enemiesCounter; l++) {
     if (enemies[stageid][drawingenemies[l][2]][5] === 2) esize = 150; else esize = 60;
     if (enemies[stageid][drawingenemies[l][2]][5] === 1 && enemies[stageid][drawingenemies[l][2]][7] > 0) {
       if (px + spos >= enemies[stageid][drawingenemies[l][2]][0] - 500 && px + spos <= enemies[stageid][drawingenemies[l][2]][0] + 500 && enemies[stageid][drawingenemies[l][2]][6] === 0) {
@@ -1137,7 +1135,7 @@ function noDamage() {
 }
 
 function drawSpikes() {
-  i = max(sstart - 1, 0);
+  i = Math.max(sstart - 1, 0);
   do {
     if (pposx - resx > spikes[stageid][i][0]) sstart = i;
     //DOWN
