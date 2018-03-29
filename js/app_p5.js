@@ -103,10 +103,15 @@ var cstart = 0;
 
 //Spikes' render and collision starting spike
 var sstart = 0;
+
 //True if game is paused(PRESS SPACE to Continue)
 var paused = false;
-
-var inmenu = true;
+//Select Drawing Mode
+//0-Menu
+//1-Game
+//2-Credits
+//3-Controls
+var mode = 0;
 
 //***Inmenu Buttons
 //Buttons' X-pos
@@ -118,11 +123,9 @@ var btnheight = 75;
 //Buttons' Y-pos
 var btny = [300, 400, 500, 600];
 //Buttons' Text
-var btntext = ['New Game', 'Continue', 'Tutorial', 'Credits'];
+var btntext = ['New Game', 'Continue', 'Controls', 'Credits'];
 //Active button id
 var btnid = 0;
-//Credits
-var showcredits = false;
 //Credits X-pos
 var creditsx = 483;
 //Credits scroll variable
@@ -206,7 +209,24 @@ function setup() {
 
 function draw() {
   keyboardEvent();
-  if (showcredits) drawCredits(); else if (inmenu) menu(); else game();
+  switch (mode) {
+    case 0:
+      //Menu
+      menu();
+      break;
+    case 1:
+      //Game
+      game();
+      break;
+    case 2:
+      //Credits
+      drawCredits();
+      break;
+    case 3:
+      //Controls
+      break;
+
+  }
 
 }
 
@@ -216,14 +236,15 @@ function mouseClicked() {
 
 function newGame() {
   restartGame();
-  inmenu = false;
+  mode = 1;
 }
 
 function continueGame() {
-  if (getLastLevel() > 0) {
-    stageid = getLastLevel();
+  var level = getCookieToInt("level");
+  if (level > 0) {
+    stageid = level;
     restartGame();
-    inmenu = false;
+    mode = 1;
   }
 }
 
@@ -272,7 +293,7 @@ function drawCredits() {
 }
 
 function menuSelection(a) {
-  if (inmenu) {
+  if (mode === 0) {
     switch (a) {
       case 0:
         //New Game
@@ -290,7 +311,7 @@ function menuSelection(a) {
       case 3:
         //Credits
         creditsy = 800;
-        showcredits = true;
+        mode = 2;
         break;
     }
     cursor(ARROW);
@@ -331,19 +352,19 @@ function writeLastLevel() {
   document.cookie = "level=" + stageid + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
 }
 
-function getLastLevel() {
-  var id;
-  var cookie = document.cookie;
-
-  for (i = 0; i < cookie.length; i++) {
-    //Check cookie "level"
-    if ((cookie.charAt(i) === 'l') && (cookie.charAt(i + 2) === 'v') && (cookie.charAt(i + 4) === 'l')) {
-      id = parseInt(cookie.charAt(i + 6));
-      return id;
+function getCookieToInt(name) {
+  var cookies = document.cookie.split(";");
+  for (var i = 0; i < cookies.length; i++) {
+    if (cookies[i].charAt(0) === " ") {
+      cookies[i] = cookies[i].substring(1);
+    }
+    if (cookies[i].indexOf(name) === 0) {
+      return parseInt(cookies[i].substring(name.length + 1, cookies[i].length));
     }
   }
   return -1;
 }
+
 
 function game() {
   if (!(completed || paused)) {
@@ -405,23 +426,24 @@ function keyPressed() {
 
   //SPACE
   if (keyCode === 32) {
-    if (showcredits) showcredits = false;
+    if (mode === 2) mode = 0; //Go to Menu
     else if (completed) {
+      //Continue
       stageid++;
       completed = false;
       restartGame();
-    } else if (!inmenu) paused = !paused;
+    } else if (mode !== 0) paused = !paused; //Pause/Unpause
   }
   //Enter-Select Menu Entry
-  if (keyCode === 13 && inmenu) {
+  if (keyCode === 13 && mode === 0) {
     menuSelection(btnid);
   }
   //UP_ARROW Pressed
-  if (keyCode === 38 && inmenu && btnid > 0) {
+  if (keyCode === 38 && mode === 0 && btnid > 0) {
     btnid--;
   }
   //DOWN_ARROW Pressed
-  if (keyCode === 40 && inmenu && btnid < 3) {
+  if (keyCode === 40 && mode === 0 && btnid < 3) {
     btnid++;
   }
 }
@@ -592,7 +614,6 @@ function air(maxy) {
 }
 
 function jump() {
-  //TODO Optimise this section(if possible)
   if (jumped && jcounter < maxjh - jspeed) {
     if (miny + 1 < py - jspeed) {
       py -= jspeed;
@@ -604,7 +625,6 @@ function jump() {
   } else jumped = false;
 }
 
-//TODO Optimise moving
 function movex(vector) {
   if (vector === 1) {
     //--->RIGHT
