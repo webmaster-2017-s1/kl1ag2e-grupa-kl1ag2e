@@ -171,15 +171,7 @@ function Player() {
 
 var oplatforms = [];
 
-//Make platforms objects array
-for (i = 0; i < maxp[stageid]; i++) {
-  oplatforms.push(new Platform(
-    platforms[stageid][i][0],
-    platforms[stageid][i][1],
-    platforms[stageid][i][2],
-    platforms[stageid][i][3]
-  ))
-}
+
 
 function Platform(x, y, width, height) {
   this.x = x;
@@ -225,13 +217,7 @@ function Platform(x, y, width, height) {
 }
 
 var ospikes = [];
-for (i = 0; i < maxs[stageid]; i++) {
-  ospikes.push(new Spike(
-    spikes[stageid][i][0],
-    spikes[stageid][i][1],
-    spikes[stageid][i][2]
-  ))
-}
+
 
 function Spike(x, y, type) {
   this.x = x;
@@ -393,26 +379,8 @@ function Spike(x, y, type) {
 
 var oenemies = [];
 
-for (i = 0; i < maxe[stageid]; i++) {
-  if (stageid !== 3) {
-    oenemies.push(new Enemy(
-      enemies[stageid][i][0],
-      enemies[stageid][i][1],
-      enemies[stageid][i][2],
-      enemies[stageid][i][3],
-      enemies[stageid][i][4],
-      enemies[stageid][i][5],
-      enemies[stageid][i][6],
-      enemies[stageid][i][7],
-      enemies[stageid][i][8]
-    ))
-  } else {
 
-    ///On Boss stage
-  }
-}
-
-function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing) {
+function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, maxy, vector, target) {
   this.x = x;
   this.y = y;
   this.minx = eminx;
@@ -421,7 +389,15 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing) {
   this.type = type;
   this.time = time;
   this.life = life;
-  this.drawing = drawing;
+  // this.drawing = drawing;
+
+  if (stageid === 3) {
+    this.miny = miny;
+    this.maxy = maxy;
+    this.vector = vector;
+    this.target = target;
+  }
+
 
   this.draw = function () {
     var k = 0;
@@ -452,9 +428,9 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing) {
           k += 24;
         }
         break;
-
     }
   };
+
 
   this.move = function () {
     //X-AXIS
@@ -475,9 +451,138 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing) {
         this.x -= espeed;
       }
     }
+  };
+
+
+  this.fall = function () {
+    if (this.type !== 2) {
+      //Move Y-Axis
+      if (this.y + vey <= emaxy) this.y += vey; else this.y = emaxy;
+
+      //Move X-Axis
+      if (this.vector > 0) {
+        //Move to right--->
+        if (this.x + this.vector <= this.target) {
+          this.x += this.vector;
+        }
+      }
+      //Move to left
+      if (this.x - this.vector >= this.target) {
+        this.x += this.vector;
+      }
+
+    }
+  };
+  this.moveBoss = function () {
+    //X-Movement
+    if (this.direction) {
+      if (this.x - vbx < this.maxx) {
+        this.x += vbx;
+      } else {
+        this.x = this.maxx;
+        this.direction = false;
+      }
+    } else {
+      if (this.x - vbx > this.minx) {
+        this.x -= vbx;
+      } else {
+        this.x = this.minx;
+        this.direction = true;
+      }
+    }
+    //Y-Movement
+    if (this.vector) {
+      if (this.y + vby <= this.maxy) {
+        this.y += vby;
+      } else {
+        this.y = this.maxy;
+        this.vector = false;
+      }
+    } else {
+      if (this.y - vby >= this.miny) {
+        this.y -= vby;
+      } else {
+        this.y = this.miny;
+        this.vector = true;
+      }
+    }
+  };
+
+  this.drop = function () {
+    //Create new enemy under boss
+    this.x = oenemies[0].x + 40;
+    this.y = oenemies[0].y;
+    //Random destination point
+    this.target = Math.floor((Math.random() * 686) + 350);
+    var x = this.target - this.x;
+    var h = oplatforms[3].y - this.y - 60;
+    this.vector = Math.floor((Math.sqrt(Math.pow(x, 2) + Math.pow(h, 2))) / (h / vey));
+    //Random Enemy Type
+    this.type = Math.floor((Math.random() * 2));
+    //Invert Vector if x<0
+    if (x < 0) this.vector *= -1;
+    switch (this.type) {
+      case 0:
+        //Not shooting enemy
+        this.time = -1;
+        this.life = 3;
+        break;
+      case 1:
+        //Shooting enemy
+        this.time = 10;
+        this.life = 2;
+        break;
+    }
   }
 
 }
+
+//Load Level
+function loadStage(n) {
+//Load Platforms
+  oplatforms = [];
+  ospikes = [];
+  oenemies = [];
+  //Make platforms objects array
+  for (i = 0; i < maxp[n]; i++) {
+    oplatforms.push(new Platform(
+      platforms[n][i][0],
+      platforms[n][i][1],
+      platforms[n][i][2],
+      platforms[n][i][3]
+    ))
+  }
+
+  //Load Spikes
+  for (i = 0; i < maxs[n]; i++) {
+    ospikes.push(new Spike(
+      spikes[n][i][0],
+      spikes[n][i][1],
+      spikes[n][i][2]
+    ))
+  }
+
+  //Load Enemies
+  for (i = 0; i < maxe[n]; i++) {
+    oenemies.push(new Enemy(
+      enemies[n][i][0],
+      enemies[n][i][1],
+      enemies[n][i][2],
+      enemies[n][i][3],
+      enemies[n][i][4],
+      enemies[n][i][5],
+      enemies[n][i][6],
+      enemies[n][i][7],
+      enemies[n][i][8],
+      enemies[n][i][9],
+      enemies[n][i][10],
+      enemies[n][i][11],
+      enemies[n][i][12]
+    ))
+  }
+
+}
+
 
 
 
@@ -674,6 +779,7 @@ function mouseClicked() {
 }
 
 function newGame() {
+  loadStage(0);
   restartGame();
   mode = 1;
 }
@@ -869,6 +975,7 @@ function keyPressed() {
     else if (completed) {
       //Continue
       stageid++;
+      loadStage(stageid);
       completed = false;
       restartGame();
     } else if (mode !== 0) paused = !paused; //Pause/Unpause
@@ -1117,29 +1224,6 @@ function restartGame() {
   sstart = 0;
 }
 
-// function checkEnemyPos() {
-//   if (stageid !== 3)
-//     for (i = 0; i < maxe[stageid]; i++) {
-//       if (player.x + spos >= enemies[stageid][i][2] - (1366 - player.x) && player.x + spos <= enemies[stageid][i][3] + player.x && !enemies[stageid][i][8] && enemies[stageid][i][7] > 0) {
-//         //Add Enemy to drawingenemies
-//         createNewEnemy(enemies[stageid][i][0], enemies[stageid][i][1], i);
-//       }
-//     } else {
-//     if (!enemies[stageid][0][8] && enemies[stageid][0][7] > 0) {
-//       //Add Enemy to drawingenemies
-//       createNewEnemy(enemies[stageid][0][0], enemies[stageid][0][1], 0);
-//     }
-//   }
-// }
-
-// function createNewEnemy(x, y, id) {
-//   enemiesCounter++;
-//   drawingenemies[enemiesCounter][0] = x;
-//   drawingenemies[enemiesCounter][1] = y;
-//   drawingenemies[enemiesCounter][2] = id;
-//   enemies[stageid][id][8] = true;
-// }
-
 function drawEnemies() {
   i = Math.max(estart - 2, 0);
   do {
@@ -1149,12 +1233,19 @@ function drawEnemies() {
       oenemies[i].draw();
       if (oenemies[i].type === 2) {
         //Move Boss
+        oenemies[i].moveBoss();
+        //Drop Enemy
+        if (tdrop > 180 && selectNotUsedEnemy() !== -1) {
+          tdrop = 0;
+          oenemies[selectNotUsedEnemy()].drop();
+          // dropEnemy(selectNotUsedEnemy());
+        } else tdrop++;
 
       } else {
         //Movie Enemies(other than Boss)
-        if (emaxy < oenemies[i].y) {
+        if (emaxy > oenemies[i].y && stageid === 3) {
           //If Enemy is falling (move in X and Y Axis)
-          // oenemies[i].fall();
+          oenemies[i].fall();
         } else
           oenemies[i].move();
       }
@@ -1189,123 +1280,13 @@ function drawEnemies() {
   //
 }
 
-
-function enemyFalling(p) {
-
-  if (enemies[drawingenemies[p][2]][5] !== 2) {
-    //Move Y-Axis
-    if (drawingenemies[p][1] + vey <= enemies[stageid][drawingenemies[p][2]][1]) drawingenemies[p][1] += vey;
-    else drawingenemies[p][1] = enemies[stageid][drawingenemies[p][2]][1];
-    //Move X-Axis
-    if (enemies[stageid][drawingenemies[p][2]][11] > 0) {
-
-
-      //Move to right--->
-      if (drawingenemies[p][0] + enemies[stageid][drawingenemies[p][2]][11] <= enemies[stageid][drawingenemies[p][2]][12]) {
-        drawingenemies[p][0] += enemies[stageid][drawingenemies[p][2]][11];
-      }
-    }
-    //Move to left
-    if (drawingenemies[p][0] - enemies[stageid][drawingenemies[p][2]][11] >= enemies[stageid][drawingenemies[p][2]][12]) {
-      drawingenemies[p][0] += enemies[stageid][drawingenemies[p][2]][11];
-    }
-
-  }
-
-}
-
-
-function countFallingVector(x, h) {
-//x-Difference from enemy position x to destination position x
-//y-Difference from enemy position y to destination position y
-  return Math.floor((Math.sqrt(Math.pow(x, 2) + Math.pow(h, 2))) / (h / vey));
-
-}
-
 function selectNotUsedEnemy() {
   i = 1;
-  while (enemies[stageid][i][8]) {
+  while (oenemies[i].life === 0) {
     i++;
     if (i >= maxe[stageid]) return -1;
   }
   return i;
-}
-
-function dropEnemy(i) {
-  //Create new enemy under boss
-  createNewEnemy(drawingenemies[0][0] + 40, drawingenemies[0][1], i);
-  //Random destination point
-  enemies[stageid][i][12] = Math.floor((Math.random() * 686) + 350);
-  var x = enemies[stageid][i][12] - drawingenemies[enemiesCounter][0];
-  var h = platforms[stageid][3][1] - drawingenemies[enemiesCounter][1] - 60;
-  enemies[stageid][i][11] = countFallingVector(x, h);
-  //Random Enemy Type
-  enemies[stageid][i][5] = Math.floor((Math.random() * 2));
-  //Invert Vector if x<0
-  if (x < 0) enemies[stageid][i][11] *= -1;
-  switch (enemies[stageid][i][5]) {
-    case 0:
-      //Not shooting enemy
-      enemies[stageid][i][6] = -1;
-      enemies[stageid][i][7] = 3;
-      break;
-    case 1:
-      //Shooting enemy
-      enemies[stageid][i][6] = 10;
-      enemies[stageid][i][7] = 2;
-      break;
-  }
-}
-
-function moveBoss(p) {
-  //X-Movement
-  if (enemies[stageid][drawingenemies[p][2]][4]) {
-    if (drawingenemies[p][0] - vbx < enemies[stageid][drawingenemies[p][2]][3]) {
-      drawingenemies[p][0] += vbx;
-    } else {
-      drawingenemies[p][0] = enemies[stageid][drawingenemies[p][2]][3];
-      enemies[stageid][drawingenemies[p][2]][4] = false;
-    }
-  } else {
-    if (drawingenemies[p][0] - vbx > enemies[stageid][drawingenemies[p][2]][2]) {
-      drawingenemies[p][0] -= vbx;
-    } else {
-      drawingenemies[p][0] = enemies[stageid][drawingenemies[p][2]][2];
-      enemies[stageid][drawingenemies[p][2]][4] = true;
-    }
-  }
-  //Y-Movement
-  if (enemies[stageid][drawingenemies[p][2]][11]) {
-    if (drawingenemies[p][1] + vby <= enemies[stageid][drawingenemies[p][2]][10]) {
-      drawingenemies[p][1] += vby;
-    } else {
-      drawingenemies[p][1] = enemies[stageid][drawingenemies[p][2]][10];
-      enemies[stageid][drawingenemies[p][2]][11] = false;
-    }
-  } else {
-    if (drawingenemies[p][1] - vby >= enemies[stageid][drawingenemies[p][2]][9]) {
-      drawingenemies[p][1] -= vby;
-    } else {
-      drawingenemies[p][1] = enemies[stageid][drawingenemies[p][2]][9];
-      enemies[stageid][drawingenemies[p][2]][11] = true;
-    }
-  }
-}
-
-function activeEnemies() {
-  if (enemiesCounter >= 0) {
-    for (var p = 0; p <= enemiesCounter; p++) {
-      if (!enemies[stageid][drawingenemies[p][2]][8]) {
-        if (enemiesCounter === 0) enemiesCounter--;
-        else {
-          drawingenemies[p][0] = drawingenemies[enemiesCounter][0];
-          drawingenemies[p][1] = drawingenemies[enemiesCounter][1];
-          drawingenemies[p][2] = drawingenemies[enemiesCounter][2];
-          enemiesCounter--;
-        }
-      }
-    }
-  }
 }
 
 function drawHUD() {

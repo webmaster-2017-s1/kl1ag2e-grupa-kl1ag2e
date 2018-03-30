@@ -241,4 +241,4 @@ var vby = 4;
 //Vector y Falling enemies
 var vey = 3;
 
-var emaxy = 700;
+var emaxy = 540;
