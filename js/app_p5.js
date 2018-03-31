@@ -180,6 +180,10 @@ var enemiesCounter = -1;
 //Time to drop Enemy
 var tdrop = 0;
 
+var newrecord = false;
+var thebestresult = getCookieToInt("thebestresult");
+var endcounter = 0;
+
 //Images
 var enemyimg;
 var enemyimg2;
@@ -232,9 +236,33 @@ function draw() {
     case 3:
       //Controls
       break;
+    case 4:
+      endOfTheGame()
+      break;
 
   }
 
+}
+
+function endOfTheGame() {
+  background(200);
+  textSize(50);
+  fill('#000000');
+  text("Congratulations you completed the game!", 500, 100);
+  if (newrecord) {
+    text("You beat your record!", 500, 300);
+    text("Your new record: " + generalscore, 500, 500);
+  } else {
+    text("Your result: " + generalscore, 500, 300);
+    text("Your the best result: " + thebestresult, 500, 500);
+  }
+  text("Press SPACE to Continue", 500, 700);
+  fill('#FFFFFF');
+  if (keyCode === 32) {
+    paused = false;
+    generalscore = 0;
+    mode = 2;
+  }
 }
 
 function mouseClicked() {
@@ -242,15 +270,17 @@ function mouseClicked() {
 }
 
 function newGame() {
-  stageid=0;
+  stageid = 0;
   restartGame();
   mode = 1;
 }
 
 function continueGame() {
   var level = getCookieToInt("level");
+  var lastresult = getCookieToInt("lastresult");
   if (level > 0) {
     stageid = level;
+    generalscore = lastresult;
     restartGame();
     mode = 1;
   }
@@ -574,17 +604,24 @@ function physics() {
   checkEnemyPos();
   activeEnemies();
   activeBullets();
-
-  console.log(enemiesCounter);
-
-  if(stageid===3&&enemiesCounter===-1){
-    creditsy=800;
-    mode=2;
+  if (stageid === 3 && enemiesCounter === -1) {
+    if (endcounter < 60) endcounter++;
+    else {
+    countPoints(1);
+    if (thebestresult < generalscore) {
+      var resetlevel = 0;
+      document.cookie = "level=" + resetlevel + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
+      newrecord = true;
+      thebestresult = generalscore;
+      document.cookie = "thebestresult=" + thebestresult + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
+    }
+    mode = 4;
+    }
   }
 }
 
 function bulletsCollision() {
-  for (h = 0; h < maxp[stageid]; h++) {
+  for (i = 0; i < maxp[stageid]; i++) {
     for (j = 0; j <= bulletsCounter; j++) {
       if (bullets[j][5]) {
         if (bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] * 0.75) {
@@ -856,6 +893,8 @@ function restartGame() {
     enemies[stageid][drawingenemies[p][2]][8] = false;
   }
   enemiesCounter = -1;
+  newrecord = false;
+  endcounter = 0;
 }
 
 function checkEnemyPos() {
@@ -882,32 +921,32 @@ function createNewEnemy(x, y, id) {
 }
 
 function drawEnemies() {
-  for (i = 0; i <= enemiesCounter; i++) {
+  for (p = 0; p <= enemiesCounter; p++) {
     var k = 0;
     //Draw Life Bars
-    switch (enemies[stageid][drawingenemies[i][2]][5]) {
+    switch (enemies[stageid][drawingenemies[p][2]][5]) {
       case 0:
-        image(livebar, drawingenemies[i][0] - spos + 3, drawingenemies[i][1] - 19);
-        image(enemyimg, drawingenemies[i][0] - spos, drawingenemies[i][1]);
-        for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
-          image(bar2, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
+        image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
+        image(enemyimg, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        for (j = 0; j < enemies[stageid][drawingenemies[p][2]][7]; j++) {
+          image(bar2, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
           k += 16;
         }
         break;
 
       case 1:
-        image(livebar, drawingenemies[i][0] - spos + 3, drawingenemies[i][1] - 19);
-        image(enemyimg2, drawingenemies[i][0] - spos, drawingenemies[i][1]);
-        for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
-          image(bar1, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
+        image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
+        image(enemyimg2, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        for (j = 0; j < enemies[stageid][drawingenemies[p][2]][7]; j++) {
+          image(bar1, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
           k += 24;
         }
         break;
 
       case 2:
         image(livebar2, 383, 80);
-        image(boss, drawingenemies[i][0] - spos, drawingenemies[i][1]);
-        for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
+        image(boss, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        for (j = 0; j < enemies[stageid][drawingenemies[p][2]][7]; j++) {
           image(bar3, 386 + k, 83);
           k += 8;
         }
@@ -915,9 +954,9 @@ function drawEnemies() {
 
     }
 
-    if (enemies[stageid][drawingenemies[i][2]][5] === 2) {
+    if (enemies[stageid][drawingenemies[p][2]][5] === 2) {
       //Move Boss
-      moveBoss(i);
+      moveBoss(p);
       //Drop Enemy
       if (tdrop > 180 && selectNotUsedEnemy() !== -1) {
         tdrop = 0;
@@ -925,18 +964,17 @@ function drawEnemies() {
       } else tdrop++;
     } else {
       //Movie Enemies(other than Boss)
-      if (drawingenemies[i][1] < enemies[stageid][drawingenemies[i][2]][1]) {
+      if (drawingenemies[p][1] < enemies[stageid][drawingenemies[p][2]][1]) {
         //If Enemy is falling (move in X and Y Axis)
-        enemyFalling(i);
+        enemyFalling(p);
       } else {
         //If Enemy is on platform (move in X Axis)
-        moveEnemies(i);
+        moveEnemies(p);
       }
 
     }
-
-    if (px + spos < enemies[stageid][drawingenemies[i][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[i][2]][3] + px || enemies[stageid][drawingenemies[i][2]][7] === 0) {
-      enemies[stageid][drawingenemies[i][2]][8] = false;
+    if (px + spos < enemies[stageid][drawingenemies[p][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[p][2]][3] + px || enemies[stageid][drawingenemies[p][2]][7] === 0) {
+      enemies[stageid][drawingenemies[p][2]][8] = false;
     }
   }
 }
@@ -1254,6 +1292,7 @@ function countPoints(type) {
       break;
     case 1:
       generalscore = generalscore + currentscore;
+      document.cookie = "lastresult=" + generalscore + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
       break;
   }
 }
