@@ -178,8 +178,10 @@ var tdrop = 0;
 var enemyimg;
 var enemyimg2;
 var livebar;
+var livebar2;
 var bar1;
 var bar2;
+var bar3;
 var heart;
 var boss;
 var pistol = [];
@@ -189,8 +191,10 @@ function preload() {
   enemyimg = loadImage('./assets/enemy.png');
   enemyimg2 = loadImage('./assets/enemy2.png');
   livebar = loadImage('./assets/livebar.png');
+  livebar2 = loadImage('./assets/livebar2.png');
   bar1 = loadImage('./assets/bar1.png');
   bar2 = loadImage('./assets/bar2.png');
+  bar3 = loadImage('./assets/bar3.png');
   heart = loadImage('./assets/heart.png');
   boss = loadImage('./assets/boss.png');
   for (i = 0; i < 6; i++) {
@@ -232,6 +236,7 @@ function mouseClicked() {
 }
 
 function newGame() {
+  stageid=0;
   restartGame();
   mode = 1;
 }
@@ -562,6 +567,13 @@ function physics() {
   checkIfUnderScreen();
   checkEnemyPos();
   activeEnemies();
+
+  console.log(enemiesCounter);
+
+  if(stageid===3&&enemiesCounter===-1){
+    creditsy=800;
+    mode=2;
+  }
 }
 
 function bulletsCollision() {
@@ -791,7 +803,7 @@ function restartGame() {
         enemies[stageid][j][7] = 2;
         break;
       case 2:
-        enemies[stageid][j][7] = 150;
+        enemies[stageid][j][7] = 75;
         break;
       default:
     }
@@ -803,6 +815,12 @@ function restartGame() {
   noshot = 0;
   lastp = getLastPlatform();
   sstart = 0;
+
+  for (p = 0; p <= enemiesCounter; p++) {
+    enemies[stageid][drawingenemies[p][2]][8] = false;
+      }
+    enemiesCounter = -1;
+
 }
 
 function checkEnemyPos() {
@@ -831,11 +849,12 @@ function createNewEnemy(x, y, id) {
 function drawEnemies() {
   for (i = 0; i <= enemiesCounter; i++) {
     var k = 0;
-    image(livebar, drawingenemies[i][0] - spos + 3, drawingenemies[i][1] - 19);
+
 
     //Draw Life Bars
     switch (enemies[stageid][drawingenemies[i][2]][5]) {
       case 0:
+        image(livebar, drawingenemies[i][0] - spos + 3, drawingenemies[i][1] - 19);
         image(enemyimg, drawingenemies[i][0] - spos, drawingenemies[i][1]);
         for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
           image(bar2, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
@@ -844,6 +863,7 @@ function drawEnemies() {
         break;
 
       case 1:
+        image(livebar, drawingenemies[i][0] - spos + 3, drawingenemies[i][1] - 19);
         image(enemyimg2, drawingenemies[i][0] - spos, drawingenemies[i][1]);
         for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
           image(bar1, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
@@ -852,10 +872,11 @@ function drawEnemies() {
         break;
 
       case 2:
+        image(livebar2, 383, 80);
         image(boss, drawingenemies[i][0] - spos, drawingenemies[i][1]);
         for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
-          image(bar1, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
-          k += 24;
+          image(bar3, 386 + k, 83);
+          k += 8;
         }
         break;
 
@@ -1055,6 +1076,7 @@ function drawTimer() {
     text(seconds, 732, 65);
   }
 }
+
 
 function damage() {
   for (var l = 0; l <= enemiesCounter; l++) {
