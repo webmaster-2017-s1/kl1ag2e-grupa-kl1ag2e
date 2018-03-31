@@ -111,7 +111,6 @@ function Player() {
   //Jump
   this.jump = function () {
     if (this.rise && this.jumpcounter < this.maxjumpheight - this.jumpspeed) {
-      console.log(miny);
       if (miny + 1 < this.y - this.jumpspeed) {
         this.y -= this.jumpspeed;
         this.jumpcounter += this.jumpspeed;
@@ -191,8 +190,10 @@ function Player() {
   this.enemiesCollision = function () {
     i = Math.max(estart - 2, 0);
     do {
-      if (this.pos - resx / 2 > oenemies[i].x) estart = i;
-      oenemies[i].collision();
+      if (oenemies[i].life > 0) {
+        if (this.pos - resx / 2 > oenemies[i].x) estart = i;
+        oenemies[i].collision();
+      }
       i++;
     } while (i < maxe[stageid] && this.pos + resx / 4 >= oenemies[i].x);
 
@@ -420,7 +421,7 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
   this.type = type;
   this.time = time;
   this.life = life;
-  // this.drawing = drawing;
+  this.drawing = drawing;
 
   if (stageid === 3) {
     this.miny = miny;
@@ -576,7 +577,7 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
   };
 
   this.shoot = function (l) {
-    console.log("Enemy shoot");
+    // console.log("Enemy shoot");
     if (this.type === 1 && this.life > 0) {
       if (player.x + spos >= this.x - 500 && player.x + spos <= this.x + 500 && this.time === 0) {
         this.time++;
@@ -631,6 +632,10 @@ function loadStage(n) {
       enemies[n][i][11],
       enemies[n][i][12]
     ))
+  }
+
+  for (i = 0; i < 30; i++) {
+    obullets[i] = new Bullet(0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
 }
@@ -706,7 +711,6 @@ function Bullet(x, y, size, direction, life, drawing, damage, speedx, speedy) {
 
   this.create = function (enumber) {
     //For Player
-    console.log("Bullet create for: " + enumber);
     if (enumber === -1) {
       noshot++;
       this.size = bsize;
@@ -778,7 +782,6 @@ function Bullet(x, y, size, direction, life, drawing, damage, speedx, speedy) {
     }
     this.life = 0;
     this.drawing = true;
-    console.log("Bulletx " + this.x + " " + this.y);
   };
 
   this.draw = function () {
@@ -848,6 +851,20 @@ function Bullet(x, y, size, direction, life, drawing, damage, speedx, speedy) {
       }
     }
   };
+  this.damageEnemy = function (d) {
+    // console.log(d);
+    if (!this.damage && this.drawing && this.y <= oenemies[d].y + esize + this.size / 2 && this.y >= oenemies[d].y - this.size / 2) {
+      if (this.x >= oenemies[d].x - this.size / 2 && this.x <= oenemies[d].x + esize + this.size / 2) {
+        this.drawing = false;
+        lifePoints(d, -1);
+        if (oenemies[d].life === 0) {
+          if (oenemies[d].type === 0) score[stageid] += 150;
+          else score[stageid] += 250;
+        }
+      }
+    }
+
+  }
 
 
 }
@@ -1273,6 +1290,13 @@ function physics() {
     obullets[j].damagePlayer();
   }
 
+  //Damage Enemies
+
+  for (i = 0; i < maxe[stageid]; i++) {
+
+  }
+
+
 
   player.enemiesCollision();
   player.spikesCollision();
@@ -1280,17 +1304,17 @@ function physics() {
 }
 
 function bulletsCollision() {
-  for (i = 0; i < maxp[stageid]; i++) {
-    for (j = 0; j < bmax; j++) {
-      if (bullets[j][5]) {
-        if (bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] * 0.75) {
-          if (bullets[j][0] >= platforms[stageid][i][0] - bullets[j][2] * 0.75 && bullets[j][0] <= platforms[stageid][i][0] + platforms[stageid][i][2] + bullets[j][2] * 0.75) {
-            bullets[j][5] = false;
-          }
-        }
-      }
-    }
-  }
+  // for (i = 0; i < maxp[stageid]; i++) {
+  //   for (j = 0; j < bmax; j++) {
+  //     if (bullets[j][5]) {
+  //       if (bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] * 0.75) {
+  //         if (bullets[j][0] >= platforms[stageid][i][0] - bullets[j][2] * 0.75 && bullets[j][0] <= platforms[stageid][i][0] + platforms[stageid][i][2] + bullets[j][2] * 0.75) {
+  //           bullets[j][5] = false;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 }
 
 //**********COLLISION DEBUG**********
@@ -1316,11 +1340,12 @@ function drawBullets() {
 }
 
 function newBullet(enumber) {
-  for (i = 0; i < obullets.length; i++) {
-    if (!obullets[i].drawing) {
-      obullets[i].create(enumber);
+  for (j = 0; j < obullets.length; j++) {
+    if (!obullets[j].drawing) {
+      obullets[j].create(enumber);
       break;
     }
+
   }
 
 }
@@ -1377,15 +1402,15 @@ function restartGame() {
 }
 
 function drawEnemies() {
-  i = Math.max(estart - 2, 0);
-  do {
-    if (player.pos - resx / 2 > oenemies[i].x) cstart = i;
+  var r = Math.max(estart - 2, 0);
+  while (r < maxe[stageid] && player.pos + resx >= oenemies[r].x) {
+    if (player.pos - resx / 2 > oenemies[r].x) estart = r;
     //OOP
-    if (oenemies[i].life !== 0) {
-      oenemies[i].draw();
-      if (oenemies[i].type === 2) {
+    if (oenemies[r].life > 0) {
+      oenemies[r].draw();
+      if (oenemies[r].type === 2) {
         //Move Boss
-        oenemies[i].moveBoss();
+        oenemies[r].moveBoss();
         //Drop Enemy
         if (tdrop > 180 && selectNotUsedEnemy() !== -1) {
           tdrop = 0;
@@ -1395,22 +1420,27 @@ function drawEnemies() {
 
       } else {
         //Movie Enemies(other than Boss)
-        if (emaxy > oenemies[i].y && stageid === 3) {
+        if (emaxy > oenemies[r].y && stageid === 3) {
           //If Enemy is falling (move in X and Y Axis)
-          oenemies[i].fall();
+          oenemies[r].fall();
         } else
-          oenemies[i].move();
+          oenemies[r].move();
       }
       //Shoot
-      oenemies[i].shoot(i);
+      oenemies[r].shoot(r);
+
+      for (j = 0; j < 30; j++) {
+        if (obullets[j].drawing) obullets[j].damageEnemy(r);
+      }
+
     }
-    i++;
-  } while (i < maxe[stageid] && player.pos + resx >= oenemies[i].x);
+    r++;
+  }
 }
 
 function selectNotUsedEnemy() {
   i = 1;
-  while (oenemies[i].life === 0) {
+  while (oenemies[i].life !== 0) {
     i++;
     if (i >= maxe[stageid]) return -1;
   }
@@ -1456,22 +1486,34 @@ function damage() {
 
     //Shoot
 
-    for (j = 0; j < bmax; j++) {
-      if (enemies[stageid][drawingenemies[l][2]][7] > 0 && bullets[j][5] && !bullets[j][6]) {
-        if (bullets[j][1] <= drawingenemies[l][1] + esize + bullets[j][2] / 2 && bullets[j][1] >= drawingenemies[l][1] - bullets[j][2] / 2) {
-          if (bullets[j][0] >= drawingenemies[l][0] - bullets[j][2] / 2 && bullets[j][0] <= drawingenemies[l][0] + esize + bullets[j][2] / 2) {
-            bullets[j][5] = false;
-            lifePoints(drawingenemies[l][2], -1);
-            if (enemies[stageid][drawingenemies[l][2]][7] === 0) {
-              if (enemies[stageid][drawingenemies[l][2]][5] === 0) score[stageid] += 150;
-              else score[stageid] += 250;
-            }
-          }
-        }
-      }
-    }
-  }
+    for (i = 0; i < bmax; i++) {
+      if (oenemies[i].life > 0 && obullets[i].drawing && !obullets[i].damage) {
 
+
+      }
+
+
+    }
+
+
+    //
+    //   for (j = 0; j < bmax; j++) {
+    //     if (enemies[stageid][drawingenemies[l][2]][7] > 0 && bullets[j][5] && !bullets[j][6]) {
+    //       if (bullets[j][1] <= drawingenemies[l][1] + esize + bullets[j][2] / 2 && bullets[j][1] >= drawingenemies[l][1] - bullets[j][2] / 2) {
+    //         if (bullets[j][0] >= drawingenemies[l][0] - bullets[j][2] / 2 && bullets[j][0] <= drawingenemies[l][0] + esize + bullets[j][2] / 2) {
+    //           bullets[j][5] = false;
+    //           lifePoints(drawingenemies[l][2], -1);
+    //           if (enemies[stageid][drawingenemies[l][2]][7] === 0) {
+    //             if (enemies[stageid][drawingenemies[l][2]][5] === 0) score[stageid] += 150;
+    //             else score[stageid] += 250;
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+
+  }
 }
 
 function lifePoints(id, number) {
@@ -1479,7 +1521,7 @@ function lifePoints(id, number) {
     player.life += number;
     player.nodamage = true;
   } else if (id >= 0) {
-    enemies[stageid][id][7] += number;
+    oenemies[id].life += number;
   }
   if (player.life === 0) lose();
 }
