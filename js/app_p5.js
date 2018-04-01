@@ -12,13 +12,13 @@ function Game() {
   this.grav = 7;
 
   //Size of Bullets
-  this.bulletSize = 15;
+  // this.bulletSize = 15;
   //MAx number of Bullets
-  this.bulletMax = 10;
-  //Bullets speed
-  this.bulletSpeed = 12;
-  //Bullets life in seconds
-  this.bulletLife = 5;
+  // this.bulletMax = 10;
+  // //Bullets speed
+  // this.bulletSpeed = 12;
+  // //Bullets life in seconds
+  // this.bulletLife = 5;
 
   this.rstart = 0;
 
@@ -56,7 +56,7 @@ function Game() {
   this.score = [];
 
 
-  this.enemiesCounter = -1;
+  // this.enemiesCounter = -1;
 //Time to drop Enemy
   this.tdrop = 0;
 
@@ -79,7 +79,7 @@ function Game() {
   this.xminid = -1;
 
 
-  this.lastp = 0;
+  // this.lastp = 0;
 
 
   this.lifePoints = function (id, number) {
@@ -285,7 +285,7 @@ function Game() {
         default:
       }
     }
-    for (j = 0; j < this.bmax; j++) bullets[j][5] = 0;
+    for (j = 0; j < this.bmax; j++) obullets[j].drawing = 0;
     this.seconds = 0;
     this.minutes = 3;
     score[stageid] = 0;
@@ -424,7 +424,6 @@ function Game() {
 
 var game = new Game();
 
-
 function Menu() {
 //***Inmenu Buttons
 //Buttons' X-pos
@@ -463,7 +462,7 @@ function Menu() {
     fill("#000000");
     text("Platformer Game", 483, 100);
 
-    this.drawButtons(btnid);
+    this.drawButtons(this.btnid);
     textStyle(NORMAL);
   };
 
@@ -496,11 +495,11 @@ function Menu() {
       switch (a) {
         case 0:
           //New Game
-          newGame();
+          game.newGame();
           break;
         case 1:
           //Continue
-          continueGame();
+          game.continueGame();
           break;
         case 2:
           //Tutorial
@@ -509,7 +508,7 @@ function Menu() {
           break;
         case 3:
           //Credits
-          creditsy = 800;
+          this.creditsy = 800;
           game.mode = 2;
           break;
       }
@@ -520,11 +519,11 @@ function Menu() {
   this.drawButtons = function (btnid) {
 
     textSize(30);
-    for (i = 0; i < btny.length; i++) {
+    for (i = 0; i < this.btny.length; i++) {
       if (btnid === i) fill("#00FF00"); else fill("#FFFFFF");
-      rect(btnx, btny[i], btnwidth, btnheight);
+      rect(this.btnx, this.btny[i], this.btnwidth, this.btnheight);
       fill("#000000");
-      text(btntext[i], btnx + 60, btny[i] + 50);
+      text(this.btntext[i], this.btnx + 60, this.btny[i] + 50);
       fill("#FFFFFF");
     }
   };
@@ -533,11 +532,11 @@ function Menu() {
     //Check button vertical
     //Refresh cursor status
     cursor(ARROW);
-    if (mouseX >= btnx && mouseX <= btnx + btnwidth) {
-      for (i = 0; i < btny.length; i++) {
-        if (mouseY >= btny[i] && mouseY <= btny[i] + btnheight) {
+    if (mouseX >= this.btnx && mouseX <= this.btnx + this.btnwidth) {
+      for (i = 0; i < this.btny.length; i++) {
+        if (mouseY >= this.btny[i] && mouseY <= this.btny[i] + this.btnheight) {
           cursor(HAND);
-          btnid = i;
+          this.btnid = i;
           return i;
         }
       }
@@ -549,8 +548,7 @@ function Menu() {
 
 }
 
-// var menu=new Menu();
-
+var menu = new Menu();
 
 function Player() {
   //Position x-Render
@@ -1143,20 +1141,6 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
 var direction = [];
 direction[0] = true;
 
-
-var bullets = [];
-//bullets[][*]
-//0-X pos
-//1-Y pos
-//2-Size(width and height)
-//3-Direction
-//4-Life counter
-//5-True if bullet is drawing
-//6-True if bullet can take us damage
-//7-Bullet speed in x position
-//8-Bullet speed in y position
-
-
 var obullets = [];
 
 for (i = 0; i < 30; i++) {
@@ -1328,49 +1312,6 @@ function Bullet() {
 var i = 0;
 var j = 0;
 
-//Select Drawing Mode
-//0-Menu
-//1-Game
-//2-Credits
-//3-Controls
-var mode = 0;
-
-//***Inmenu Buttons
-//Buttons' X-pos
-var btnx = 483;
-//Buttons' width
-var btnwidth = 400;
-//Buttons' height
-var btnheight = 75;
-//Buttons' Y-pos
-var btny = [300, 400, 500, 600];
-//Buttons' Text
-var btntext = ['New Game', 'Continue', 'Controls', 'Credits'];
-//Active button id
-var btnid = 0;
-//Credits X-pos
-var creditsx = 483;
-//Credits scroll variable
-var creditsy = 800;
-//Credits' strings
-credits = [];
-credits[0] = "Credits";
-credits[1] = "Project Manager";
-credits[2] = "Marcin Zasuwa";
-credits[3] = "Programmers";
-credits[4] = "Marcin Saja";
-credits[5] = "Jakub Mazur";
-credits[6] = "Level Designer";
-
-//True if Stage is Completed
-var completed = false;
-
-for (i = 0; i < game.bmax; i++) {
-  bullets[i] = [];
-  bullets[i][4] = 0;
-  bullets[i][5] = false;
-}
-
 var score = [];
 
 
@@ -1409,7 +1350,7 @@ function draw() {
   switch (game.mode) {
     case 0:
       //Menu
-      menu();
+      menu.draw();
       break;
     case 1:
       //Game
@@ -1417,7 +1358,7 @@ function draw() {
       break;
     case 2:
       //Credits
-      drawCredits();
+      menu.drawCredits();
       break;
     case 3:
       //Controls
@@ -1428,121 +1369,8 @@ function draw() {
 }
 
 function mouseClicked() {
-  menuSelection(checkMousePos());
+  menu.selection(menu.checkMousePos());
 }
-
-function newGame() {
-  game.loadStage(0);
-  game.restartGame();
-  game.mode = 1;
-}
-
-function continueGame() {
-  var level = game.getCookieToInt("level");
-  if (level > 0) {
-    stageid = level;
-    game.restartGame();
-    game.mode = 1;
-  }
-}
-
-// function getLastPlatform() {
-//   return platforms[stageid][maxp[stageid] - 1][0] + platforms[stageid][maxp[stageid] - 1][2] - resx / 2;
-// }
-
-function menu() {
-  checkMousePos();
-  background(200);
-  textSize(50);
-  textStyle(BOLD);
-
-  fill("#000000");
-  text("Platformer Game", 483, 100);
-
-  drawButtons(btnid);
-  textStyle(NORMAL);
-
-}
-
-function drawCredits() {
-  if (creditsy > 125)
-    creditsy -= 2;
-  background(200);
-  textSize(50);
-  textStyle(BOLD);
-  fill("#0000FF");
-  text(credits[0], creditsx, creditsy); //Credits
-  fill("#FF0000");
-  text(credits[1], creditsx, creditsy + 100); //Project Manager
-  fill("#000000");
-  text(credits[2], creditsx, creditsy + 150); //Marcin Zasuwa
-  fill("#FF0000");
-  text(credits[3], creditsx, creditsy + 250); //Programmers
-  fill("#000000");
-  text(credits[2], creditsx, creditsy + 300); //Marcin Zasuwa
-  text(credits[4], creditsx, creditsy + 350); //Marcin Saja
-  text(credits[5], creditsx, creditsy + 400); //Jakub Mazur
-  fill("#FF0000");
-  text(credits[6], creditsx, creditsy + 500); //Level Designer
-  fill("#000000");
-  text(credits[5], creditsx, creditsy + 550); //Jakub Mazur
-}
-
-function menuSelection(a) {
-  if (game.mode === 0) {
-    switch (a) {
-      case 0:
-        //New Game
-        newGame();
-        break;
-      case 1:
-        //Continue
-        continueGame();
-        break;
-      case 2:
-        //Tutorial
-        // stageid = 2;
-        // inmenu = false;
-        break;
-      case 3:
-        //Credits
-        creditsy = 800;
-        game.mode = 2;
-        break;
-    }
-    cursor(ARROW);
-  }
-}
-
-function drawButtons(btnid) {
-
-  textSize(30);
-  for (i = 0; i < btny.length; i++) {
-    if (btnid === i) fill("#00FF00"); else fill("#FFFFFF");
-    rect(btnx, btny[i], btnwidth, btnheight);
-    fill("#000000");
-    text(btntext[i], btnx + 60, btny[i] + 50);
-    fill("#FFFFFF");
-  }
-}
-
-function checkMousePos() {
-  //Check button vertical
-  //Refresh cursor status
-  cursor(ARROW);
-  if (mouseX >= btnx && mouseX <= btnx + btnwidth) {
-    for (i = 0; i < btny.length; i++) {
-      if (mouseY >= btny[i] && mouseY <= btny[i] + btnheight) {
-        cursor(HAND);
-        btnid = i;
-        return i;
-      }
-    }
-
-  }
-  return -1;
-}
-
 
 function keyboardEvent() {
   if (keyIsDown(RIGHT_ARROW) && !game.paused) {
@@ -1604,15 +1432,15 @@ function keyPressed() {
   }
   //Enter-Select Menu Entry
   if (keyCode === 13 && game.mode === 0) {
-    menuSelection(btnid);
+    menu.selection(menu.btnid);
   }
   //UP_ARROW Pressed
-  if (keyCode === 38 && game.mode === 0 && btnid > 0) {
-    btnid--;
+  if (keyCode === 38 && game.mode === 0 && menu.btnid > 0) {
+    menu.btnid--;
   }
   //DOWN_ARROW Pressed
-  if (keyCode === 40 && game.mode === 0 && btnid < 3) {
-    btnid++;
+  if (keyCode === 40 && game.mode === 0 && menu.btnid < 3) {
+    menu.btnid++;
   }
 }
 
@@ -1622,19 +1450,17 @@ function keyReleased() {
   }
 }
 
-
-
-function bulletsCollision() {
-  // for (i = 0; i < maxp[stageid]; i++) {
-  //   for (j = 0; j < game.bmax; j++) {
-  //     if (bullets[j][5]) {
-  //       if (bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] * 0.75) {
-  //         if (bullets[j][0] >= platforms[stageid][i][0] - bullets[j][2] * 0.75 && bullets[j][0] <= platforms[stageid][i][0] + platforms[stageid][i][2] + bullets[j][2] * 0.75) {
-  //           bullets[j][5] = false;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-}
+// function bulletsCollision() {
+//   // for (i = 0; i < maxp[stageid]; i++) {
+//   //   for (j = 0; j < game.bmax; j++) {
+//   //     if (bullets[j][5]) {
+//   //       if (bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] * 0.75) {
+//   //         if (bullets[j][0] >= platforms[stageid][i][0] - bullets[j][2] * 0.75 && bullets[j][0] <= platforms[stageid][i][0] + platforms[stageid][i][2] + bullets[j][2] * 0.75) {
+//   //           bullets[j][5] = false;
+//   //         }
+//   //       }
+//   //     }
+//   //   }
+//   // }
+// }
 
