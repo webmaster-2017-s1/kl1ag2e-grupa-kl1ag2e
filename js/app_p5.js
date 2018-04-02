@@ -7,7 +7,7 @@ function Game() {
   //Screen rendering
   this.mode = 0;
   //Scene position
-  this.spos = 0;
+  // this.spos = 0;
   //Gravitation
   this.grav = 7;
 
@@ -330,20 +330,13 @@ function Game() {
 
     if (player.rise) player.jump();
 
-    //TODO BulletsCollision
-    // this.bulletsCollision();
+    this.bulletsCollision();
     // damage();
 
 
     //Damage Player
     for (j = 0; j < this.bmax; j++) {
       obullets[j].damagePlayer();
-    }
-
-    //Damage Enemies
-
-    for (i = 0; i < maxe[stageid]; i++) {
-
     }
 
     player.enemiesCollision();
@@ -419,6 +412,18 @@ function Game() {
     }
     return -1;
   };
+
+  this.bulletsCollision = function () {
+    for (i = 0; i < maxp[stageid]; i++) {
+      for (j = 0; j < 30; j++) {
+        obullets[j].collision(i);
+
+      }
+    }
+  }
+
+
+
 
 }
 
@@ -1302,8 +1307,28 @@ function Bullet() {
         }
       }
     }
+  };
 
-  }
+
+  this.collision = function (i) {
+    if (this.drawing) {
+      if (this.y <= oplatforms[i].y + oplatforms[i].height + this.size * 0.75 && this.y >= oplatforms[i].y - this.size * 0.75) {
+        if (this.x >= oplatforms[i].x - this.size * 0.75 && this.x <= oplatforms[i].x + oplatforms[i].width + this.size * 0.75) {
+          this.drawing = false;
+        }
+      }
+    }
+  };
+
+
+
+
+
+
+
+
+
+
 
 
 }
