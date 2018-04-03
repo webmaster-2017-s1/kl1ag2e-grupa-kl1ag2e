@@ -127,7 +127,7 @@ var btntext = ['New Game', 'Continue', 'Controls', 'Credits'];
 //Active button id
 var btnid = 0;
 //Credits X-pos
-var creditsx = 483;
+var creditsx = resx / 2;
 //Credits scroll variable
 var creditsy = 800;
 //Credits' strings
@@ -247,16 +247,17 @@ function draw() {
 function endOfTheGame() {
   background(200);
   textSize(50);
+  textAlign(CENTER);
   fill('#000000');
-  text("Congratulations you completed the game!", 500, 100);
+  text("Congratulations you completed the game!", resx / 2, 250);
   if (newrecord) {
-    text("You beat your record!", 500, 300);
-    text("Your new record: " + generalscore, 500, 500);
+    text("You beat your record!", resx / 2, 350);
+    text("Your new record: " + generalscore, resx / 2, 450);
   } else {
-    text("Your result: " + generalscore, 500, 300);
-    text("Your the best result: " + thebestresult, 500, 500);
+    text("Your result: " + generalscore, resx / 2, 350);
+    text("Your the best result: " + thebestresult, resx / 2, 450);
   }
-  text("Press SPACE to Continue", 500, 700);
+  text("Press SPACE to Continue", resx / 2, 750);
   fill('#FFFFFF');
   if (keyCode === 32) {
     paused = false;
@@ -299,7 +300,8 @@ function menu() {
 
 
   fill("#000000");
-  text("Platformer Game", 483, 100);
+  textAlign(CENTER);
+  text("Platformer Game", resx / 2, 100);
 
   drawButtons(btnid);
   textStyle(NORMAL);
@@ -312,6 +314,7 @@ function drawCredits() {
   background(200);
   textSize(50);
   textStyle(BOLD);
+  textAlign(CENTER);
   fill("#0000FF");
   text(credits[0], creditsx, creditsy); //Credits
   fill("#FF0000");
@@ -357,13 +360,13 @@ function menuSelection(a) {
 }
 
 function drawButtons(btnid) {
-
   textSize(30);
   for (i = 0; i < btny.length; i++) {
     if (btnid === i) fill("#00FF00"); else fill("#FFFFFF");
     rect(btnx, btny[i], btnwidth, btnheight);
     fill("#000000");
-    text(btntext[i], btnx + 60, btny[i] + 50);
+    textAlign(CENTER);
+    text(btntext[i], resx / 2 - 10, btny[i] + 50);
     fill("#FFFFFF");
   }
 }
@@ -406,7 +409,7 @@ function getCookieToInt(name) {
 
 function game() {
   if (!(completed || paused)) {
-    background(200);
+    background('#FFFCB6');
     drawObjects();
     physics();
   } else if (completed) stageCompleted(); else pause();
@@ -414,19 +417,21 @@ function game() {
 
 function pause() {
   textSize(50);
-  fill("#00FF00");
-  text("WIP. Press Space to Continue :)", 50, 50);
+  fill('#000000');
+  textAlign(CENTER);
+  text("Press Space to Continue", resx / 2, 750);
   fill('#FFFFFF');
 }
 
 function stageCompleted() {
   textSize(50);
   fill('#000000');
-  text("Congratulations!!!", 500, 100);
-  text("Your current score:", 490, 175);
-  text(generalscore, 640, 250);
-  text("Level " + (stageid + 1) + " Completed", 500, 400);
-  text("Press SPACE to Continue", 500, 700);
+  textAlign(CENTER);
+  text("Congratulations!!!", resx / 2, 125);
+  text("Level " + (stageid + 1) + " Completed", resx / 2, 200);
+  text("Your current score:", resx / 2, 365);
+  text(generalscore, resx / 2, 420);
+  text("Press SPACE to Continue", resx / 2, 750);
   fill('#FFFFFF');
 }
 
@@ -526,7 +531,7 @@ function drawPlatforms() {
 
   do {
     if (pposx - resx > platforms[stageid][i][0]) rstart = i;
-    if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#0000FF');
+    if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#1A791C');
     rect(platforms[stageid][i][0] - spos, platforms[stageid][i][1], platforms[stageid][i][2], platforms[stageid][i][3]);
     i++;
   } while (i < maxp[stageid] && pposx + resx >= platforms[stageid][i][0]);
@@ -847,6 +852,7 @@ function lose() {
 
   textSize(50);
   fill('#FF0000');
+  textAlign(CENTER);
   text("GAME OVER", resx / 2, resy / 2);
   fill('#FFFFFF');
   paused = true;
@@ -1122,9 +1128,11 @@ function drawHUD() {
   image(heart, 25, 25);
   textSize(45);
   fill('black');
+  textAlign(LEFT);
   text(plifep, 82, 65);
   drawTimer();
-  text(countPoints(0), 1245, 65);
+  textAlign(RIGHT);
+  text(countPoints(0), 1325, 65);
   fill('#FFFFFF');
 }
 
@@ -1139,13 +1147,14 @@ function drawTimer() {
       minutes--;
     }
   }
-  text(minutes, 647, 65);
-  text(':', 682, 65);
+  textAlign(CENTER);
+  text(minutes, resx / 2 - 25, 65);
+  text(':', resx / 2, 65);
   if (seconds > 9) {
-    text(seconds, 707, 65);
+    text(seconds, resx / 2 + 35, 65);
   } else {
-    text('0', 707, 65);
-    text(seconds, 732, 65);
+    text('0', resx / 2 + 24, 65);
+    text(seconds, resx / 2 + 49, 65);
   }
 }
 
@@ -1232,6 +1241,7 @@ function noDamage() {
 function drawSpikes() {
   i = Math.max(sstart - 1, 0);
   do {
+    fill('#B81111');
     if (pposx - resx > spikes[stageid][i][0]) sstart = i;
     //DOWN
     if (spikes[stageid][i][2] === 0) triangle(spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] + sheight);
