@@ -163,6 +163,7 @@ function Game() {
     var level = this.getCookieToInt("level");
     if (level > 0) {
       stageid = level;
+      this.loadStage(stageid);
       this.restartGame();
       this.mode = 1;
     }
@@ -272,15 +273,15 @@ function Game() {
     player.nodamage = false;
     player.godtime = 0;
     for (j = 0; j < maxe[stageid]; j++) {
-      switch (enemies[stageid][j][5]) {
+      switch (oenemies[j].type) {
         case 0:
-          enemies[stageid][j][7] = 3;
+          oenemies[j].life = 3;
           break;
         case 1:
-          enemies[stageid][j][7] = 2;
+          oenemies[j].life = 2;
           break;
         case 2:
-          enemies[stageid][j][7] = 150;
+          oenemies[j].life = 75;
           break;
         default:
       }
@@ -400,9 +401,9 @@ function Game() {
     } else if (this.completed) this.stageCompleted(); else this.pause();
   };
 
-  this.getCookieToInt = function () {
+  this.getCookieToInt = function (name) {
     var cookies = document.cookie.split(";");
-    for (var i = 0; i < cookies.length; i++) {
+    for (i = 0; i < cookies.length; i++) {
       if (cookies[i].charAt(0) === " ") {
         cookies[i] = cookies[i].substring(1);
       }
@@ -421,9 +422,6 @@ function Game() {
       }
     }
   }
-
-
-
 
 }
 
