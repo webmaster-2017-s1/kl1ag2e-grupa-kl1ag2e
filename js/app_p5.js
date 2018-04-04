@@ -127,7 +127,7 @@ var btntext = ['New Game', 'Continue', 'Controls', 'Credits'];
 //Active button id
 var btnid = 0;
 //Credits X-pos
-var creditsx = 483;
+var creditsx = resx / 2;
 //Credits scroll variable
 var creditsy = 800;
 //Credits' strings
@@ -179,6 +179,10 @@ for (var n = 0; n < 4; n++) drawingenemies[n] = [];
 var enemiesCounter = -1;
 //Time to drop Enemy
 var tdrop = 0;
+
+var newrecord = false;
+var thebestresult = getCookieToInt("thebestresult");
+var endcounter = 0;
 
 //Images
 var enemyimg;
@@ -232,9 +236,34 @@ function draw() {
     case 3:
       //Controls
       break;
+    case 4:
+      endOfTheGame()
+      break;
 
   }
 
+}
+
+function endOfTheGame() {
+  background(200);
+  textSize(50);
+  textAlign(CENTER);
+  fill('#000000');
+  text("Congratulations you completed the game!", resx / 2, 250);
+  if (newrecord) {
+    text("You beat your record!", resx / 2, 350);
+    text("Your new record: " + generalscore, resx / 2, 450);
+  } else {
+    text("Your result: " + generalscore, resx / 2, 350);
+    text("Your the best result: " + thebestresult, resx / 2, 450);
+  }
+  text("Press SPACE to Continue", resx / 2, 750);
+  fill('#FFFFFF');
+  if (keyCode === 32) {
+    paused = false;
+    generalscore = 0;
+    mode = 2;
+  }
 }
 
 function mouseClicked() {
@@ -242,15 +271,17 @@ function mouseClicked() {
 }
 
 function newGame() {
-  stageid=0;
+  stageid = 0;
   restartGame();
   mode = 1;
 }
 
 function continueGame() {
   var level = getCookieToInt("level");
+  var lastresult = getCookieToInt("lastresult");
   if (level > 0) {
     stageid = level;
+    generalscore = lastresult;
     restartGame();
     mode = 1;
   }
@@ -269,7 +300,8 @@ function menu() {
 
 
   fill("#000000");
-  text("Platformer Game", 483, 100);
+  textAlign(CENTER);
+  text("Platformer Game", resx / 2, 100);
 
   drawButtons(btnid);
   textStyle(NORMAL);
@@ -282,6 +314,7 @@ function drawCredits() {
   background(200);
   textSize(50);
   textStyle(BOLD);
+  textAlign(CENTER);
   fill("#0000FF");
   text(credits[0], creditsx, creditsy); //Credits
   fill("#FF0000");
@@ -327,13 +360,13 @@ function menuSelection(a) {
 }
 
 function drawButtons(btnid) {
-
   textSize(30);
   for (i = 0; i < btny.length; i++) {
     if (btnid === i) fill("#00FF00"); else fill("#FFFFFF");
     rect(btnx, btny[i], btnwidth, btnheight);
     fill("#000000");
-    text(btntext[i], btnx + 60, btny[i] + 50);
+    textAlign(CENTER);
+    text(btntext[i], resx / 2 - 10, btny[i] + 50);
     fill("#FFFFFF");
   }
 }
@@ -376,7 +409,7 @@ function getCookieToInt(name) {
 
 function game() {
   if (!(completed || paused)) {
-    background(200);
+    background('#FFFCB6');
     drawObjects();
     physics();
   } else if (completed) stageCompleted(); else pause();
@@ -384,19 +417,21 @@ function game() {
 
 function pause() {
   textSize(50);
-  fill("#00FF00");
-  text("WIP. Press Space to Continue :)", 50, 50);
+  fill('#000000');
+  textAlign(CENTER);
+  text("Press Space to Continue", resx / 2, 750);
   fill('#FFFFFF');
 }
 
 function stageCompleted() {
   textSize(50);
   fill('#000000');
-  text("Congratulations!!!", 500, 100);
-  text("Your current score:", 490, 175);
-  text(generalscore, 640, 250);
-  text("Level " + (stageid + 1) + " Completed", 500, 400);
-  text("Press SPACE to Continue", 500, 700);
+  textAlign(CENTER);
+  text("Congratulations!!!", resx / 2, 125);
+  text("Level " + (stageid + 1) + " Completed", resx / 2, 200);
+  text("Your current score:", resx / 2, 365);
+  text(generalscore, resx / 2, 420);
+  text("Press SPACE to Continue", resx / 2, 750);
   fill('#FFFFFF');
 }
 
@@ -496,7 +531,7 @@ function drawPlatforms() {
 
   do {
     if (pposx - resx > platforms[stageid][i][0]) rstart = i;
-    if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#0000FF');
+    if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#1A791C');
     rect(platforms[stageid][i][0] - spos, platforms[stageid][i][1], platforms[stageid][i][2], platforms[stageid][i][3]);
     i++;
   } while (i < maxp[stageid] && pposx + resx >= platforms[stageid][i][0]);
@@ -574,17 +609,24 @@ function physics() {
   checkEnemyPos();
   activeEnemies();
   activeBullets();
-
-  console.log(enemiesCounter);
-
-  if(stageid===3&&enemiesCounter===-1){
-    creditsy=800;
-    mode=2;
+  if (stageid === 3 && enemiesCounter === -1) {
+    if (endcounter < 60) endcounter++;
+    else {
+    countPoints(1);
+    if (thebestresult < generalscore) {
+      var resetlevel = 0;
+      document.cookie = "level=" + resetlevel + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
+      newrecord = true;
+      thebestresult = generalscore;
+      document.cookie = "thebestresult=" + thebestresult + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
+    }
+    mode = 4;
+    }
   }
 }
 
 function bulletsCollision() {
-  for (h = 0; h < maxp[stageid]; h++) {
+  for (i = 0; i < maxp[stageid]; i++) {
     for (j = 0; j <= bulletsCounter; j++) {
       if (bullets[j][5]) {
         if (bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] * 0.75) {
@@ -810,6 +852,7 @@ function lose() {
 
   textSize(50);
   fill('#FF0000');
+  textAlign(CENTER);
   text("GAME OVER", resx / 2, resy / 2);
   fill('#FFFFFF');
   paused = true;
@@ -856,6 +899,8 @@ function restartGame() {
     enemies[stageid][drawingenemies[p][2]][8] = false;
   }
   enemiesCounter = -1;
+  newrecord = false;
+  endcounter = 0;
 }
 
 function checkEnemyPos() {
@@ -882,32 +927,32 @@ function createNewEnemy(x, y, id) {
 }
 
 function drawEnemies() {
-  for (i = 0; i <= enemiesCounter; i++) {
+  for (p = 0; p <= enemiesCounter; p++) {
     var k = 0;
     //Draw Life Bars
-    switch (enemies[stageid][drawingenemies[i][2]][5]) {
+    switch (enemies[stageid][drawingenemies[p][2]][5]) {
       case 0:
-        image(livebar, drawingenemies[i][0] - spos + 3, drawingenemies[i][1] - 19);
-        image(enemyimg, drawingenemies[i][0] - spos, drawingenemies[i][1]);
-        for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
-          image(bar2, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
+        image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
+        image(enemyimg, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        for (j = 0; j < enemies[stageid][drawingenemies[p][2]][7]; j++) {
+          image(bar2, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
           k += 16;
         }
         break;
 
       case 1:
-        image(livebar, drawingenemies[i][0] - spos + 3, drawingenemies[i][1] - 19);
-        image(enemyimg2, drawingenemies[i][0] - spos, drawingenemies[i][1]);
-        for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
-          image(bar1, drawingenemies[i][0] - spos + 6 + k, drawingenemies[i][1] - 16);
+        image(livebar, drawingenemies[p][0] - spos + 3, drawingenemies[p][1] - 19);
+        image(enemyimg2, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        for (j = 0; j < enemies[stageid][drawingenemies[p][2]][7]; j++) {
+          image(bar1, drawingenemies[p][0] - spos + 6 + k, drawingenemies[p][1] - 16);
           k += 24;
         }
         break;
 
       case 2:
         image(livebar2, 383, 80);
-        image(boss, drawingenemies[i][0] - spos, drawingenemies[i][1]);
-        for (j = 0; j < enemies[stageid][drawingenemies[i][2]][7]; j++) {
+        image(boss, drawingenemies[p][0] - spos, drawingenemies[p][1]);
+        for (j = 0; j < enemies[stageid][drawingenemies[p][2]][7]; j++) {
           image(bar3, 386 + k, 83);
           k += 8;
         }
@@ -915,9 +960,9 @@ function drawEnemies() {
 
     }
 
-    if (enemies[stageid][drawingenemies[i][2]][5] === 2) {
+    if (enemies[stageid][drawingenemies[p][2]][5] === 2) {
       //Move Boss
-      moveBoss(i);
+      moveBoss(p);
       //Drop Enemy
       if (tdrop > 180 && selectNotUsedEnemy() !== -1) {
         tdrop = 0;
@@ -925,18 +970,17 @@ function drawEnemies() {
       } else tdrop++;
     } else {
       //Movie Enemies(other than Boss)
-      if (drawingenemies[i][1] < enemies[stageid][drawingenemies[i][2]][1]) {
+      if (drawingenemies[p][1] < enemies[stageid][drawingenemies[p][2]][1]) {
         //If Enemy is falling (move in X and Y Axis)
-        enemyFalling(i);
+        enemyFalling(p);
       } else {
         //If Enemy is on platform (move in X Axis)
-        moveEnemies(i);
+        moveEnemies(p);
       }
 
     }
-
-    if (px + spos < enemies[stageid][drawingenemies[i][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[i][2]][3] + px || enemies[stageid][drawingenemies[i][2]][7] === 0) {
-      enemies[stageid][drawingenemies[i][2]][8] = false;
+    if (px + spos < enemies[stageid][drawingenemies[p][2]][2] - (1366 - px) || px + spos > enemies[stageid][drawingenemies[p][2]][3] + px || enemies[stageid][drawingenemies[p][2]][7] === 0) {
+      enemies[stageid][drawingenemies[p][2]][8] = false;
     }
   }
 }
@@ -1084,9 +1128,11 @@ function drawHUD() {
   image(heart, 25, 25);
   textSize(45);
   fill('black');
+  textAlign(LEFT);
   text(plifep, 82, 65);
   drawTimer();
-  text(countPoints(0), 1245, 65);
+  textAlign(RIGHT);
+  text(countPoints(0), 1325, 65);
   fill('#FFFFFF');
 }
 
@@ -1101,13 +1147,14 @@ function drawTimer() {
       minutes--;
     }
   }
-  text(minutes, 647, 65);
-  text(':', 682, 65);
+  textAlign(CENTER);
+  text(minutes, resx / 2 - 25, 65);
+  text(':', resx / 2, 65);
   if (seconds > 9) {
-    text(seconds, 707, 65);
+    text(seconds, resx / 2 + 35, 65);
   } else {
-    text('0', 707, 65);
-    text(seconds, 732, 65);
+    text('0', resx / 2 + 24, 65);
+    text(seconds, resx / 2 + 49, 65);
   }
 }
 
@@ -1194,6 +1241,7 @@ function noDamage() {
 function drawSpikes() {
   i = Math.max(sstart - 1, 0);
   do {
+    fill('#B81111');
     if (pposx - resx > spikes[stageid][i][0]) sstart = i;
     //DOWN
     if (spikes[stageid][i][2] === 0) triangle(spikes[stageid][i][0] - spos - swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos + swidth, spikes[stageid][i][1], spikes[stageid][i][0] - spos, spikes[stageid][i][1] + sheight);
@@ -1254,6 +1302,7 @@ function countPoints(type) {
       break;
     case 1:
       generalscore = generalscore + currentscore;
+      document.cookie = "lastresult=" + generalscore + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
       break;
   }
 }
