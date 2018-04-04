@@ -50,14 +50,18 @@ function Game() {
 //Bullets life in seconds
   this.blife = 5;
 
-
 //Number of shot
   this.noshot = 0;
-  this.score = [];
+  this.score = 0;
+  this.points = 0;
+  this.points2 = 0;
+  this.currentscore = 0;
+  this.generalscore = 0;
 
+  this.ended = false;
 
-  // this.enemiesCounter = -1;
-//Time to drop Enemy
+  this.enemiescounter = 0;
+  //Time to drop Enemy
   this.tdrop = 0;
 
 
@@ -143,7 +147,7 @@ function Game() {
         enemies[n][i][10],
         enemies[n][i][11],
         enemies[n][i][12]
-      ))
+      ));
     }
 
     for (i = 0; i < 30; i++) {
@@ -161,8 +165,10 @@ function Game() {
 
   this.continueGame = function () {
     var level = this.getCookieToInt("level");
+    var lastresult = this.getCookieToInt("lastresult");
     if (level > 0) {
       stageid = level;
+      this.generalscore = lastresult;
       this.loadStage(stageid);
       this.restartGame();
       this.mode = 1;
@@ -179,13 +185,18 @@ function Game() {
     document.cookie = "level=" + stageid + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
   };
 
-  this.countPoints = function () {
-    for (var k = 1; k <= player.life; k++) score[stageid] += 75;
-    var points = (60 * this.minutes + this.seconds) * 300 / this.maxtime;
-    if (this.noshot === 0) this.noshot++;
-    var points2 = 350 / this.noshot;
-    score[stageid] = score[stageid] + points + points2;
-    score[stageid] = Math.round(score[stageid]);
+  this.countPoints = function (type) {
+    switch (type) {
+      case 0:
+        this.points = (60 * this.minutes + this.seconds) * 60 / this.maxtime;
+        if (this.noshot > 0) this.points2 = 50 / this.noshot; else this.points2 = 0;
+        this.currentscore = Math.round(this.points + this.points2 + this.score);
+        return this.currentscore + this.generalscore;
+      case 1:
+        this.generalscore += this.currentscore;
+        document.cookie = "lastresult=" + this.generalscore + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
+        break;
+    }
   };
 
 
@@ -200,13 +211,14 @@ function Game() {
         this.minutes--;
       }
     }
-    text(this.minutes, 647, 65);
-    text(':', 682, 65);
+    textAlign(CENTER);
+    text(this.minutes, resx / 2 - 25, 65);
+    text(':', resx / 2, 65);
     if (this.seconds > 9) {
-      text(this.seconds, 707, 65);
+      text(this.seconds, resx / 2 + 35, 65);
     } else {
-      text('0', 707, 65);
-      text(this.seconds, 732, 65);
+      text('0', resx / 2 + 24, 65);
+      text(this.seconds, resx / 2 + 49, 65);
     }
   };
 
@@ -215,8 +227,11 @@ function Game() {
     image(heart, 25, 25);
     textSize(45);
     fill('black');
+    textAlign(LEFT);
     text(player.life, 82, 65);
     this.drawTimer();
+    textAlign(RIGHT);
+    text(game.countPoints(0), 1325, 65);
     fill('#FFFFFF');
   };
 
@@ -272,7 +287,9 @@ function Game() {
     player.life = 3;
     player.nodamage = false;
     player.godtime = 0;
+    this.enemiescounter = 0;
     for (j = 0; j < maxe[stageid]; j++) {
+      this.enemiescounter++;
       switch (oenemies[j].type) {
         case 0:
           oenemies[j].life = 3;
@@ -289,16 +306,19 @@ function Game() {
     for (j = 0; j < this.bmax; j++) obullets[j].drawing = 0;
     this.seconds = 0;
     this.minutes = 3;
-    score[stageid] = 0;
+    this.score = 0;
     this.noshot = 0;
     this.lastp = this.getLastPlatform();
     this.sstart = 0;
+    this.newrecord = false;
+    this.endcounter = 0;
   };
 
 
   this.lose = function () {
     textSize(50);
     fill('#FF0000');
+    textAlign(CENTER);
     text("GAME OVER", resx / 2, resy / 2);
     fill('#FFFFFF');
     this.paused = true;
@@ -352,6 +372,7 @@ function Game() {
     do {
       if (player.pos - resx > oplatforms[i].x) this.rstart = i;
       if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#0000FF');
+      // text(i, oplatforms[i].x - game.spos, oplatforms[i].y - 20);
       oplatforms[i].draw();
       i++;
     } while (i < maxp[stageid] && player.pos + resx >= oplatforms[i].x);
@@ -375,15 +396,33 @@ function Game() {
   this.stageCompleted = function () {
     textSize(50);
     fill('#000000');
-    text("Congratulations!!!", 500, 100);
-    text("Your score:", 575, 175);
-    text(score, 640, 250);
+    textAlign(CENTER);
+    text("Congratulations!!!", resx / 2, 250);
+    text("Your current score:", resx / 2, 350);
+    text(this.generalscore, 640, 250);
     text("Level " + (stageid + 1) + " Completed", 500, 400);
     text("Press SPACE to Continue", 500, 700);
     fill('#FFFFFF');
   };
 
+  this.ending = function () {
+    background(200);
+    textSize(50);
+    fill('#000000');
+    text("Congratulations you have completed the game!", 500, 100);
+    if (this.newrecord) {
+      text("You beat your record!", 500, 300);
+      text("Your new record: " + this.generalscore, 500, 500);
+    } else {
+      text("Your result: " + this.generalscore, 500, 300);
+      text("Your the best result: " + this.thebestresult, 500, 500);
+    }
+    text("Press SPACE to Continue", 500, 700);
+    fill('#FFFFFF');
+  };
+
   this.pause = function () {
+    textAlign(CENTER);
     textSize(50);
     fill("#00FF00");
     text("WIP. Press Space to Continue :)", 50, 50);
@@ -394,11 +433,11 @@ function Game() {
   this.paused = false;
 
   this.play = function () {
-    if (!(this.completed || this.paused)) {
+    if (!(this.completed || this.paused || this.ended)) {
       background(200);
       this.drawObjects();
       this.physics();
-    } else if (this.completed) this.stageCompleted(); else this.pause();
+    } else if (this.completed) this.stageCompleted(); else if (this.ended) this.ending(); else this.pause();
   };
 
   this.getCookieToInt = function (name) {
@@ -421,7 +460,11 @@ function Game() {
 
       }
     }
-  }
+  };
+
+  this.newrecord = false;
+  this.thebestresult = this.getCookieToInt("thebestresult");
+  this.endcounter = 0;
 
 }
 
@@ -463,7 +506,8 @@ function Menu() {
     textStyle(BOLD);
 
     fill("#000000");
-    text("Platformer Game", 483, 100);
+    textAlign(CENTER);
+    text("Platformer Game", resx / 2, 100);
 
     this.drawButtons(this.btnid);
     textStyle(NORMAL);
@@ -520,12 +564,12 @@ function Menu() {
   };
 
   this.drawButtons = function (btnid) {
-
     textSize(30);
     for (i = 0; i < this.btny.length; i++) {
       if (btnid === i) fill("#00FF00"); else fill("#FFFFFF");
       rect(this.btnx, this.btny[i], this.btnwidth, this.btnheight);
       fill("#000000");
+      textAlign(LEFT);
       text(this.btntext[i], this.btnx + 60, this.btny[i] + 50);
       fill("#FFFFFF");
     }
@@ -633,7 +677,7 @@ function Player() {
       if (this.pos + this.sx - 1 < game.maxx) {
         if (game.maxx - this.pos - this.sx < this.speedx) {
           this.pos = game.maxx - this.sx - 1;
-          if (game.spos <= 0) this.x = this.pos; else if (this.pos > game.lastp) this.x = resx - (oplatforms[maxp[stageid] - 1].x + oplatforms[maxp[stageid] - 1] - this.pos); else this.x = resx / 2;
+          if (game.spos <= 0) this.x = this.pos; else if (this.pos > game.lastp) this.x = resx - (oplatforms[maxp[stageid] - 1].x + oplatforms[maxp[stageid] - 1].y - this.pos); else this.x = resx / 2;
         } else {
           if (game.spos <= 0 || this.pos > game.lastp) this.x += this.speedx; else this.x = resx / 2;
           this.pos += this.speedx;
@@ -680,7 +724,7 @@ function Player() {
     } else {
       if (maxid === maxp[stageid] - 1) {
         game.completed = true;
-        game.countPoints();
+        game.countPoints(1);
       }
     }
   };
@@ -750,8 +794,6 @@ function Player() {
     } while (i < maxe[stageid] && this.pos + resx / 4 >= oenemies[i].x);
 
   }
-
-
 }
 
 var player = new Player();
@@ -984,11 +1026,12 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
 
   this.draw = function () {
     var k = 0;
-    image(livebar, this.x - game.spos + 3, this.y - 19);
+
 
 //Draw Life Bars
     switch (this.type) {
       case 0:
+        image(livebar, this.x - game.spos + 3, this.y - 19);
         image(enemyimg, this.x - game.spos, this.y);
         for (j = 0; j < this.life; j++) {
           image(bar2, this.x - game.spos + 6 + k, this.y - 16);
@@ -997,6 +1040,7 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
         break;
 
       case 1:
+        image(livebar, this.x - game.spos + 3, this.y - 19);
         image(enemyimg2, this.x - game.spos, this.y);
         for (j = 0; j < this.life; j++) {
           image(bar1, this.x - game.spos + 6 + k, this.y - 16);
@@ -1006,9 +1050,10 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
 
       case 2:
         image(boss, this.x - game.spos, this.y);
+        image(livebar2, 383, 80);
         for (j = 0; j < this.life; j++) {
-          image(bar1, this.x - game.spos + 6 + k, this.y - 16);
-          k += 24;
+          image(bar3, 386 + k, 83);
+          k += 8;
         }
         break;
     }
@@ -1092,6 +1137,7 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
   };
 
   this.drop = function () {
+    game.enemiescounter++;
     //Create new enemy under boss
     this.x = oenemies[0].x + 40;
     this.y = oenemies[0].y;
@@ -1128,7 +1174,6 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
   };
 
   this.shoot = function (l) {
-    // console.log("Enemy shoot");
     if (this.type === 1 && this.life > 0) {
       if (player.x + game.spos >= this.x - 500 && player.x + game.spos <= this.x + 500 && this.time === 0) {
         this.time++;
@@ -1294,14 +1339,34 @@ function Bullet() {
     }
   };
   this.damageEnemy = function (d) {
-    // console.log(d);
+    if (oenemies[d].type === 2) game.esize = 150; else game.esize = 60;
     if (!this.damage && this.drawing && this.y <= oenemies[d].y + game.esize + this.size / 2 && this.y >= oenemies[d].y - this.size / 2) {
       if (this.x >= oenemies[d].x - this.size / 2 && this.x <= oenemies[d].x + game.esize + this.size / 2) {
         this.drawing = false;
         game.lifePoints(d, -1);
         if (oenemies[d].life === 0) {
-          if (oenemies[d].type === 0) score[stageid] += 150;
-          else score[stageid] += 250;
+          game.enemiescounter--;
+          if (stageid === 3 && game.enemiescounter === 0) {
+            game.ended = true;
+            game.countPoints(1);
+            if (game.thebestresult < game.generalscore) {
+              document.cookie = "level=0; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
+              game.newrecord = true;
+              game.thebestresult = game.generalscore;
+              document.cookie = "thebestresult=" + game.thebestresult + "; expires=Sat, 17 Aug 2019 10:45:00 UTC+01:00";
+            }
+          }
+          switch (oenemies[d].type) {
+            case 0:
+              game.score += 150;
+              break;
+            case 1:
+              game.score += 250;
+              break;
+            case 2:
+              game.score += 500;
+              break;
+          }
         }
       }
     }
@@ -1318,17 +1383,6 @@ function Bullet() {
     }
   };
 
-
-
-
-
-
-
-
-
-
-
-
 }
 
 //Loop variables
@@ -1342,8 +1396,10 @@ var score = [];
 var enemyimg;
 var enemyimg2;
 var livebar;
+var livebar2;
 var bar1;
 var bar2;
+var bar3;
 var heart;
 var boss;
 var pistol = [];
@@ -1353,8 +1409,10 @@ function preload() {
   enemyimg = loadImage('./assets/enemy.png');
   enemyimg2 = loadImage('./assets/enemy2.png');
   livebar = loadImage('./assets/livebar.png');
+  livebar2 = loadImage('./assets/livebar2.png');
   bar1 = loadImage('./assets/bar1.png');
   bar2 = loadImage('./assets/bar2.png');
+  bar3 = loadImage('./assets/bar3.png');
   heart = loadImage('./assets/heart.png');
   boss = loadImage('./assets/boss.png');
   for (i = 0; i < 6; i++) {
@@ -1386,7 +1444,6 @@ function draw() {
     case 3:
       //Controls
       break;
-
   }
 
 }
@@ -1451,6 +1508,11 @@ function keyPressed() {
       game.loadStage(stageid);
       game.completed = false;
       game.restartGame();
+    } else if (game.ended) {
+      game.ended = false;
+      game.generalscore = 0;
+      game.mode = 2;
+
     } else if (game.mode !== 0) game.paused = !game.paused; //Pause/Unpause
   }
   //Enter-Select Menu Entry
@@ -1472,18 +1534,4 @@ function keyReleased() {
     player.rise = false;
   }
 }
-
-// function bulletsCollision() {
-//   // for (i = 0; i < maxp[stageid]; i++) {
-//   //   for (j = 0; j < game.bmax; j++) {
-//   //     if (bullets[j][5]) {
-//   //       if (bullets[j][1] <= platforms[stageid][i][1] + platforms[stageid][i][3] + bullets[j][2] * 0.75 && bullets[j][1] >= platforms[stageid][i][1] - bullets[j][2] * 0.75) {
-//   //         if (bullets[j][0] >= platforms[stageid][i][0] - bullets[j][2] * 0.75 && bullets[j][0] <= platforms[stageid][i][0] + platforms[stageid][i][2] + bullets[j][2] * 0.75) {
-//   //           bullets[j][5] = false;
-//   //         }
-//   //       }
-//   //     }
-//   //   }
-//   // }
-// }
 
