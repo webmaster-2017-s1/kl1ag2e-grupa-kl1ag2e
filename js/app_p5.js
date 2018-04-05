@@ -51,7 +51,7 @@ function Game() {
   this.blife = 5;
 
 //Number of shot
-  this.noshot = 0;
+  this.noshot = 1;
   this.score = 0;
   this.points = 0;
   this.points2 = 0;
@@ -188,8 +188,8 @@ function Game() {
   this.countPoints = function (type) {
     switch (type) {
       case 0:
-        this.points = (60 * this.minutes + this.seconds) * 60 / this.maxtime;
-        if (this.noshot > 0) this.points2 = 50 / this.noshot; else this.points2 = 0;
+        this.points = (60 * this.minutes + this.seconds) * 600 / this.maxtime;
+        this.points2 = 500 / this.noshot;
         this.currentscore = Math.round(this.points + this.points2 + this.score);
         return this.currentscore + this.generalscore;
       case 1:
@@ -307,7 +307,7 @@ function Game() {
     this.seconds = 0;
     this.minutes = 3;
     this.score = 0;
-    this.noshot = 0;
+    this.noshot = 1;
     this.lastp = this.getLastPlatform();
     this.sstart = 0;
     this.newrecord = false;
@@ -371,7 +371,7 @@ function Game() {
     i = Math.max(this.rstart - 2, 0);
     do {
       if (player.pos - resx > oplatforms[i].x) this.rstart = i;
-      if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#0000FF');
+      if (i === maxp[stageid] - 1) fill('#00FF00'); else fill('#1A791C');
       // text(i, oplatforms[i].x - game.spos, oplatforms[i].y - 20);
       oplatforms[i].draw();
       i++;
@@ -384,6 +384,7 @@ function Game() {
     // Draw Spikes
     i = Math.max(this.sstart - 1, 0);
     do {
+      fill('#B81111');
       if (player.pos - resx > spikes[stageid][i][0]) this.sstart = i;
       ospikes[i].draw();
       i++;
@@ -397,35 +398,36 @@ function Game() {
     textSize(50);
     fill('#000000');
     textAlign(CENTER);
-    text("Congratulations!!!", resx / 2, 250);
-    text("Your current score:", resx / 2, 350);
-    text(this.generalscore, 640, 250);
-    text("Level " + (stageid + 1) + " Completed", 500, 400);
-    text("Press SPACE to Continue", 500, 700);
+    text("Congratulations!!!", resx / 2, 125);
+    text("Level " + (stageid + 1) + " Completed", resx / 2, 200);
+    text("Your current score:", resx / 2, 365);
+    text(this.generalscore, resx / 2, 420);
+    text("Press SPACE to Continue", resx / 2, 750);
     fill('#FFFFFF');
   };
 
   this.ending = function () {
     background(200);
     textSize(50);
+    textAlign(CENTER);
     fill('#000000');
-    text("Congratulations you have completed the game!", 500, 100);
+    text("Congratulations you have completed the game!", resx / 2, 250);
     if (this.newrecord) {
-      text("You beat your record!", 500, 300);
-      text("Your new record: " + this.generalscore, 500, 500);
+      text("You beat your record!", resx / 2, 350);
+      text("Your new record: " + this.generalscore, resx / 2, 450);
     } else {
-      text("Your result: " + this.generalscore, 500, 300);
-      text("Your the best result: " + this.thebestresult, 500, 500);
+      text("Your result: " + this.generalscore, resx / 2, 350);
+      text("Your the best result: " + this.thebestresult, resx / 2, 450);
     }
-    text("Press SPACE to Continue", 500, 700);
+    text("Press SPACE to Continue", resx / 2, 750);
     fill('#FFFFFF');
   };
 
   this.pause = function () {
     textAlign(CENTER);
     textSize(50);
-    fill("#00FF00");
-    text("WIP. Press Space to Continue :)", 50, 50);
+    fill("#000000");
+    text("Press Space to Continue", resx / 2, 750);
     fill('#FFFFFF');
   };
 
@@ -434,7 +436,7 @@ function Game() {
 
   this.play = function () {
     if (!(this.completed || this.paused || this.ended)) {
-      background(200);
+      background('#FFFCB6');
       this.drawObjects();
       this.physics();
     } else if (this.completed) this.stageCompleted(); else if (this.ended) this.ending(); else this.pause();
@@ -485,7 +487,7 @@ function Menu() {
 //Active button id
   this.btnid = 0;
 //Credits X-pos
-  this.creditsx = 483;
+  this.creditsx = resx / 2;
 //Credits scroll variable
   this.creditsy = 800;
 //Credits' strings
@@ -569,8 +571,8 @@ function Menu() {
       if (btnid === i) fill("#00FF00"); else fill("#FFFFFF");
       rect(this.btnx, this.btny[i], this.btnwidth, this.btnheight);
       fill("#000000");
-      textAlign(LEFT);
-      text(this.btntext[i], this.btnx + 60, this.btny[i] + 50);
+      textAlign(CENTER);
+      text(this.btntext[i], resx / 2 - 10, this.btny[i] + 50);
       fill("#FFFFFF");
     }
   };
@@ -1422,7 +1424,10 @@ function preload() {
 
 function setup() {
   frameRate(60);
-  createCanvas(resx, resy);
+  var cnv = createCanvas(resx, resy);
+  var x = (windowWidth - width) / 2;
+  var y = (windowHeight + 50 - height) / 2;
+  cnv.position(x, y);
   background(200);
 }
 
@@ -1534,4 +1539,3 @@ function keyReleased() {
     player.rise = false;
   }
 }
-
