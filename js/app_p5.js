@@ -6,33 +6,20 @@ var resy = 768;
 function Game() {
   //Screen rendering
   this.mode = 0;
-  //Scene position
-  // this.spos = 0;
   //Gravitation
   this.grav = 7;
 
-  //Size of Bullets
-  // this.bulletSize = 15;
-  //MAx number of Bullets
-  // this.bulletMax = 10;
-  // //Bullets speed
-  // this.bulletSpeed = 12;
-  // //Bullets life in seconds
-  // this.bulletLife = 5;
-
   this.rstart = 0;
-
-  this.cstart = 0;
   this.sstart = 0;
   this.estart = 0;
 
-
+  //Enemy size
   this.esize = 60;
 
-//Enemy speed
+  //Enemy speed
   this.espeed = 2;
 
-//Every second the opponent can shoot
+  //Every second the opponent can shoot
   this.ttshot = 2;
 
   this.minutes = 3;
@@ -43,48 +30,37 @@ function Game() {
 
   //Bullets size
   this.bsize = 12;
-//Max number of bullets
+  //Max number of bullets
   this.bmax = 10;
-//Bullets speed
+  //Bullets speed
   this.bspeed = 12;
-//Bullets life in seconds
+  //Bullets life in seconds
   this.blife = 5;
 
-//Number of shot
+  //Number of shot
   this.noshot = 1;
   this.score = 0;
   this.points = 0;
   this.points2 = 0;
   this.currentscore = 0;
   this.generalscore = 0;
-
+  //Game ended
   this.ended = false;
 
   this.enemiescounter = 0;
   //Time to drop Enemy
   this.tdrop = 0;
 
-
   //Minimum player position X-AXIS
   this.minx = 0;
-//Maximum player position X-AXIS
+  //Maximum player position X-AXIS
   this.maxx = 99999;
-//Minimum player position Y-AXIS
+  //Minimum player position Y-AXIS
   this.miny = 0;
-//Maximum player position Y-AXIS
+  //Maximum player position Y-AXIS
   this.maxy = 999999;
-//(FOR DEBUG)Maximum platform Y-AXIS
+  //(FOR DEBUG)Maximum platform Y-AXIS
   this.maxid = 0;
-//(FOR DEBUG)Minimum platform Y-AXIS
-  this.minid = -1;
-//(FOR DEBUG)Maximum platform X-AXIS
-  this.xmaxid = -1;
-//(FOR DEBUG)Minimum platform X-AXIS
-  this.xminid = -1;
-
-
-  // this.lastp = 0;
-
 
   this.lifePoints = function (id, number) {
     if (id === -1 && !player.nodamage) {
@@ -108,7 +84,7 @@ function Game() {
 
   //Load Platforms Spikes and Enemies&Clear Bullets
   this.loadStage = function (n) {
-//Load Platforms
+    //Load Platforms
     oplatforms = [];
     ospikes = [];
     oenemies = [];
@@ -157,10 +133,10 @@ function Game() {
 
   //New Game
   this.newGame = function () {
+    stageid = 0;
     this.loadStage(0);
     this.restartGame();
     this.mode = 1;
-
   };
 
   this.continueGame = function () {
@@ -173,7 +149,6 @@ function Game() {
       this.restartGame();
       this.mode = 1;
     }
-
   };
 
   this.getLastPlatform = function () {
@@ -282,8 +257,8 @@ function Game() {
     player.rise = false;
     player.jumpcounter = false;
     this.rstart = 0;
-    this.cstart = 0;
     this.estart = 0;
+    this.cstart = 0;
     player.life = 3;
     player.nodamage = false;
     player.godtime = 0;
@@ -311,7 +286,6 @@ function Game() {
     this.lastp = this.getLastPlatform();
     this.sstart = 0;
     this.newrecord = false;
-    this.endcounter = 0;
   };
 
 
@@ -346,15 +320,9 @@ function Game() {
 
   this.physics = function () {
     player.collision();
-    // debugcollision(this.maxid, this.minid, this.xmaxid, this.xminid); //Uncomment to debug collision
     player.gravity(this.maxy, this.maxid);
-
     if (player.rise) player.jump();
-
     this.bulletsCollision();
-    // damage();
-
-
     //Damage Player
     for (j = 0; j < this.bmax; j++) {
       obullets[j].damagePlayer();
@@ -466,7 +434,6 @@ function Game() {
 
   this.newrecord = false;
   this.thebestresult = this.getCookieToInt("thebestresult");
-  this.endcounter = 0;
 
 }
 
@@ -551,9 +518,8 @@ function Menu() {
           game.continueGame();
           break;
         case 2:
-          //Tutorial
-          // stageid = 2;
-          // inmenu = false;
+          //Controls
+          game.mode = 3;
           break;
         case 3:
           //Credits
@@ -592,9 +558,17 @@ function Menu() {
 
     }
     return -1;
+  };
+
+  this.drawControls = function () {
+    // ARROW LEFT/RIGHT Move Left/Right
+    // Z-Jump (Hold to jump higher)
+    // X-SHOOT
+    // ARROW UP/DOWN Aim
+    // SPACE Continue/Pause
+    background(200);
+    text("text", resx / 2, 100);
   }
-
-
 }
 
 var menu = new Menu();
@@ -744,13 +718,9 @@ function Player() {
     game.maxy = 999999;
     game.maxid = 0;
     game.miny = 0;
-    game.minid = -1;
     game.maxx = 999999;
-    game.xmaxid = -1;
     game.minx = 0;
-    game.xminid = -1;
     i = Math.max(game.cstart - 2, 0);
-    // console.log(i, maxp[stageid]);
     do {
       if (this.pos - resx / 2 > oplatforms[i].x) game.cstart = i;
       //***************************
@@ -814,7 +784,6 @@ function Platform(x, y, width, height) {
   this.collisionLeft = function () {
     if (this.x < game.maxx) {
       game.maxx = this.x;
-      game.xmaxid = i;
     }
   };
 
@@ -822,7 +791,6 @@ function Platform(x, y, width, height) {
     if (this.x + this.width <= player.pos) {
       if (this.x >= game.minx) {
         game.minx = this.x + this.width;
-        game.xminid = i;
       }
     }
   };
@@ -838,8 +806,6 @@ function Platform(x, y, width, height) {
     if (this.y + this.height < player.y) {
       if (this.y + this.height > game.miny) {
         game.miny = this.y + this.height;
-        // jheight = Math.min(game.miny, 150);
-        game.minid = i;
       }
     }
   }
@@ -1188,9 +1154,6 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
 
 }
 
-var direction = [];
-direction[0] = true;
-
 var obullets = [];
 
 for (i = 0; i < 30; i++) {
@@ -1393,7 +1356,6 @@ var j = 0;
 
 var score = [];
 
-
 //Images
 var enemyimg;
 var enemyimg2;
@@ -1447,7 +1409,7 @@ function draw() {
       menu.drawCredits();
       break;
     case 3:
-      //Controls
+      menu.drawControls();
       break;
   }
 
@@ -1461,16 +1423,11 @@ function keyboardEvent() {
   if (keyIsDown(RIGHT_ARROW) && !game.paused) {
     player.move(1);
     player.direction = 4;
-
-    direction[0] = true;
-    direction[1] = false;
   }
 
   if (keyIsDown(LEFT_ARROW) && !game.paused) {
     player.move(-1);
     player.direction = 1;
-    direction[1] = true;
-    direction[0] = false;
   }
 
   if (player.direction <= 2) player.direction = 1; else player.direction = 4;
@@ -1479,15 +1436,10 @@ function keyboardEvent() {
   if (keyIsDown(UP_ARROW)) {
     if (player.direction === 1) player.direction = 2; else player.direction = 3; //UPLEFT/UPRIGHT
   }
-  direction[2] = keyIsDown(UP_ARROW);
 
   if (keyIsDown(DOWN_ARROW)) {
     if (player.direction === 1) player.direction = 0; else player.direction = 5;//DOWNLEFT/DOWNRIGHT
   }
-
-
-  direction[3] = keyIsDown(DOWN_ARROW);
-
   return false;
 }
 
@@ -1506,7 +1458,7 @@ function keyPressed() {
 
   //SPACE
   if (keyCode === 32) {
-    if (game.mode === 2) game.mode = 0; //Go to Menu
+    if (game.mode === 2 || game.mode === 3) game.mode = 0; //Go to Menu
     else if (game.completed) {
       //Continue
       stageid++;
