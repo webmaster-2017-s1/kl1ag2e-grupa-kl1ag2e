@@ -1,5 +1,5 @@
 // kod projektu Gra Platformowa
-//Canvas Resolutnion
+//Canvas Resolution
 var resx = 1366;
 var resy = 768;
 
@@ -561,13 +561,17 @@ function Menu() {
   };
 
   this.drawControls = function () {
-    // ARROW LEFT/RIGHT Move Left/Right
-    // Z-Jump (Hold to jump higher)
-    // X-SHOOT
-    // ARROW UP/DOWN Aim
-    // SPACE Continue/Pause
     background(200);
-    text("text", resx / 2, 100);
+    fill("#000000");
+    textAlign(CENTER);
+    textStyle(BOLD);
+    text("ARROW LEFT/RIGHT - Move Left/Right", resx / 2, 175);
+    text("Z - Jump (Hold to jump higher)", resx / 2, 275);
+    text("X - Shoot", resx / 2, 375);
+    text("ARROW UP/DOWN - Aim", resx / 2, 475);
+    text("SPACE - Continue/Pause", resx / 2, 575);
+    textStyle(NORMAL);
+    fill("#FFFFFF");
   }
 }
 
@@ -999,7 +1003,7 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
 //Draw Life Bars
     switch (this.type) {
       case 0:
-        image(livebar, this.x - game.spos + 3, this.y - 19);
+        image(lifebar, this.x - game.spos + 3, this.y - 19);
         image(enemyimg, this.x - game.spos, this.y);
         for (j = 0; j < this.life; j++) {
           image(bar2, this.x - game.spos + 6 + k, this.y - 16);
@@ -1008,7 +1012,7 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
         break;
 
       case 1:
-        image(livebar, this.x - game.spos + 3, this.y - 19);
+        image(lifebar, this.x - game.spos + 3, this.y - 19);
         image(enemyimg2, this.x - game.spos, this.y);
         for (j = 0; j < this.life; j++) {
           image(bar1, this.x - game.spos + 6 + k, this.y - 16);
@@ -1018,7 +1022,7 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
 
       case 2:
         image(boss, this.x - game.spos, this.y);
-        image(livebar2, 383, 80);
+        image(lifebar2, 383, 80);
         for (j = 0; j < this.life; j++) {
           image(bar3, 386 + k, 83);
           k += 8;
@@ -1359,8 +1363,8 @@ var score = [];
 //Images
 var enemyimg;
 var enemyimg2;
-var livebar;
-var livebar2;
+var lifebar;
+var lifebar2;
 var bar1;
 var bar2;
 var bar3;
@@ -1372,8 +1376,8 @@ var pistol = [];
 function preload() {
   enemyimg = loadImage('./assets/enemy.png');
   enemyimg2 = loadImage('./assets/enemy2.png');
-  livebar = loadImage('./assets/livebar.png');
-  livebar2 = loadImage('./assets/livebar2.png');
+  lifebar = loadImage('./assets/lifebar.png');
+  lifebar2 = loadImage('./assets/lifebar2.png');
   bar1 = loadImage('./assets/bar1.png');
   bar2 = loadImage('./assets/bar2.png');
   bar3 = loadImage('./assets/bar3.png');
