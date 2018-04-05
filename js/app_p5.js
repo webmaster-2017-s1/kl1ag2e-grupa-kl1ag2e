@@ -1422,7 +1422,10 @@ function preload() {
 
 function setup() {
   frameRate(60);
-  createCanvas(resx, resy);
+  var cnv = createCanvas(resx, resy);
+  var x = (windowWidth - width) / 2;
+  var y = (windowHeight + 50 - height) / 2;
+  cnv.position(x, y);
   background(200);
 }
 
@@ -1534,4 +1537,3 @@ function keyReleased() {
     player.rise = false;
   }
 }
-
