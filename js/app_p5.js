@@ -997,38 +997,30 @@ function Enemy(x, y, eminx, emaxx, direction, type, time, life, drawing, miny, m
 
 
   this.draw = function () {
-    var k = 0;
-
-
-//Draw Life Bars
+    //Draw Life Bars
     switch (this.type) {
       case 0:
         image(lifebar, this.x - game.spos + 3, this.y - 19);
         image(enemyimg, this.x - game.spos, this.y);
-        for (j = 0; j < this.life; j++) {
-          image(bar2, this.x - game.spos + 6 + k, this.y - 16);
-          k += 16;
-        }
+        fill("#FD8600");
+        rect(this.x - game.spos + 5, this.y - 17, 16 * this.life + 1, 6);
         break;
 
       case 1:
         image(lifebar, this.x - game.spos + 3, this.y - 19);
         image(enemyimg2, this.x - game.spos, this.y);
-        for (j = 0; j < this.life; j++) {
-          image(bar1, this.x - game.spos + 6 + k, this.y - 16);
-          k += 24;
-        }
+        fill("#FD8600");
+        rect(this.x - game.spos + 5, this.y - 17, 24 * this.life + 1, 6);
         break;
 
       case 2:
         image(boss, this.x - game.spos, this.y);
         image(lifebar2, 383, 80);
-        for (j = 0; j < this.life; j++) {
-          image(bar3, 386 + k, 83);
-          k += 8;
-        }
+        fill("#A50000");
+        rect(385, 82, 8 * this.life + 1, 26);
         break;
     }
+    fill("#FFFFFF");
   };
 
 
@@ -1365,9 +1357,6 @@ var enemyimg;
 var enemyimg2;
 var lifebar;
 var lifebar2;
-var bar1;
-var bar2;
-var bar3;
 var heart;
 var boss;
 var pistol = [];
@@ -1378,9 +1367,6 @@ function preload() {
   enemyimg2 = loadImage('./assets/enemy2.png');
   lifebar = loadImage('./assets/lifebar.png');
   lifebar2 = loadImage('./assets/lifebar2.png');
-  bar1 = loadImage('./assets/bar1.png');
-  bar2 = loadImage('./assets/bar2.png');
-  bar3 = loadImage('./assets/bar3.png');
   heart = loadImage('./assets/heart.png');
   boss = loadImage('./assets/boss.png');
   for (i = 0; i < 6; i++) {

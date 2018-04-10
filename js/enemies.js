@@ -172,7 +172,7 @@ enemies[2][9][2] = 8600;
 enemies[2][9][3] = 8790;
 enemies[2][9][4] = true;
 enemies[2][9][5] = 1;
-enemies[2][9][6] = -1;
+enemies[2][9][6] = 0;
 enemies[2][9][7] = 2;
 enemies[2][9][8] = false;
 
