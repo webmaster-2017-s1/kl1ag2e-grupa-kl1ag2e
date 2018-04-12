@@ -1376,11 +1376,19 @@ function preload() {
 
 function setup() {
   frameRate(60);
-  var cnv = createCanvas(resx, resy);
-  var x = (windowWidth - width) / 2;
-  var y = (windowHeight + 50 - height) / 2;
-  cnv.position(x, y);
+  cnv = createCanvas(resx, resy);
+  centerCanvas();
   background(200);
+}
+
+function centerCanvas() {
+  var x = (windowWidth - width) / 2;
+  var y = (windowHeight + 25 - height) / 2;
+  cnv.position(x, y);
+}
+
+function windowResized() {
+  centerCanvas();
 }
 
 function draw() {
